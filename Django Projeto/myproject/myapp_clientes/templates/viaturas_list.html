@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Viaturas</title>
+</head>
+<body>
+    <h1>Lista de Viaturas</h1>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Matricula</th>
+                <th>Modelo</th>
+                <th>Marca</th>
+                <th>Cor</th>
+                <th>Detalhes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for viatura in viaturas %}
+                <tr>
+                    <td>{{ viatura.0 }}</td>
+                    <td>{{ viatura.1 }}</td>
+                    <td>{{ viatura.2 }}</td>
+                    <td>{{ viatura.3 }}</td>
+                    <td>{{ viatura.4 }}</td>
+                    <td><a href="{% url 'viatura_detail' viatura.0 %}">Ver Detalhes</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

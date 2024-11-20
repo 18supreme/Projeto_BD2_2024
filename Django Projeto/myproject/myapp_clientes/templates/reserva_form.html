@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario de Reserva</title>
+</head>
+<body>
+    <h1>Formulário de Reserva</h1>
+    <h2>{{ viatura.marca }} {{ viatura.modelo }} ({{ viatura.ano }})</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        <label for="data_inicio">Data de Início:</label>
+        <input type="date" id="data_inicio" name="data_inicio" required><br><br>
+        
+        <label for="data_fim">Data de Fim:</label>
+        <input type="date" id="data_fim" name="data_fim" required><br><br>
+        
+        <label for="danos">Danos:</label>
+        <textarea id="danos" name="danos"></textarea><br><br>
+        
+        <button type="submit">Confirmar Reserva</button>
+    </form>
+</body>
+</html>

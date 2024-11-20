@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detalhes da Viatura</title>
+</head>
+<body>
+    <h1>Detalhes da Viatura</h1>
+
+    {% if viatura %}
+        <ul>
+            <li><strong>Matricula:</strong> {{ viatura.1 }}</li>
+            <li><strong>Modelo:</strong> {{ viatura.4 }}</li>
+            <li><strong>Marca:</strong> {{ viatura.5 }}</li>
+            <li><strong>Tipo de Viatura:</strong> {{ viatura.6 }}</li>
+            <li><strong>Cor:</strong> {{ viatura.7 }}</li>
+            <li><strong>Estado:</strong> {{ viatura.8 }}</li>
+            <li><strong>Quilometragem:</strong> {{ viatura.2 }}</li>
+            <li><strong>Ano:</strong> {{ viatura.3 }}</li>
+        </ul>
+    {% else %}
+        <p>{{ error }}</p>
+    {% endif %}
+</body>
+</html>
