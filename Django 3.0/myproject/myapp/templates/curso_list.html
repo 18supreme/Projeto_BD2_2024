@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Cursos</title>
+</head>
+<body>
+    <h1>Lista de Cursos</h1>
+    <a href="{% url 'curso_create' %}">Novo Curso</a>
+    <ul>
+        {% for curso in cursos %}
+            <li>
+                <a href="{% url 'curso_detail' curso.pk %}">{{ curso }}</a> |
+                <a href="{% url 'curso_update' curso.pk %}">Editar</a> |
+                <a href="{% url 'curso_delete' curso.pk %}">Excluir</a>
+            </li>
+        {% empty %}
+            <li>Nenhum curso encontrado.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

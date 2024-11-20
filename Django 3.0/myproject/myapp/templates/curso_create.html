@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Curso</title>
+</head>
+<body>
+    <h1>Criar Novo Curso</h1>
+    <form method="post" action="{% url 'curso_create' %}">
+        {% csrf_token %}
+        
+        <div>
+            <label for="nome">Nome do Curso:</label><br>
+            <input type="text" name="nome" required><br>
+        </div>
+
+        <div>
+            <label for="tipo_curso">Tipo do Curso (código numérico):</label><br>
+            <input type="number" name="tipo_curso" required><br>
+        </div>
+
+        <div>
+            <label for="apresent">Descrição do Curso:</label><br>
+            <textarea name="apresent" required></textarea><br>
+        </div>
+
+        <div>
+            <label for="said_prof">Saídas Profissionais:</label><br>
+            <textarea name="said_prof" required></textarea><br>
+        </div>
+
+        <h2>Plano Curricular</h2>
+        <div id="curricular-fields">
+            <div class="curricular-entry">
+                <label for="disciplina">Disciplina:</label>
+                <input type="text" name="disciplina" required>
+                <label for="sem">Semanas:</label>
+                <input type="number" name="sem" required>
+                <label for="ano">Ano:</label>
+                <input type="number" name="ano" required>
+                <label for="ht">Horas de Trabalho:</label>
+                <input type="number" name="ht" required>
+                <button type="button" onclick="removeEntry(this)">Remover</button>
+            </div>
+        </div>
+        <button type="button" onclick="addEntry()">Adicionar Disciplina</button>
+
+        <div>
+            <label for="avqual">Avaliações de Qualidade (separadas por vírgula):</label><br>
+            <input type="text" name="avqual" placeholder="Ex: 7,8,9"><br>
+        </div>
+
+        <div>
+            <label for="outr_inf">Outras Informações:</label><br>
+            <input type="text" name="outr_inf" placeholder='Exemplo: {"info": "detalhes adicionais"}'><br>
+        </div>
+
+        <button type="submit">Criar Curso</button>
+    </form>
+
+    <script>
+        function addEntry() {
+            const container = document.getElementById('curricular-fields');
+            const newEntry = document.createElement('div');
+            newEntry.className = 'curricular-entry';
+            newEntry.innerHTML = `
+                <label for="disciplina">Disciplina:</label>
+                <input type="text" name="disciplina" required>
+                <label for="sem">Semanas:</label>
+                <input type="number" name="sem" required>
+                <label for="ano">Ano:</label>
+                <input type="number" name="ano" required>
+                <label for="ht">Horas de Trabalho:</label>
+                <input type="number" name="ht" required>
+                <button type="button" onclick="removeEntry(this)">Remover</button>
+            `;
+            container.appendChild(newEntry);
+        }
+
+        function removeEntry(button) {
+            button.parentElement.remove();
+        }
+    </script>
+</body>
+</html>

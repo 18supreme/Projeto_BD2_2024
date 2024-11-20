@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excluir Curso</title>
+</head>
+<body>
+    <h1>Excluir Curso</h1>
+    <p>Você tem certeza que deseja excluir "{{ curso }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Confirmar Exclusão</button>
+    </form>
+    <a href="{% url 'curso_list' %}">Cancelar</a>
+</body>
+</html>
