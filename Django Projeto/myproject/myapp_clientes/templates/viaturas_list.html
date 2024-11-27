@@ -8,29 +8,25 @@
 <body>
     <h1>Lista de Viaturas</h1>
     
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Matricula</th>
-                <th>Modelo</th>
-                <th>Marca</th>
-                <th>Cor</th>
-                <th>Detalhes</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div style="margin: 50px;"> <!--- Margem -->
+        <div style="display: flex; flex-direction: row; flex-wrap: wrap; row-gap:60px; column-gap: 4%;"> <!--- FlexBox -->
             {% for viatura in viaturas %}
-                <tr>
-                    <td>{{ viatura.0 }}</td>
-                    <td>{{ viatura.1 }}</td>
-                    <td>{{ viatura.2 }}</td>
-                    <td>{{ viatura.3 }}</td>
-                    <td>{{ viatura.4 }}</td>
-                    <td><a href="{% url 'viatura_detail' viatura.0 %}">Ver Detalhes</a></td>
-                </tr>
+                <a href="{% url 'viatura_detail' viatura.0 %}" style="display: contents;">
+                    <div style="height: 360px; width: 300px; border-radius: 10px; background-color: black;"> <!--- Card -->
+                        <div style="background-color: white; margin: 25px; height: 150px;"> <!--- imagem -->
+                                
+                        </div>
+                        <div style="background-color: white; margin: 25px; color: black;"> <!--- Detalhes -->
+                                <p style="font-size: 20px; font-weight: bold;">{{ viatura.3 }} {{ viatura.2 }}</p>
+                                <p>Tipo combustivel</p>
+                                <p>Transmissão</p>  
+                                <p style="font-size: 20px; font-weight: bolder; color: red;">Preço</p>
+                        </div>
+
+                    </div>
+                </a>
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+    </div>
 </body>
 </html>
