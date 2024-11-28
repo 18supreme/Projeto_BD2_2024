@@ -1,21 +1,20 @@
 {% extends 'clientes_home.html' %}
 
-{% block title %}Viaturas{% endblock %}
+{% block title %}Reservas{% endblock %}
 
 {% block content %}
     <div style="margin: 50px;"> <!--- Margem -->
         <div style="display: flex; flex-direction: row; flex-wrap: wrap; row-gap:60px; column-gap: 4%;"> <!--- FlexBox -->
-            {% for viatura in viaturas %}
-                <a href="{% url 'viatura_detail' viatura.0 %}" style="display: contents;">
+            {% for reserva in reservas %}
+                <a href="" style="display: contents;">
                     <div style="height: 360px; width: 300px; border-radius: 10px; background-color: black;"> <!--- Card -->
                         <div style="margin: 25px; height: 150px; text-align: center;"> <!--- imagem -->
                                 <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/11716181-ilustracao-de-desenho-animado-de-carro-vetor.jpg" style="height: 150px; width: auto;">
                         </div>
                         <div style="background-color: white; margin: 25px; color: black;"> <!--- Detalhes -->
-                                <p style="font-size: 20px; font-weight: bold;">{{ viatura.2 }} {{ viatura.3 }}</p>
-                                <p>Tipo combustivel</p>
-                                <p>Transmissão</p>  
-                                <p style="font-size: 20px; font-weight: bolder; color: red;">Preço</p>
+                                <p style="font-size: 20px; font-weight: bold;">{{ reserva.4 }} - {{ reserva.5}}</p>
+                                <p>Marca: {{ reserva.1}}</p>
+                                <p>Modelo: {{ reserva.2}}</p>
                         </div>
 
                     </div>

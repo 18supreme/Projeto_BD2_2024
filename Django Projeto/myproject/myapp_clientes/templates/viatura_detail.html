@@ -1,23 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Detalhes da Viatura</title>
-</head>
-<body>
-    <h1> Detalhe da Viatura </h1>
+{% extends 'clientes_home.html' %}
+
+{% block title %}Viaturas{% endblock %}
+
+{% block content %}
     {% if viatura %}
-    <div style="margin: 100px;"> <!--- Margin -->
-        <div style="width: 100%; text-align: right; margin: 0px 0px 10px 0px;">
-            {% if viatura.8 == 'Disponível' %}  <button style="width: 10vw; min-width: 150px; max-width: 200px; height: 5vh; min-height: 50px; max-height: 75px; border-radius: 10px; font-size: 15px; color: white; font-weight: bolder; background-color: green;"> Reservar </button>
-                {% else %}<button style="width: 10vw; min-width: 150px; max-width: 200px; height: 5vh; min-height: 50px; max-height: 75px; border-radius: 10px; font-size: 15px; color: white; font-weight: bolder; background-color: red;"> Indisponivel </button>
-                {% endif %}
-        </div>
+    <div style="margin: 50px;"> <!--- Margin -->
+
     <div style="display: flex; flex-direction: row; flex-wrap: wrap; column-gap: 50px;"> <!--- flex -->
         <div style="flex-basis: 55%; height: 500px; width: 100%; background-color: gray;"> <!--- Imagem -->
                 
         </div>
         <div style="flex-basis: 40%;"> <!--- Detalhes -->
-            <text style="font-weight: bolder; font-size: 30px;"> Detalhes </text>
+            <div style="display: flex; flex-direction: row; row-gap: 25px; flex-wrap: wrap; justify-content: flex-start;">
+                <div style="display: flex; flex-direction: column; row-gap: 0px; flex-basis: 50%;">
+                    <text style="font-weight: bolder; font-size: 30px;"> Detalhes </text>
+                </div>
+                <div style="display: flex; flex-direction: column; row-gap: 0px; flex-basis: 50%;">
+                    <div style="width: 100%; text-align: right; margin: 0px 0px 10px 0px;">
+                        {% if viatura.8 == 'Disponível' %}  <button style="width: 10vw; min-width: 150px; max-width: 200px; height: 5vh; min-height: 50px; max-height: 75px; border-radius: 10px; font-size: 15px; color: white; font-weight: bolder; background-color: green;"> Reservar </button>
+                            {% else %}<button style="width: 10vw; min-width: 150px; max-width: 200px; height: 5vh; min-height: 50px; max-height: 75px; border-radius: 10px; font-size: 15px; color: white; font-weight: bolder; background-color: red;"> Indisponivel </button>
+                            {% endif %}
+                    </div>
+                </div>
+            </div>
             <div style="display: flex; flex-direction: row; row-gap: 25px; flex-wrap: wrap; margin-top: 25px; justify-content: flex-start;">
                 <div style="display: flex; flex-direction: column; row-gap: 0px; flex-basis: 50%;">
                     <text style="font-weight: bolder;">Marca </text>
@@ -50,7 +55,7 @@
             </div>
         </div>
     </div>
-    <div style="margin: 50px 0px 0px 0px;"> <!--- outros detalhes -->
+    <div style="margin: 25px 0px 0px 0px;"> <!--- outros detalhes -->
         <text style="font-weight: bolder; font-size: 20px;"> Destaques </text>
         <div style="display: flex; flex-direction: row; flex-wrap: wrap; column-gap: 2.6%; row-gap: 60px;">
             <div style="background-color: black; height: 150px; width: 150px;">
@@ -103,5 +108,4 @@
     {% else %}
         <p>{{ error }}</p>
     {% endif %}
-</body>
-</html>
+{% endblock %}
