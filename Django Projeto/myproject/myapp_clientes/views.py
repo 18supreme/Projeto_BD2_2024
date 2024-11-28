@@ -10,12 +10,22 @@ def clientes_home(request):
         """)
         total_reservas = cursor.fetchone()[0]
 
+        cursor.execute("""
+            SELECT 
+                ROUND(
+                    (SUM(CASE WHEN Danos = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(*), 
+                    1
+                ) AS percentagem_com_danos
+            FROM reserva;
+        """)
+        percentagem_danos = cursor.fetchone()[0]
+
         # Executar a consulta para obter a marca mais usada
         cursor.execute("""
             SELECT marca.nome AS marca_preferida
             FROM reserva
-            JOIN viatura ON reserva.id_viatura = viatura.id_viatura
-            JOIN marca ON viatura.id_marca = marca.id_marca
+            JOIN viatura ON reserva.viatura_id = viatura.id_viatura
+            JOIN marca ON viatura.marca_id = marca.id_marca
             GROUP BY marca.nome
             ORDER BY COUNT(*) DESC
             LIMIT 1;
@@ -26,22 +36,40 @@ def clientes_home(request):
         cursor.execute("""
             SELECT modelo.nome AS modelo_preferido
             FROM reserva
-            JOIN viatura ON reserva.id_viatura = viatura.id_viatura
-            JOIN modelo ON viatura.id_modelo = modelo.id_modelo
+            JOIN viatura ON reserva.viatura_id = viatura.id_viatura
+            JOIN modelo ON viatura.modelo_id = modelo.id_modelo
             GROUP BY modelo.nome
             ORDER BY COUNT(*) DESC
             LIMIT 1;
         """)
         modelo_preferido = cursor.fetchone()
 
+        # Executar a consulta para obter a média de KM realizados
+        cursor.execute("""
+            SELECT 
+                CONCAT(COALESCE(ROUND(SUM(KMPercorridos) * 1.0 / COUNT(KMPercorridos), 2), 0), ' KM') AS media_km
+            FROM reserva;
+        """)
+        MédiaKmPercorridos = cursor.fetchone()[0]  # Usando fetchall() para obter as 3 viaturas
+
+        # Executar a consulta para obter a média de KM realizados
+        cursor.execute("""
+            SELECT 
+                CONCAT(COALESCE(SUM(KMPercorridos), 0), ' KM') AS total_km
+            FROM reserva;
+        """)
+        TotalKmPercorridos = cursor.fetchone()[0]  # Usando fetchall() para obter as 3 viaturas
+        
         # Executar a consulta para obter as 3 viaturas mais requisitadas
         cursor.execute("""
-            SELECT viatura.id_viatura, marca.nome AS marca, modelo.nome AS modelo, COUNT(reserva.id_reserva) AS total_reservas
+            SELECT viatura.id_viatura, marca.nome AS marca, modelo.nome AS modelo, tipocaixa.nome AS caixa, COUNT(reserva.id_reserva) AS total_reservas
             FROM reserva
-            JOIN viatura ON reserva.id_viatura = viatura.id_viatura
-            JOIN marca ON viatura.id_marca = marca.id_marca
-            JOIN modelo ON viatura.id_modelo = modelo.id_modelo
-            GROUP BY viatura.id_viatura, viatura.id_modelo, marca.nome, modelo.nome
+            JOIN viatura ON reserva.viatura_id = viatura.id_viatura
+            JOIN marca ON viatura.marca_id = marca.id_marca
+            JOIN modelo ON viatura.modelo_id = modelo.id_modelo
+            JOIN tipocaixa ON tipocaixa.ID_Caixa = viatura.Tipocaixa_ID
+            GROUP BY viatura.id_viatura, modelo.nome, tipocaixa.nome, marca.nome, modelo.nome
+                       
             ORDER BY total_reservas DESC
             LIMIT 3;
         """)
@@ -49,9 +77,12 @@ def clientes_home(request):
 
     # Passar os valores para o template
     return render(request, 'clientes_home.html', {
-        'total_reservas': total_reservas,
-        'marca_preferida': marca_preferida[0] if marca_preferida else "Nenhuma marca encontrada",
-        'modelo_preferido': modelo_preferido[0] if modelo_preferido else "Nenhum modelo encontrado",
+        'total_reservas': total_reservas if total_reservas else "Sem reservas",
+        'percentagem_danos': percentagem_danos if percentagem_danos else "0",
+        'marca_preferida': marca_preferida[0] if marca_preferida else "-",
+        'modelo_preferido': modelo_preferido[0] if modelo_preferido else "-",
+        'mediaKmPercorridos': MédiaKmPercorridos if MédiaKmPercorridos else "0",
+        'TotalKmPercorridos': TotalKmPercorridos if TotalKmPercorridos else "0",
         'viaturas': viaturas_tendencias  # Passando a lista de viaturas
     })
 
@@ -61,9 +92,9 @@ def viaturas_list(request):
         cursor.execute("""
             SELECT vi.id_viatura, vi.matricula, mo.nome AS modelo, ma.nome AS marca, co.nome AS cor
             FROM viatura vi
-            JOIN modelo mo ON vi.id_modelo = mo.id_modelo
-            JOIN marca ma ON vi.id_marca = ma.id_marca
-            JOIN cores co ON vi.id_cor = co.id_cor
+            JOIN modelo mo ON vi.modelo_id = mo.id_modelo
+            JOIN marca ma ON vi.marca_id = ma.id_marca
+            JOIN cores co ON vi.cor_id = co.id_cor
         """)
         viaturas = cursor.fetchall()
     
@@ -71,30 +102,35 @@ def viaturas_list(request):
     return render(request, 'viaturas_list.html', {'viaturas': viaturas})
 
 def viatura_detail(request, id):
-    # Usar a conexão do Django para executar a consulta SQL
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT v.ID_Viatura, v.Matricula, v.KM, v.Ano, 
-                   mv.Nome AS Modelo, m.Nome AS Marca, 
-                   tv.Nome AS Tipo_Viatura, c.Nome AS Cor, 
-                   ev.Estado
+            SELECT 
+                v.ID_Viatura, v.Matricula, v.KM, v.Ano, 
+                mv.Nome AS Modelo, 
+                m.Nome AS Marca, 
+                tv.Nome AS Tipo_Viatura, 
+                c.Nome AS Cor, 
+                ev.Estado AS Estado_Viatura, 
+                i.Nome AS Combustivel, 
+                tc.Nome AS Tipo_Caixa, 
+                tr.Nome AS Traccao
             FROM Viatura v
-            JOIN Modelo mv ON mv.ID_Modelo = v.ID_Modelo
-            JOIN Marca m ON m.ID_Marca = v.ID_Marca
-            JOIN TipoViatura tv ON tv.ID_Tipo_Viatura = v.ID_Tipo_Viatura
-            JOIN Cores c ON c.ID_Cor = v.ID_Cor
-            JOIN EstadoViatura ev ON ev.ID_Estado_Viatura = v.ID_Estado_Viatura
+            JOIN Modelo mv ON mv.ID_Modelo = v.Modelo_ID
+            JOIN Marca m ON m.ID_Marca = v.Marca_ID
+            JOIN TipoViatura tv ON tv.ID_TipoViatura = v.Tipo_Viatura_ID
+            JOIN Cores c ON c.ID_Cor = v.Cor_ID
+            JOIN EstadoViatura ev ON ev.ID_EstadoViatura = v.Estado_Viatura_ID
+            JOIN Combustivel i ON i.ID_Combustivel = v.Combustivel_ID
+            JOIN TipoCaixa tc ON tc.ID_Caixa = v.Tipocaixa_ID
+            JOIN Traccao tr ON tr.ID_Traccao = v.Traccao_ID
             WHERE v.ID_Viatura = %s
-        """, [id])
+        """, [id])  # Passando o id como parâmetro de forma segura
 
-        # Recuperar o resultado da consulta
-        viatura = cursor.fetchone()  # fetchone() para pegar um único registro
+        viatura = cursor.fetchone()  # Obtém uma linha de resultado
 
     if viatura:
-        # Passar os dados da viatura para o template
         return render(request, 'viatura_detail.html', {'viatura': viatura})
     else:
-        # Caso não exista a viatura, redirecionar ou exibir uma mensagem de erro
         return render(request, 'viatura_detail.html', {'error': 'Viatura não encontrada.'})
     
 def reservas_list(request):
@@ -112,13 +148,13 @@ def reservas_list(request):
             FROM 
                 reserva
             JOIN 
-                viatura ON viatura.id_viatura = reserva.id_viatura
+                viatura ON viatura.id_viatura = reserva.viatura_id
             JOIN 
-                marca ON viatura.id_marca = marca.id_marca
+                marca ON viatura.marca_id = marca.id_marca
             JOIN 
-                modelo ON viatura.id_modelo = modelo.id_modelo
+                modelo ON viatura.modelo_id = modelo.id_modelo
             JOIN 
-                estadoreserva ON reserva.estado_reserva = estadoreserva.id_estado_reserva
+                estadoreserva ON reserva.EstadoReserva_ID = estadoreserva.ID_Estado_Reserva
             ORDER BY 
                 reserva.data_inicio DESC;
         """)
@@ -126,3 +162,7 @@ def reservas_list(request):
     
     # Retorna a lista de viaturas para o template
     return render(request, 'reservas_list.html', {'reservas': reservas})
+
+def criar_reserva(request,id):
+
+    return render(request, 'reserva_form.html')

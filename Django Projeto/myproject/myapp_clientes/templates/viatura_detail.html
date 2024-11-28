@@ -17,7 +17,7 @@
                 </div>
                 <div style="display: flex; flex-direction: column; row-gap: 0px; flex-basis: 50%;">
                     <div style="width: 100%; text-align: right; margin: 0px 0px 10px 0px;">
-                        {% if viatura.8 == 'Disponível' %}  <button style="width: 10vw; min-width: 150px; max-width: 200px; height: 5vh; min-height: 50px; max-height: 75px; border-radius: 10px; font-size: 15px; color: white; font-weight: bolder; background-color: green;"> Reservar </button>
+                        {% if viatura.8 == 'Disponível' %}  <button style="width: 10vw; min-width: 150px; max-width: 200px; height: 5vh; min-height: 50px; max-height: 75px; border-radius: 10px; font-size: 15px; color: white; font-weight: bolder; background-color: green;" onclick="window.location.href='{% url 'criar_reserva' viatura.0 %}'"> Reservar </button>
                             {% else %}<button style="width: 10vw; min-width: 150px; max-width: 200px; height: 5vh; min-height: 50px; max-height: 75px; border-radius: 10px; font-size: 15px; color: white; font-weight: bolder; background-color: red;"> Indisponivel </button>
                             {% endif %}
                     </div>
@@ -64,7 +64,7 @@
                     Combustivel 
                 </div>
                 <div style="color: white; text-align: center;"> 
-                    Diesel 
+                    {{ viatura.9}} 
                 </div>
             </div>
             <div style="background-color: black; height: 150px; width: 150px;">

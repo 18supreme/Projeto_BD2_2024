@@ -66,7 +66,7 @@
                             <span style="font-size: 35px; color: white;">% de danos</span>
                         </div>
                         <div>
-                            <span style="font-size: 50px; color: rgb(200, 21, 21);">12%</span>
+                            <span style="font-size: 50px; color: rgb(200, 21, 21);">{{percentagem_danos}}%</span>
                         </div>
                     </div>
                     <div style="background-color: black; width: 350px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
@@ -90,7 +90,7 @@
                             <span style="font-size: 35px; color: white;">Média de KM</span>
                         </div>
                         <div>
-                            <span style="font-size: 50px; color: rgb(200, 21, 21);">990 KM</span>
+                            <span style="font-size: 50px; color: rgb(200, 21, 21);">{{mediaKmPercorridos}}</span>
                         </div>
                     </div>
                     <div style="background-color: black; width: 350px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
@@ -98,7 +98,7 @@
                             <span style="font-size: 35px; color: white;">Total de KM</span>
                         </div>
                         <div>
-                            <span style="font-size: 50px; color: rgb(200, 21, 21);">12.000 KM</span>
+                            <span style="font-size: 50px; color: rgb(200, 21, 21);">{{TotalKmPercorridos}}</span>
                         </div>
                     </div>
                 </div>
@@ -110,24 +110,28 @@
                     <div style="display: flex; flex-direction: column; row-gap: 25px; width: 100%;">
                         {% for viatura in viaturas %}
                             <!-- Item 1 -->
+                        <a href="{% url 'viatura_detail' viatura.0 %}" style="display: contents;">
                             <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: max-content; column-gap: 25px;">
                                 <!-- Imagem -->
                                 <div style="width: 150px; height: 150px; background-color: black; display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 15px;"> 
                                     <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/11716181-ilustracao-de-desenho-animado-de-carro-vetor.jpg" style="height: 150px; width: auto;">
                                 </div>
                                 <!-- Nome -->
-                                <div> 
+                                <div style="text-align: left;"> 
+                                    <div> Viatura</div>
                                     <span style="font-size: 17px; font-weight: bold;">{{viatura.1}} {{viatura.2}}</span>
-                                </div>
-                                <!-- X -->
-                                <div> 
-                                    <span style="font-size: 17px; font-weight: bold; margin: 10px 0;"></span>
-                                </div>
+                                </div >
                                 <!-- Transmissão -->
-                                <div> 
-                                    <span style="font-size: 17px; font-weight: bold;"> Transmissão</span>
+                                <div style="text-align: left;"> 
+                                    <div > Transmissão</div>
+                                    <span style="font-size: 17px; font-weight: bold;"> {{viatura.3}}</span>
+                                </div>
+                                <div style="text-align: left;"> 
+                                    <div> Nº Reservas</div>
+                                    <span style="font-size: 17px; font-weight: bold;"> {{viatura.4}}</span>
                                 </div>
                             </div>
+                        </a>
                         {% endfor %}
                     </div>
                 </div>
