@@ -1,143 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Meu Projeto Django{% endblock %}</title>
-    <style>
-        /* Estilos simples para a navegação */
-        *{
-            margin: 0;
-        }
-        nav {
-            background-color: #333;
-            padding: 25px 0px 25px 0px;
-            text-align: center;
-        }
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin: 0px 0px 0px 50px;
-        }
-        a {
-            color: white;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration:none;
-        }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <!-- Barra de navegação -->
-    <div style="display: flex; flex-direction: row; background-color: black; column-gap: 50px; padding: 25px 0px 25px 0px; justify-content: center; ">
-        <div style="width: auto;">
-            <a href="{% url 'clientes_home' %}">Home</a>
-        </div>
-        <div style="width: auto;">
-            <a href="{% url 'viaturas_list' %}">Viaturas</a>
-        </div>
-        <div style="width: auto;">
-            <a href="{% url 'reservas_list' %}">Reservas</a>
-        </div>
-    </div>
-
-    <!-- Conteúdo da página -->
-    <div>
-        {% block content %}
-        <div style="margin: 50px; color: white;" >
-            <div style="display: flex; flex-direction: row; flex-wrap: wrap; column-gap: 25px;">
-                <div style="display: flex; flex-direction: row; column-gap: 25px; row-gap: 25px; flex-wrap: wrap; max-width: 68%;">
-                    <div style="background-color: black; width: 350px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                        <div>
-                            <span style="font-size: 35px; color: white;">Nº de Reservas</span>
-                        </div>
-                        <div>
-                            <span style="font-size: 50px; color: rgb(200, 21, 21);">{{total_reservas}}</span>
-                        </div>
-                    </div>
-                    <div style="background-color: black; width: 350px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                        <div>
-                            <span style="font-size: 35px; color: white;">% de danos</span>
-                        </div>
-                        <div>
-                            <span style="font-size: 50px; color: rgb(200, 21, 21);">{{percentagem_danos}}%</span>
-                        </div>
-                    </div>
-                    <div style="background-color: black; width: 350px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                        <div>
-                            <span style="font-size: 35px; color: white;">Marca Preferida</span>
-                        </div>
-                        <div>
-                            <span style="font-size: 50px; color: rgb(200, 21, 21);">{{marca_preferida}}</span>
-                        </div>
-                    </div>
-                    <div style="background-color: black; width: 350px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                        <div>
-                            <span style="font-size: 35px; color: white;">Modelo Preferido</span>
-                        </div>
-                        <div>
-                            <span style="font-size: 50px; color: rgb(200, 21, 21);">{{modelo_preferido}}</span>
-                        </div>
-                    </div>
-                    <div style="background-color: black; width: 350px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                        <div>
-                            <span style="font-size: 35px; color: white;">Média de KM</span>
-                        </div>
-                        <div>
-                            <span style="font-size: 50px; color: rgb(200, 21, 21);">{{mediaKmPercorridos}}</span>
-                        </div>
-                    </div>
-                    <div style="background-color: black; width: 350px; height: 350px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                        <div>
-                            <span style="font-size: 35px; color: white;">Total de KM</span>
-                        </div>
-                        <div>
-                            <span style="font-size: 50px; color: rgb(200, 21, 21);">{{TotalKmPercorridos}}</span>
-                        </div>
-                    </div>
-                </div>
-                <div style="color: white; background-color: black; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; max-width: 500px;">
-                    <!-- Título -->
-                    <div style="font-size: 30px; margin-bottom: 50px; font-weight: bold;">Viaturas nas tendências</div>
-                    
-                    <!-- Contêiner dos itens -->
-                    <div style="display: flex; flex-direction: column; row-gap: 25px; width: 100%;">
-                        {% for viatura in viaturas %}
-                            <!-- Item 1 -->
-                        <a href="{% url 'viatura_detail' viatura.0 %}" style="display: contents;">
-                            <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: max-content; column-gap: 25px;">
-                                <!-- Imagem -->
-                                <div style="width: 150px; height: 150px; background-color: black; display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 15px;"> 
-                                    <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/11716181-ilustracao-de-desenho-animado-de-carro-vetor.jpg" style="height: 150px; width: auto;">
-                                </div>
-                                <!-- Nome -->
-                                <div style="text-align: left;"> 
-                                    <div> Viatura</div>
-                                    <span style="font-size: 17px; font-weight: bold;">{{viatura.1}} {{viatura.2}}</span>
-                                </div >
-                                <!-- Transmissão -->
-                                <div style="text-align: left;"> 
-                                    <div > Transmissão</div>
-                                    <span style="font-size: 17px; font-weight: bold;"> {{viatura.3}}</span>
-                                </div>
-                                <div style="text-align: left;"> 
-                                    <div> Nº Reservas</div>
-                                    <span style="font-size: 17px; font-weight: bold;"> {{viatura.4}}</span>
-                                </div>
-                            </div>
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
+{% block content %}
+<div style="display: flex; gap: 20px;">
+    <!-- Conteúdo principal -->
+    <div style="flex: 2; color: white;">
+        <div style="display: flex; flex-wrap: wrap; gap: 25px;">
+            <!-- Cartões -->
+            <div class="card">
+                <div class="card-title">Nº de Reservas</div>
+                <div class="card-value">{{ total_reservas }}</div>
+            </div>
+            <div class="card">
+                <div class="card-title">% de danos</div>
+                <div class="card-value">{{ percentagem_danos }}%</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Marca Preferida</div>
+                <div class="card-value">{{ marca_preferida }}</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Modelo Preferido</div>
+                <div class="card-value">{{ modelo_preferido }}</div>
             </div>
         </div>
-        {% endblock %}
     </div>
-</body>
-</html>
+
+    <!-- Viaturas nas tendências -->
+    <div style="flex: 1; background-color: black; padding: 20px; color: white; border-radius: 8px;">
+        <div style="font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 20px;">Viaturas nas Tendências</div>
+        <div class="viaturas-container">
+            {% for viatura in viaturas %}
+            <a href="{% url 'viatura_detail' viatura.0 %}" class="viatura-item">
+                <div>
+                    <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/11716181-ilustracao-de-desenho-animado-de-carro-vetor.jpg" alt="Viatura">
+                </div>
+                <div>
+                    <div><strong>Viatura:</strong> {{ viatura.1 }} {{ viatura.2 }}</div>
+                    <div><strong>Transmissão:</strong> {{ viatura.3 }}</div>
+                    <div><strong>Nº Reservas:</strong> {{ viatura.4 }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

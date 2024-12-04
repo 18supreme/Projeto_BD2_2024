@@ -1,0 +1,115 @@
+/* Reset de margens e preenchimentos */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Navbar */
+nav {
+    background-color: #333;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav .logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav ul li a:hover {
+    color: #ff5722;
+}
+
+nav ul li a.active {
+    color: #ff5722;
+}
+
+nav ul li a.disabled {
+    color: #777;
+    pointer-events: none;
+}
+
+/* Main Content */
+.container {
+    margin: 20px auto;
+    max-width: 1200px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Cartões e viaturas */
+.card {
+    background-color: black;
+    width: 350px;
+    height: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.card-title {
+    font-size: 35px;
+    color: white;
+}
+
+.card-value {
+    font-size: 50px;
+    color: rgb(200, 21, 21);
+}
+
+.viaturas-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.viatura-item {
+    display: flex;
+    gap: 15px;
+    background-color: #222;
+    padding: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.viatura-item img {
+    flex: 0 0 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+.viatura-item div {
+    display: flex;
+    flex-direction: column;
+}

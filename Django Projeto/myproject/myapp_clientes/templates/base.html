@@ -1,0 +1,25 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FastDrive Rentals{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav>
+        <div class="logo">FastDrive Rentals</div>
+        <ul>
+            <li><a href="{% url 'clientes_home' %}" class="{% if request.resolver_match.url_name == 'clientes_home' %}active{% endif %}">Home</a></li>
+            <li><a href="{% url 'viaturas_list' %}" class="{% if request.resolver_match.url_name == 'viaturas_list' %}active{% endif %}">Viaturas</a></li>
+            <li><a href="{% url 'reservas_list' %}" class="{% if request.resolver_match.url_name == 'reservas_list' %}active{% endif %}">Reservas</a></li>
+            <li><a href="#" class="disabled">Início de Sessão</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
