@@ -57,21 +57,16 @@ nav ul li a.disabled {
 
 /* Main Content */
 .container {
-    margin: 20px auto;
-    max-width: 1200px;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 50px;
 }
 
 /* Cartões e viaturas */
 .card {
     background-color: black;
-    width: 350px;
-    height: 350px;
+    width: 300px;
+    height: 300px;
     display: flex;
-    flex-direction: column;
+    flex-direction: column;   
     justify-content: center;
     align-items: center;
     text-align: center;
@@ -109,7 +104,8 @@ nav ul li a.disabled {
     object-fit: cover;
 }
 
-.viatura-item div {
+.row-gap{
     display: flex;
     flex-direction: column;
+    row-gap: 13px;
 }

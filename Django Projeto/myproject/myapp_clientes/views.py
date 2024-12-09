@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db import connection
+from django.http import HttpResponse
 
 def clientes_home(request):
     with connection.cursor() as cursor:
@@ -163,6 +164,40 @@ def reservas_list(request):
     # Retorna a lista de viaturas para o template
     return render(request, 'reservas_list.html', {'reservas': reservas})
 
-def criar_reserva(request,id):
+def criar_reserva(request, viatura_id):
+    if request.method == 'POST':
+        # Obtendo os valores do formulário
+        data_inicio = request.POST.get('data_inicio')
+        data_fim = request.POST.get('data_fim')
 
+        # Verificando conflitos de reserva
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT COUNT(*)
+                FROM Reserva
+                WHERE Viatura_ID = %s
+                AND (
+                    (Data_Inicio <= %s AND Data_Fim >= %s)
+                    OR (Data_Inicio <= %s AND Data_Fim >= %s)
+                    OR (Data_Inicio >= %s AND Data_Inicio <= %s)
+                )
+            """, [viatura_id, data_inicio, data_fim, data_inicio, data_fim, data_inicio, data_fim])
+            
+            conflito = cursor.fetchone()[0]  # Obtem o primeiro resultado (contagem)
+
+        if conflito > 0:
+            # Se houver conflito, retorna uma mensagem ao usuário
+            return HttpResponse("A viatura já está reservada nesse intervalo de datas.", status=400)
+
+        # Se não houver conflito, insere a nova reserva
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO Reserva (Data_Inicio, Data_Fim, Danos, DanosTexto, KMPercorridos, Viatura_ID, Utilizador_ID, EstadoReserva_ID)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, [data_inicio, data_fim, False, '', 0, viatura_id, 1, 1])
+
+        # Redireciona para a lista de viaturas
+        return redirect('viaturas_list')
+
+    # Se for uma requisição GET, exibe o formulário
     return render(request, 'reserva_form.html')

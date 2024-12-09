@@ -3,7 +3,7 @@
 {% block title %}Viaturas{% endblock %}
 
 {% block content %}
-    <div style="margin: 50px;"> <!--- Margem -->
+    <div> <!--- Margem -->
         <div style="display: flex; flex-direction: row; flex-wrap: wrap; row-gap:60px; column-gap: 4%;"> <!--- FlexBox -->
             {% for viatura in viaturas %}
                 <a href="{% url 'viatura_detail' viatura.0 %}" style="display: contents;">

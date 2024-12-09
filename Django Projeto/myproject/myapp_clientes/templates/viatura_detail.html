@@ -4,7 +4,7 @@
 
 {% block content %}
     {% if viatura %}
-    <div style="margin: 50px;"> <!--- Margin -->
+    <div> <!--- Margin -->
 
     <div style="display: flex; flex-direction: row; flex-wrap: wrap; column-gap: 50px;"> <!--- flex -->
         <div style="flex-basis: 55%; height: 500px; width: 100%; background-color: gray;"> <!--- Imagem -->
@@ -17,7 +17,7 @@
                 </div>
                 <div style="display: flex; flex-direction: column; row-gap: 0px; flex-basis: 50%;">
                     <div style="width: 100%; text-align: right; margin: 0px 0px 10px 0px;">
-                        {% if viatura.8 == 'Disponível' %}  <button style="width: 10vw; min-width: 150px; max-width: 200px; height: 5vh; min-height: 50px; max-height: 75px; border-radius: 10px; font-size: 15px; color: white; font-weight: bolder; background-color: green;" onclick="window.location.href='{% url 'criar_reserva' viatura.0 %}'"> Reservar </button>
+                        {% if viatura.8 == 'Disponível' %}  <button style="width: 10vw; min-width: 150px; max-width: 200px; height: 5vh; min-height: 50px; max-height: 75px; border-radius: 10px; font-size: 15px; color: white; font-weight: bolder; background-color: green;" onclick="openModal()"> Reservar </button>
                             {% else %}<button style="width: 10vw; min-width: 150px; max-width: 200px; height: 5vh; min-height: 50px; max-height: 75px; border-radius: 10px; font-size: 15px; color: white; font-weight: bolder; background-color: red;"> Indisponivel </button>
                             {% endif %}
                     </div>
@@ -105,6 +105,36 @@
             </div>
         </div>
     </div>
+    <div id="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+        <div style="position: relative; background-color: #fff; padding: 20px; border-radius: 8px; width: 300px;">
+            <!-- Botão de fechar -->
+            <button onclick="closeModal()" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; font-size: 16px; font-weight: bold; cursor: pointer;">×</button>
+            
+            <form method="post" action="criar_reserva" style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin: 0 auto;">
+                {% csrf_token %}
+                <label for="data_inicio" style="font-weight: bold;">Data de Início:</label>
+                <input type="date" id="data_inicio" name="data_inicio" required style="padding: 5px; font-size: 14px;">
+        
+                <label for="data_fim" style="font-weight: bold;">Data de Fim:</label>
+                <input type="date" id="data_fim" name="data_fim" required style="padding: 5px; font-size: 14px;">
+        
+                <button type="submit" style="padding: 10px; font-size: 16px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+                    Confirmar Reserva
+                </button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Função para abrir o modal
+        function openModal() {
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        // Função para fechar o modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
     {% else %}
         <p>{{ error }}</p>
     {% endif %}
