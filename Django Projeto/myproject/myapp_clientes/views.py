@@ -181,6 +181,7 @@ def criar_reserva(request, viatura_id):
                     OR (Data_Inicio <= %s AND Data_Fim >= %s)
                     OR (Data_Inicio >= %s AND Data_Inicio <= %s)
                 )
+                AND Reserva.estadoreserva_id != 5
             """, [viatura_id, data_inicio, data_fim, data_inicio, data_fim, data_inicio, data_fim])
             
             conflito = cursor.fetchone()[0]  # Obtem o primeiro resultado (contagem)
@@ -201,3 +202,20 @@ def criar_reserva(request, viatura_id):
 
     # Se for uma requisição GET, exibe o formulário
     return render(request, 'reserva_form.html')
+
+def reserva_cancelar(request, reserva_id):
+    print(reserva_id)
+    if request.method == 'POST':
+        with connection.cursor() as cursor:
+            # Atualiza o estado da reserva para o estado com id=5
+            cursor.execute("""
+                UPDATE Reserva
+                SET EstadoReserva_ID = 5
+                WHERE id_reserva = %s
+            """, [reserva_id])  # Usando o parametro reserva_id de forma segura
+
+            # Adicionar mensagem de sucesso
+        return redirect('reservas_list')
+
+    # Se for uma requisição GET, exibe o formulário
+    return render(request, 'reservas_list.html')

@@ -3,23 +3,93 @@
 {% block title %}Reservas{% endblock %}
 
 {% block content %}
-    <div> <!--- Margem -->
-        <div style="display: flex; flex-direction: row; flex-wrap: wrap; row-gap:60px; column-gap: 4%;"> <!--- FlexBox -->
-            {% for reserva in reservas %}
-                <a href="" style="display: contents;">
-                    <div style="height: 360px; width: 300px; border-radius: 10px; background-color: black;"> <!--- Card -->
-                        <div style="margin: 25px; height: 150px; text-align: center;"> <!--- imagem -->
-                                <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/11716181-ilustracao-de-desenho-animado-de-carro-vetor.jpg" style="height: 150px; width: auto;">
-                        </div>
-                        <div style="background-color: white; margin: 25px; color: black;"> <!--- Detalhes -->
-                                <p style="font-size: 20px; font-weight: bold;">{{ reserva.4 }} - {{ reserva.5}}</p>
-                                <p>Marca: {{ reserva.1}}</p>
-                                <p>Modelo: {{ reserva.2}}</p>
-                        </div>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Reservas</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
 
-                    </div>
-                </a>
+    <h1>Lista de Reservas</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Reserva</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+            <tr>
+                <td>{{ reserva.4 }} - {{ reserva.5 }}</td>
+                <td>{{ reserva.1 }}</td>
+                <td>{{ reserva.2 }}</td>
+                <td> 
+                    <!-- Passa o ID da reserva para o modal -->
+                    
+                    {% if reserva.3 != 'Cancelada' %}  <button onclick="openModal({{ reserva.0 }})">Cancelar</button>
+                            {% else %}
+                            {% endif %}
+                </td>
+            </tr>
             {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+        <div style="position: relative; background-color: #fff; padding: 20px; border-radius: 8px; width: 300px;">
+            Tem certeza que deseja cancelar a reserva?
+            <!-- Formulário de cancelamento -->
+            <form id="cancelForm" method="post" style="display: flex; flex-direction: row; gap: 10px; width: 100%; margin: 0 auto; justify-content: center;">
+                {% csrf_token %}
+                <button type="button" onclick="closeModal()" style="padding: 10px; font-size: 16px; background-color: red; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+                    Cancelar
+                </button>
+                <button type="submit" style="padding: 10px; font-size: 16px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+                    Confirmar
+                </button>
+            </form>
         </div>
     </div>
+
+    <script>
+        // Função para abrir o modal e passar o ID da reserva
+        function openModal(reservaId) {
+            // Ajusta a ação do formulário com o ID da reserva
+            console.log(reservaId);
+            document.getElementById('cancelForm').action = "cancelar/" + reservaId + "/";
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        // Função para fechar o modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
 {% endblock %}
