@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.contrib.auth import logout as django_logout
+from django.contrib.auth import authenticate, login
 
 def login(request):
     if request.method == 'POST':

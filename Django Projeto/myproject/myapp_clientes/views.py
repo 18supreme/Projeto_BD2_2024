@@ -3,8 +3,6 @@ from django.db import connection
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
-
-@login_required
 def clientes_home(request):
         with connection.cursor() as cursor:
             # Executar a consulta para contar o número total de reservas
@@ -88,8 +86,8 @@ def clientes_home(request):
                 'TotalKmPercorridos': TotalKmPercorridos if TotalKmPercorridos else "0",
                 'viaturas': viaturas_tendencias  # Passando a lista de viaturas
             })
+   
         
-@login_required
 def viaturas_list(request):
     # Executa a consulta SQL direta para obter as viaturas
     with connection.cursor() as cursor:
@@ -105,7 +103,7 @@ def viaturas_list(request):
     # Retorna a lista de viaturas para o template
     return render(request, 'viaturas_list.html', {'viaturas': viaturas})
 
-@login_required
+
 def viatura_detail(request, id):
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -138,7 +136,7 @@ def viatura_detail(request, id):
     else:
         return render(request, 'viatura_detail.html', {'error': 'Viatura não encontrada.'})
 
-@login_required   
+
 def reservas_list(request):
     # Executa a consulta SQL direta para obter as viaturas
     with connection.cursor() as cursor:
@@ -169,7 +167,7 @@ def reservas_list(request):
     # Retorna a lista de viaturas para o template
     return render(request, 'reservas_list.html', {'reservas': reservas})
 
-@login_required
+
 def criar_reserva(request, viatura_id):
     if request.method == 'POST':
         # Obtendo os valores do formulário
@@ -209,7 +207,7 @@ def criar_reserva(request, viatura_id):
     # Se for uma requisição GET, exibe o formulário
     return render(request, 'reserva_form.html')
 
-@login_required
+
 def reserva_cancelar(request, reserva_id):
     print(reserva_id)
     if request.method == 'POST':
