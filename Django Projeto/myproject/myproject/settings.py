@@ -22,6 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-(=&@d@p5z6(6fg8-=1mlkw*9e^o9(6uw-ls_122kpbbi#5%3yt'
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -43,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'myapp_clientes',
     'myapp_colaboradores',
-    'myapp_administradores'
+    'myapp_administradores',
+    'login'
 ]
 
 MIDDLEWARE = [
@@ -89,6 +93,7 @@ DATABASES = {
         'HOST': 'localhost',     # Ou o IP do seu servidor de PostgreSQL
         'PORT': '5433',          # A porta padrão do PostgreSQL
     }
+    
 }
 
 

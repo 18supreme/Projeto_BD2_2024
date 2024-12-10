@@ -1,92 +1,95 @@
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
+
+@login_required
 def clientes_home(request):
-    with connection.cursor() as cursor:
-        # Executar a consulta para contar o número total de reservas
-        cursor.execute("""
-            SELECT COUNT(id_reserva)
+        with connection.cursor() as cursor:
+            # Executar a consulta para contar o número total de reservas
+            cursor.execute("""
+                SELECT COUNT(id_reserva)
+                FROM reserva;
+            """)
+            total_reservas = cursor.fetchone()[0]
+            cursor.execute("""
+                SELECT 
+                    ROUND(
+                        (SUM(CASE WHEN Danos = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(*), 
+                        1
+                    ) AS percentagem_com_danos
+                FROM reserva;
+            """)
+            percentagem_danos = cursor.fetchone()[0]
+
+            # Executar a consulta para obter a marca mais usada
+            cursor.execute("""
+                SELECT marca.nome AS marca_preferida
+                FROM reserva
+                JOIN viatura ON reserva.viatura_id = viatura.id_viatura
+                JOIN marca ON viatura.marca_id = marca.id_marca
+                GROUP BY marca.nome
+                ORDER BY COUNT(*) DESC
+                LIMIT 1;
+            """)
+            marca_preferida = cursor.fetchone()
+
+            # Executar a consulta para obter o modelo mais usado
+            cursor.execute("""
+                SELECT modelo.nome AS modelo_preferido
+                FROM reserva
+                JOIN viatura ON reserva.viatura_id = viatura.id_viatura
+                JOIN modelo ON viatura.modelo_id = modelo.id_modelo
+                GROUP BY modelo.nome
+                ORDER BY COUNT(*) DESC
+                LIMIT 1;
+            """)
+            modelo_preferido = cursor.fetchone()
+
+            # Executar a consulta para obter a média de KM realizados
+            cursor.execute("""
+                SELECT 
+                    CONCAT(COALESCE(ROUND(SUM(KMPercorridos) * 1.0 / COUNT(KMPercorridos), 2), 0), ' KM') AS media_km
+                FROM reserva;
+            """)
+            MédiaKmPercorridos = cursor.fetchone()[0]  # Usando fetchall() para obter as 3 viaturas
+
+            # Executar a consulta para obter a média de KM realizados
+            cursor.execute("""
+                SELECT 
+                    CONCAT(COALESCE(SUM(KMPercorridos), 0), ' KM') AS total_km
             FROM reserva;
-        """)
-        total_reservas = cursor.fetchone()[0]
-
-        cursor.execute("""
-            SELECT 
-                ROUND(
-                    (SUM(CASE WHEN Danos = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(*), 
-                    1
-                ) AS percentagem_com_danos
-            FROM reserva;
-        """)
-        percentagem_danos = cursor.fetchone()[0]
-
-        # Executar a consulta para obter a marca mais usada
-        cursor.execute("""
-            SELECT marca.nome AS marca_preferida
-            FROM reserva
-            JOIN viatura ON reserva.viatura_id = viatura.id_viatura
-            JOIN marca ON viatura.marca_id = marca.id_marca
-            GROUP BY marca.nome
-            ORDER BY COUNT(*) DESC
-            LIMIT 1;
-        """)
-        marca_preferida = cursor.fetchone()
-
-        # Executar a consulta para obter o modelo mais usado
-        cursor.execute("""
-            SELECT modelo.nome AS modelo_preferido
-            FROM reserva
-            JOIN viatura ON reserva.viatura_id = viatura.id_viatura
-            JOIN modelo ON viatura.modelo_id = modelo.id_modelo
-            GROUP BY modelo.nome
-            ORDER BY COUNT(*) DESC
-            LIMIT 1;
-        """)
-        modelo_preferido = cursor.fetchone()
-
-        # Executar a consulta para obter a média de KM realizados
-        cursor.execute("""
-            SELECT 
-                CONCAT(COALESCE(ROUND(SUM(KMPercorridos) * 1.0 / COUNT(KMPercorridos), 2), 0), ' KM') AS media_km
-            FROM reserva;
-        """)
-        MédiaKmPercorridos = cursor.fetchone()[0]  # Usando fetchall() para obter as 3 viaturas
-
-        # Executar a consulta para obter a média de KM realizados
-        cursor.execute("""
-            SELECT 
-                CONCAT(COALESCE(SUM(KMPercorridos), 0), ' KM') AS total_km
-            FROM reserva;
-        """)
-        TotalKmPercorridos = cursor.fetchone()[0]  # Usando fetchall() para obter as 3 viaturas
-        
+            """)
+            TotalKmPercorridos = cursor.fetchone()[0]  # Usando fetchall() para obter as 3 viaturas
+            
         # Executar a consulta para obter as 3 viaturas mais requisitadas
-        cursor.execute("""
-            SELECT viatura.id_viatura, marca.nome AS marca, modelo.nome AS modelo, tipocaixa.nome AS caixa, COUNT(reserva.id_reserva) AS total_reservas
-            FROM reserva
-            JOIN viatura ON reserva.viatura_id = viatura.id_viatura
-            JOIN marca ON viatura.marca_id = marca.id_marca
-            JOIN modelo ON viatura.modelo_id = modelo.id_modelo
-            JOIN tipocaixa ON tipocaixa.ID_Caixa = viatura.Tipocaixa_ID
-            GROUP BY viatura.id_viatura, modelo.nome, tipocaixa.nome, marca.nome, modelo.nome
-                       
-            ORDER BY total_reservas DESC
-            LIMIT 3;
-        """)
-        viaturas_tendencias = cursor.fetchall()  # Usando fetchall() para obter as 3 viaturas
+            cursor.execute("""
+                SELECT viatura.id_viatura, marca.nome AS marca, modelo.nome AS modelo, tipocaixa.nome AS caixa, COUNT(reserva.id_reserva) AS total_reservas
+                FROM reserva
+                JOIN viatura ON reserva.viatura_id = viatura.id_viatura
+                JOIN marca ON viatura.marca_id = marca.id_marca
+                JOIN modelo ON viatura.modelo_id = modelo.id_modelo
+                JOIN tipocaixa ON tipocaixa.ID_Caixa = viatura.Tipocaixa_ID
+                GROUP BY viatura.id_viatura, modelo.nome, tipocaixa.nome, marca.nome, modelo.nome
+                        
+                ORDER BY total_reservas DESC
+                LIMIT 3;
+            """)
+            viaturas_tendencias = cursor.fetchall()  # Usando fetchall() para obter as 3 viaturas
 
-    # Passar os valores para o template
-    return render(request, 'clientes_home.html', {
-        'total_reservas': total_reservas if total_reservas else "Sem reservas",
-        'percentagem_danos': percentagem_danos if percentagem_danos else "0",
-        'marca_preferida': marca_preferida[0] if marca_preferida else "-",
-        'modelo_preferido': modelo_preferido[0] if modelo_preferido else "-",
-        'mediaKmPercorridos': MédiaKmPercorridos if MédiaKmPercorridos else "0",
-        'TotalKmPercorridos': TotalKmPercorridos if TotalKmPercorridos else "0",
-        'viaturas': viaturas_tendencias  # Passando a lista de viaturas
-    })
-
+            # Passar os valores para o template
+            return render(request, 'clientes_home.html', {
+                'total_reservas': total_reservas if total_reservas else "Sem reservas",
+                'percentagem_danos': percentagem_danos if percentagem_danos else "0",
+                'marca_preferida': marca_preferida[0] if marca_preferida else "-",
+                'modelo_preferido': modelo_preferido[0] if modelo_preferido else "-",
+                'mediaKmPercorridos': MédiaKmPercorridos if MédiaKmPercorridos else "0",
+                'TotalKmPercorridos': TotalKmPercorridos if TotalKmPercorridos else "0",
+                'viaturas': viaturas_tendencias  # Passando a lista de viaturas
+            })
+        
+@login_required
 def viaturas_list(request):
     # Executa a consulta SQL direta para obter as viaturas
     with connection.cursor() as cursor:
@@ -102,6 +105,7 @@ def viaturas_list(request):
     # Retorna a lista de viaturas para o template
     return render(request, 'viaturas_list.html', {'viaturas': viaturas})
 
+@login_required
 def viatura_detail(request, id):
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -133,7 +137,8 @@ def viatura_detail(request, id):
         return render(request, 'viatura_detail.html', {'viatura': viatura})
     else:
         return render(request, 'viatura_detail.html', {'error': 'Viatura não encontrada.'})
-    
+
+@login_required   
 def reservas_list(request):
     # Executa a consulta SQL direta para obter as viaturas
     with connection.cursor() as cursor:
@@ -164,6 +169,7 @@ def reservas_list(request):
     # Retorna a lista de viaturas para o template
     return render(request, 'reservas_list.html', {'reservas': reservas})
 
+@login_required
 def criar_reserva(request, viatura_id):
     if request.method == 'POST':
         # Obtendo os valores do formulário
@@ -203,6 +209,7 @@ def criar_reserva(request, viatura_id):
     # Se for uma requisição GET, exibe o formulário
     return render(request, 'reserva_form.html')
 
+@login_required
 def reserva_cancelar(request, reserva_id):
     print(reserva_id)
     if request.method == 'POST':

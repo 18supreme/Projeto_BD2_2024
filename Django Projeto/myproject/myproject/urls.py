@@ -21,5 +21,5 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),                                    # URL para o painel admin
     path('clientes/', include('myapp_clientes.urls')),                  # URL para a app 'clientes'
-    path('', RedirectView.as_view(url='/clientes/', permanent=False)),  # Redireciona a raiz para /clientes/
+    path('login/', include('login.urls')),     # Redireciona a raiz para /clientes/
 ]

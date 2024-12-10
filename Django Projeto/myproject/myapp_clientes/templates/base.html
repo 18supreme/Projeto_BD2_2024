@@ -15,7 +15,7 @@
             <li><a href="{% url 'clientes_home' %}" class="{% if request.resolver_match.url_name == 'clientes_home' %}active{% endif %}">Home</a></li>
             <li><a href="{% url 'viaturas_list' %}" class="{% if request.resolver_match.url_name == 'viaturas_list' %}active{% endif %}">Viaturas</a></li>
             <li><a href="{% url 'reservas_list' %}" class="{% if request.resolver_match.url_name == 'reservas_list' %}active{% endif %}">Reservas</a></li>
-            <li><a href="#" class="disabled">Início de Sessão</a></li>
+            <li><a href="{% url 'logout' %}" >Logout</a></li>
         </ul>
     </nav>
     <div class="container">
