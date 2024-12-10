@@ -101,11 +101,13 @@ def viaturas_list(request):
     # Executa a consulta SQL direta para obter as viaturas
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT vi.id_viatura, vi.matricula, mo.nome AS modelo, ma.nome AS marca, co.nome AS cor
+            SELECT vi.id_viatura, vi.matricula, mo.nome AS modelo, ma.nome AS marca, co.nome AS cor, i.Nome AS Combustivel, tc.Nome AS Tipo_Caixa
             FROM viatura vi
             JOIN modelo mo ON vi.modelo_id = mo.id_modelo
             JOIN marca ma ON vi.marca_id = ma.id_marca
             JOIN cores co ON vi.cor_id = co.id_cor
+            JOIN Combustivel i ON i.ID_Combustivel = vi.Combustivel_ID
+            JOIN TipoCaixa tc ON tc.ID_Caixa = vi.Tipocaixa_ID
         """)
         viaturas = cursor.fetchall()
     

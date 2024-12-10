@@ -11,13 +11,12 @@
                         <div style="margin: 25px; height: 150px; text-align: center;"> <!--- imagem -->
                                 <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/11716181-ilustracao-de-desenho-animado-de-carro-vetor.jpg" style="height: 150px; width: auto;">
                         </div>
-                        <div style="background-color: white; margin: 25px; color: black;"> <!--- Detalhes -->
+                        <div style="background-color: black; margin: 25px; color: black; color: white;"> <!--- Detalhes -->
                                 <p style="font-size: 20px; font-weight: bold;">{{ viatura.2 }} {{ viatura.3 }}</p>
-                                <p>Tipo combustivel</p>
-                                <p>Transmissão</p>  
+                                <p>{{viatura.5}}</p>
+                                <p>{{viatura.6}}</p>  
                                 <p style="font-size: 20px; font-weight: bolder; color: red;">Preço</p>
                         </div>
-
                     </div>
                 </a>
             {% endfor %}
