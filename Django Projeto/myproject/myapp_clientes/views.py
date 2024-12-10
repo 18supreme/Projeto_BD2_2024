@@ -3,22 +3,29 @@ from django.db import connection
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
+
+
 def clientes_home(request):
-        with connection.cursor() as cursor:
+    user_id = request.session.get('user_id')
+    with connection.cursor() as cursor:
             # Executar a consulta para contar o número total de reservas
             cursor.execute("""
                 SELECT COUNT(id_reserva)
-                FROM reserva;
-            """)
+                FROM reserva
+                WHERE utilizador_id = %s;
+            """, [user_id]) 
             total_reservas = cursor.fetchone()[0]
+
+            # Executar a consulta para obter a percentagem de danos para o usuário específico
             cursor.execute("""
                 SELECT 
                     ROUND(
                         (SUM(CASE WHEN Danos = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(*), 
                         1
                     ) AS percentagem_com_danos
-                FROM reserva;
-            """)
+                FROM reserva
+                WHERE utilizador_id = %s;
+            """, [user_id])  # Substitua "userid" por %s e passe o valor de user_id
             percentagem_danos = cursor.fetchone()[0]
 
             # Executar a consulta para obter a marca mais usada
@@ -27,10 +34,11 @@ def clientes_home(request):
                 FROM reserva
                 JOIN viatura ON reserva.viatura_id = viatura.id_viatura
                 JOIN marca ON viatura.marca_id = marca.id_marca
+                WHERE reserva.utilizador_id = %s  -- Filtro para o usuário específico
                 GROUP BY marca.nome
                 ORDER BY COUNT(*) DESC
                 LIMIT 1;
-            """)
+            """, [user_id])  # Passa o user_id para a consulta
             marca_preferida = cursor.fetchone()
 
             # Executar a consulta para obter o modelo mais usado
@@ -39,26 +47,29 @@ def clientes_home(request):
                 FROM reserva
                 JOIN viatura ON reserva.viatura_id = viatura.id_viatura
                 JOIN modelo ON viatura.modelo_id = modelo.id_modelo
+                WHERE reserva.utilizador_id = %s  -- Filtro para o usuário específico
                 GROUP BY modelo.nome
                 ORDER BY COUNT(*) DESC
                 LIMIT 1;
-            """)
+            """, [user_id])
             modelo_preferido = cursor.fetchone()
 
             # Executar a consulta para obter a média de KM realizados
             cursor.execute("""
                 SELECT 
                     CONCAT(COALESCE(ROUND(SUM(KMPercorridos) * 1.0 / COUNT(KMPercorridos), 2), 0), ' KM') AS media_km
-                FROM reserva;
-            """)
+                FROM reserva
+                WHERE reserva.utilizador_id = %s  -- Filtro para o usuário específico
+            """, [user_id])
             MédiaKmPercorridos = cursor.fetchone()[0]  # Usando fetchall() para obter as 3 viaturas
 
             # Executar a consulta para obter a média de KM realizados
             cursor.execute("""
                 SELECT 
                     CONCAT(COALESCE(SUM(KMPercorridos), 0), ' KM') AS total_km
-            FROM reserva;
-            """)
+                FROM reserva
+                WHERE reserva.utilizador_id = %s  -- Filtro para o usuário específico
+            """, [user_id])
             TotalKmPercorridos = cursor.fetchone()[0]  # Usando fetchall() para obter as 3 viaturas
             
         # Executar a consulta para obter as 3 viaturas mais requisitadas
@@ -86,8 +97,8 @@ def clientes_home(request):
                 'TotalKmPercorridos': TotalKmPercorridos if TotalKmPercorridos else "0",
                 'viaturas': viaturas_tendencias  # Passando a lista de viaturas
             })
-   
-        
+
+
 def viaturas_list(request):
     # Executa a consulta SQL direta para obter as viaturas
     with connection.cursor() as cursor:
@@ -138,6 +149,7 @@ def viatura_detail(request, id):
 
 
 def reservas_list(request):
+    user_id = request.session.get('user_id')
     # Executa a consulta SQL direta para obter as viaturas
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -159,9 +171,10 @@ def reservas_list(request):
                 modelo ON viatura.modelo_id = modelo.id_modelo
             JOIN 
                 estadoreserva ON reserva.EstadoReserva_ID = estadoreserva.ID_Estado_Reserva
+            WHERE utilizador_id = %s
             ORDER BY 
                 reserva.data_inicio DESC;
-        """)
+        """, [user_id])
         reservas = cursor.fetchall()
     
     # Retorna a lista de viaturas para o template
@@ -169,6 +182,7 @@ def reservas_list(request):
 
 
 def criar_reserva(request, viatura_id):
+    user_id = request.session.get('user_id')
     if request.method == 'POST':
         # Obtendo os valores do formulário
         data_inicio = request.POST.get('data_inicio')
@@ -199,7 +213,7 @@ def criar_reserva(request, viatura_id):
             cursor.execute("""
                 INSERT INTO Reserva (Data_Inicio, Data_Fim, Danos, DanosTexto, KMPercorridos, Viatura_ID, Utilizador_ID, EstadoReserva_ID)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, [data_inicio, data_fim, False, '', 0, viatura_id, 1, 1])
+            """, [data_inicio, data_fim, False, '', 0, viatura_id, user_id , 1])
 
         # Redireciona para a lista de viaturas
         return redirect('viaturas_list')
