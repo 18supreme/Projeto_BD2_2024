@@ -1,3 +1,7 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def admin_home(request):
+    user_id = request.session.get('user_id')
+
+    return render(request, 'admin_home.html')

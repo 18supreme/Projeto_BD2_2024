@@ -3,8 +3,6 @@ from django.db import connection
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
-
-
 def clientes_home(request):
     user_id = request.session.get('user_id')
     with connection.cursor() as cursor:
