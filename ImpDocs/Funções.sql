@@ -1,4 +1,4 @@
--- selecionar Viatura
+-- Selecionar Viatura
 CREATE OR REPLACE FUNCTION selecionar_Viatura(p_ID_Viatura INTEGER)
 RETURNS TABLE (
     ID_Viatura INTEGER,
@@ -16,13 +16,13 @@ AS $$
 BEGIN
     -- Retornar a viatura correspondente ao ID fornecido
     RETURN QUERY
-    SELECT ID_Viatura, ID_Tipo_Viatura, ID_Marca, ID_Modelo, ID_Cor, ID_Estado_Viatura, KM, Ano, Matricula
-    FROM Viatura
-    WHERE ID_Viatura = p_ID_Viatura;
+    SELECT v.ID_Viatura, v.ID_Tipo_Viatura, v.ID_Marca, v.ID_Modelo, v.ID_Cor, v.ID_Estado_Viatura, v.KM, v.Ano, v.Matricula
+    FROM Viatura v
+    WHERE v.ID_Viatura = p_ID_Viatura;
     
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
-        RAISE NOTICE 'Nenhum viatura encontrada com o ID %.', p_ID_Viatura;
+        RAISE NOTICE 'Nenhuma viatura encontrada com o ID %.', p_ID_Viatura;
     END IF;
 END;
 $$;
@@ -30,8 +30,9 @@ $$;
 -- Exemplo de chamadas da FUNCTION
 SELECT * FROM selecionar_Viatura(1); -- Substitua '1' pelo ID desejado
 
--------------------------------------------------------
--- selecionar Fornecedor
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Selecionar Fornecedor
 CREATE OR REPLACE FUNCTION selecionar_Fornecedor(p_ID_Fornecedor INTEGER)
 RETURNS TABLE (
     ID_Fornecedor INTEGER,
@@ -44,9 +45,9 @@ AS $$
 BEGIN
     -- Retornar o fornecedor correspondente ao ID fornecido
     RETURN QUERY
-    SELECT ID_Fornecedor, Nome, Valor, IsActive
-    FROM Fornecedor
-    WHERE ID_Fornecedor = p_ID_Fornecedor;
+    SELECT f.ID_Fornecedor, f.Nome, f.Valor, f.IsActive
+    FROM Fornecedor f
+    WHERE f.ID_Fornecedor = p_ID_Fornecedor;
     
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
@@ -58,29 +59,29 @@ $$;
 -- Exemplo de chamadas da FUNCTION
 SELECT * FROM selecionar_Fornecedor(1); -- Substitua '1' pelo ID desejado
 
--------------------------------------------------------
--- selecionar Manutenção
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Selecionar Manutenção
 CREATE OR REPLACE FUNCTION selecionar_Manutencao(p_ID_Manutencao INTEGER)
 RETURNS TABLE (
     ID_Manutencao INTEGER,
     ID_Viatura INTEGER,
     Valor DECIMAL,
     Descricao TEXT,
-    Data DATE,
-    ID_Peca INTEGER
+    Data DATE
 ) 
 LANGUAGE plpgsql
 AS $$
 BEGIN
     -- Retornar a manutenção correspondente ao ID fornecido
     RETURN QUERY
-    SELECT ID_Manutencao, ID_Viatura, Valor, Descricao, Data, ID_Peca
-    FROM Manutencao
-    WHERE ID_Manutencao = p_ID_Manutencao;
+    SELECT m.ID_Manutencao, m.ID_Viatura, m.Valor, m.Descricao, m.Data
+    FROM Manutencao m
+    WHERE m.ID_Manutencao = p_ID_Manutencao;
     
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
-        RAISE NOTICE 'Nenhum Manutenção encontrada com o ID %.', p_ID_Manutencao;
+        RAISE NOTICE 'Nenhuma manutenção encontrada com o ID %.', p_ID_Manutencao;
     END IF;
 END;
 $$;
@@ -88,8 +89,9 @@ $$;
 -- Exemplo de chamadas da FUNCTION
 SELECT * FROM selecionar_Manutencao(1); -- Substitua '1' pelo ID desejado
 
--------------------------------------------------------
--- selecionar Reserva
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Selecionar Reserva
 CREATE OR REPLACE FUNCTION selecionar_Reserva(p_ID_Reserva INTEGER)
 RETURNS TABLE (
     ID_Reserva INTEGER,
@@ -98,20 +100,20 @@ RETURNS TABLE (
     Estado_Reserva INTEGER,
     Data_Inicio DATE,
     Data_Fim DATE,
-    Danos TEXT
+    Danos BOOLEAN
 ) 
 LANGUAGE plpgsql
 AS $$
 BEGIN
     -- Retornar a Reserva correspondente ao ID fornecido
     RETURN QUERY
-    SELECT ID_Reserva, ID_Viatura INTEGER, ID_Utilizador, Estado_Reserva, Data_Inicio, Data_Fim, Danos
-    FROM Reserva
-    WHERE ID_Reserva = p_ID_Reserva;
+    SELECT r.ID_Reserva, r.ID_Viatura, r.ID_Utilizador, r.ID_EstadoReserva, r.Data_Inicio, r.Data_Fim, r.Danos
+    FROM Reserva r
+    WHERE r.ID_Reserva = p_ID_Reserva;
     
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
-        RAISE NOTICE 'Nenhum Reserva encontrada com o ID %.', p_ID_Reserva;
+        RAISE NOTICE 'Nenhuma reserva encontrada com o ID %.', p_ID_Reserva;
     END IF;
 END;
 $$;
@@ -119,14 +121,14 @@ $$;
 -- Exemplo de chamadas da FUNCTION
 SELECT * FROM selecionar_Reserva(1); -- Substitua '1' pelo ID desejado
 
--------------------------------------------------------
--- selecionar Peça
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Selecionar Peça
 CREATE OR REPLACE FUNCTION selecionar_Peca(p_ID_Peca INTEGER)
 RETURNS TABLE (
     ID_Peca INTEGER,
     Nome VARCHAR,
     Stock INTEGER,
-    Modelo VARCHAR,
     ID_Marca INTEGER,
     ID_Modelo INTEGER
 ) 
@@ -135,9 +137,9 @@ AS $$
 BEGIN
     -- Retornar a Peça correspondente ao ID fornecido
     RETURN QUERY
-    SELECT ID_Peca, Nome, Stock, Modelo, ID_Marca, ID_Modelo
-    FROM Pecas
-    WHERE ID_Peca = p_ID_Peca;
+    SELECT p.ID_Peca, p.Nome, p.Stock, p.ID_Marca, p.ID_Modelo
+    FROM Pecas p
+    WHERE p.ID_Peca = p_ID_Peca;
     
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
@@ -149,9 +151,10 @@ $$;
 -- Exemplo de chamadas da FUNCTION
 SELECT * FROM selecionar_Peca(1); -- Substitua '1' pelo ID desejado
 
--------------------------------------------------------
--- selecionar Marca 
-CREATE OR REPLACE FUNCTION selecionar_Marca (p_ID_Marca INTEGER)
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Selecionar Marca 
+CREATE OR REPLACE FUNCTION selecionar_Marca(p_id_marca INTEGER)
 RETURNS TABLE (
     ID_Marca INTEGER,
     Nome VARCHAR,
@@ -160,15 +163,15 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Retornar a Peça correspondente ao ID fornecido
+    -- Retornar a Marca correspondente ao ID fornecido
     RETURN QUERY
-    SELECT ID_Marca, Nome, IsActive
-    FROM Marca
-    WHERE ID_Marca = p_ID_Marca;
+    SELECT m.ID_Marca, m.Nome, m.IsActive
+    FROM Marca m
+    WHERE m.ID_Marca = p_id_marca;
     
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
-        RAISE NOTICE 'Nenhuma marca encontrada com o ID %.', p_ID_Marca;
+        RAISE NOTICE 'Nenhuma marca encontrada com o ID %.', p_id_marca;
     END IF;
 END;
 $$;
@@ -176,9 +179,10 @@ $$;
 -- Exemplo de chamadas da FUNCTION
 SELECT * FROM selecionar_Marca(1); -- Substitua '1' pelo ID desejado
 
--------------------------------------------------------
--- selecionar Modelo 
-CREATE OR REPLACE FUNCTION selecionar_Modelo (p_ID_Modelo INTEGER)
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Selecionar Modelo 
+CREATE OR REPLACE FUNCTION selecionar_Modelo(p_id_modelo INTEGER)
 RETURNS TABLE (
     ID_Modelo INTEGER,
     Nome VARCHAR,
@@ -188,15 +192,15 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Retornar a Peça correspondente ao ID fornecido
+    -- Retornar o Modelo correspondente ao ID fornecido
     RETURN QUERY
-    SELECT ID_Modelo, Nome, ID_Marca, IsActive
-    FROM Modelo
-    WHERE ID_Modelo = p_ID_Modelo;
+    SELECT m.ID_Modelo, m.Nome, m.ID_Marca, m.IsActive
+    FROM Modelo m
+    WHERE m.ID_Modelo = p_id_modelo;
     
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
-        RAISE NOTICE 'Nenhum modelo encontrado com o ID %.', p_ID_Modelo;
+        RAISE NOTICE 'Nenhum modelo encontrado com o ID %.', p_id_modelo;
     END IF;
 END;
 $$;
@@ -204,9 +208,10 @@ $$;
 -- Exemplo de chamadas da FUNCTION
 SELECT * FROM selecionar_Modelo(1); -- Substitua '1' pelo ID desejado
 
--------------------------------------------------------
--- selecionar Fornecedor 
-CREATE OR REPLACE FUNCTION selecionar_Fornecedor (p_ID_Fornecedor INTEGER)
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Selecionar Fornecedor 
+CREATE OR REPLACE FUNCTION selecionar_Fornecedor(p_id_fornecedor INTEGER)
 RETURNS TABLE (
     ID_Fornecedor INTEGER,
     Nome VARCHAR,
@@ -216,15 +221,15 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Retornar a Peça correspondente ao ID fornecido
+    -- Retornar o Fornecedor correspondente ao ID fornecido
     RETURN QUERY
-    SELECT ID_Fornecedor, Nome, Valor, IsActive
-    FROM Fornecedor
-    WHERE ID_Fornecedor = p_ID_Fornecedor;
+    SELECT f.ID_Fornecedor, f.Nome, f.Valor, f.IsActive
+    FROM Fornecedor f
+    WHERE f.ID_Fornecedor = p_id_fornecedor;
     
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
-        RAISE NOTICE 'Nenhum fornecedor encontrado com o ID %.', p_ID_Fornecedor;
+        RAISE NOTICE 'Nenhum fornecedor encontrado com o ID %.', p_id_fornecedor;
     END IF;
 END;
 $$;
