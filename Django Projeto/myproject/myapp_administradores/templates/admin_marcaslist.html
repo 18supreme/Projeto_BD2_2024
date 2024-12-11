@@ -1,0 +1,91 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Marcas{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Marcas</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Lista de Marcas</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Marca</th>
+                <th>Ativo</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for marca in marcas %}
+            <tr>
+                <td>{{ marca.1 }}</td>
+                <td>{{ marca.2 }}</td>
+                <td> 
+                    <button onclick="openModal({{ marca.0 }})">Eliminar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+        <div style="position: relative; background-color: #fff; padding: 20px; border-radius: 8px; width: 300px;">
+            Tem certeza que deseja eliminar esta Marca ?
+            <form id="eliminarmarca" action="admin_marca_delete" method="post" style="display: flex; flex-direction: row; gap: 10px; width: 100%; margin: 0 auto; justify-content: center;">
+                {% csrf_token %}
+                <input type="hidden" id="marcaid" name="marcaid">
+                <button type="button" onclick="closeModal()" style="padding: 10px; font-size: 16px; background-color: red; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+                    Cancelar
+                </button>
+                <button type="submit" style="padding: 10px; font-size: 16px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+                    Confirmar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Função para abrir o modal e passar o ID da reserva
+        function openModal(marcaid) {
+            // Ajusta a ação do formulário com o ID da reserva
+            console.log(marcaid);
+            document.getElementById('eliminarmarca').action = "marcas/delete/" + marcaid + "/";
+            document.getElementById('modal').style.display = 'flex';
+            const marcaInput = document.getElementById('marcaid');
+            marcaInput.value = marcaId;
+        }
+
+        // Função para fechar o modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
+{% endblock %}

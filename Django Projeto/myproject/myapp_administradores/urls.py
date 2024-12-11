@@ -7,4 +7,6 @@ urlpatterns = [
     path('/reservas', views.admin_reservas, name='admin_reservas'),
     path('/manutencoes', views.admin_manutencoes, name='admin_manutencoes'),
     path('/administracao', views.admin_administracao, name='admin_administracao'),
+    path('/administracao/marcas', views.admin_marcaslist, name='admin_marcaslist'),
+    path('/administracao/marcas/delete/<int:marcaid>/', views.admin_marcadelete, name='admin_marcadelete'),
 ]
