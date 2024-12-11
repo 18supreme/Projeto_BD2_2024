@@ -110,11 +110,19 @@ INSERT INTO Pecas_Manutencao (ID_Peca, ID_Manutencao, Quantidade) VALUES
 (2, 2, 1),
 (3, 1, 2);
 
+
+-- Inserir os estados
+INSERT INTO EstadoEncomendaFornecedor (Estado) VALUES
+('Em análise'),
+('Em trânsito'),
+('Entregue');
+
+
 -- Inserção de dados para a tabela EncomendaFornecedor
-INSERT INTO EncomendaFornecedor (Quantidade,  Valor, Peca_ID, Fornecedor_ID) VALUES
-(1, 10.00, 1, 1),
-(2, 2.99, 2, 2),
-(3, 1.11, 3, 1);
+INSERT INTO EncomendaFornecedor (Quantidade, Valor, Peca_ID, Fornecedor_ID, EstadoEncomenda_ID) VALUES
+(10, 100.00, 1, 1, 1), -- Em análise
+(5, 50.00, 2, 2, 2),   -- Em trânsito
+(20, 200.00, 3, 3, 3); -- Entregue
 
 
 -- Seleciona todos os registros das tabelas
@@ -133,6 +141,7 @@ SELECT * FROM Fornecedor;
 SELECT * FROM Pecas;
 SELECT * FROM Manutencao;
 SELECT * FROM Pecas_Manutencao;
+SELECT * FROM EstadoEncomendaFornecedor;
 SELECT * FROM EncomendaFornecedor;
 
 GRANT ALL

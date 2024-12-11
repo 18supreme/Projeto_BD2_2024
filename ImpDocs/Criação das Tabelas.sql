@@ -160,10 +160,10 @@ CREATE TABLE EstadoEncomendaFornecedor (
 );
 
 CREATE TABLE EncomendaFornecedor (
-    ID_Encomenda_Fornecedor SERIAL PRIMARY KEY, -- Identificador único da encomenda
-    Quantidade INTEGER NOT NULL,               -- Quantidade de peças encomendadas
-    Valor DECIMAL NOT NULL,                    -- Valor da encomenda
-    Peca_ID INTEGER NOT NULL REFERENCES Pecas(ID_Peca), -- Referência à peça encomendada
-    Fornecedor_ID INTEGER NOT NULL REFERENCES Fornecedor(ID_Fornecedor), -- Referência ao fornecedor
-    EstadoEncomenda_ID INTEGER NOT NULL REFERENCES EstadoEncomendaFornecedor(ID_EstadoEncomenda) -- Estado da encomenda
+    ID_Encomenda_Fornecedor SERIAL PRIMARY KEY, 
+    Quantidade INTEGER NOT NULL,               
+    Valor DECIMAL NOT NULL,                    -
+    Peca_ID INTEGER NOT NULL REFERENCES Pecas(ID_Peca), 
+    Fornecedor_ID INTEGER NOT NULL REFERENCES Fornecedor(ID_Fornecedor),
+    EstadoEncomenda_ID INTEGER NOT NULL REFERENCES EstadoEncomendaFornecedor(ID_EstadoEncomenda) 
 );
