@@ -1,4 +1,5 @@
 -- Drop tables in reverse order to avoid dependency issues
+DROP TABLE IF EXISTS EstadoEncomendaFornecedor CASCADE;
 DROP TABLE IF EXISTS EncomendaFornecedor CASCADE;
 DROP TABLE IF EXISTS Pecas_Manutencao CASCADE;
 DROP TABLE IF EXISTS Manutencao CASCADE;
@@ -17,6 +18,7 @@ DROP TABLE IF EXISTS TipoViatura CASCADE;
 DROP TABLE IF EXISTS Cores CASCADE;
 DROP TABLE IF EXISTS Modelo CASCADE;
 DROP TABLE IF EXISTS Marca CASCADE;
+
 
 CREATE TABLE Marca (
     ID_Marca SERIAL PRIMARY KEY,
@@ -152,10 +154,16 @@ CREATE TABLE Pecas_Manutencao (
     PRIMARY KEY (ID_Peca, ID_Manutencao)
 );
 
+CREATE TABLE EstadoEncomendaFornecedor (
+    ID_EstadoEncomenda SERIAL PRIMARY KEY,
+    Estado VARCHAR NOT NULL UNIQUE
+);
+
 CREATE TABLE EncomendaFornecedor (
-    ID_Encomenda_Fornecedor SERIAL PRIMARY KEY,
-    Quantidade INTEGER,
-    Valor DECIMAL,
-    Peca_ID INTEGER REFERENCES Pecas(ID_Peca),
-    Fornecedor_ID INTEGER REFERENCES Fornecedor(ID_Fornecedor)
+    ID_Encomenda_Fornecedor SERIAL PRIMARY KEY, -- Identificador único da encomenda
+    Quantidade INTEGER NOT NULL,               -- Quantidade de peças encomendadas
+    Valor DECIMAL NOT NULL,                    -- Valor da encomenda
+    Peca_ID INTEGER NOT NULL REFERENCES Pecas(ID_Peca), -- Referência à peça encomendada
+    Fornecedor_ID INTEGER NOT NULL REFERENCES Fornecedor(ID_Fornecedor), -- Referência ao fornecedor
+    EstadoEncomenda_ID INTEGER NOT NULL REFERENCES EstadoEncomendaFornecedor(ID_EstadoEncomenda) -- Estado da encomenda
 );
