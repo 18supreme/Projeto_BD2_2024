@@ -1,6 +1,4 @@
-
---Atualizar Stock de Peça Usada----------------------------------------------------------------------
-
+-- Atualizar Stock de Peça Usada
 CREATE OR REPLACE FUNCTION atualizar_stock_peca()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -18,19 +16,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 CREATE TRIGGER trigger_atualizar_stock
 AFTER INSERT ON Pecas_Manutencao
 FOR EACH ROW
 EXECUTE FUNCTION atualizar_stock_peca();
 
---Adicionar Stock quando uma encomenda chega!----------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
 
+-- Adicionar Stock quando uma encomenda chega!
 CREATE OR REPLACE FUNCTION atualizar_stock_apos_entrega()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Verifica se o estado mudou para "Entregue" (ID = 3)
-    IF NEW.EstadoEncomenda_ID = 3 THEN
+    IF NEW.ID_EstadoEncomenda = 3 THEN
         -- Atualiza o stock da peça
         UPDATE Pecas
         SET Stock = Stock + NEW.Quantidade
@@ -41,12 +39,14 @@ END;
 $$ LANGUAGE plpgsql;
    
 CREATE TRIGGER trigger_atualizar_stock
-AFTER UPDATE OF EstadoEncomenda_ID
+AFTER UPDATE OF ID_EstadoEncomenda
 ON EncomendaFornecedor
 FOR EACH ROW
 EXECUTE FUNCTION atualizar_stock_apos_entrega();
 
---Quando se cria uma reserva, a viatura passar para reservada----------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Quando se cria uma reserva, a viatura passar para reservada
 CREATE OR REPLACE FUNCTION atualizar_estado_viatura_para_alugado()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -64,15 +64,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 CREATE TRIGGER trigger_reserva_viatura
 AFTER INSERT
 ON Reserva
 FOR EACH ROW
 EXECUTE FUNCTION atualizar_estado_viatura_para_alugado();
 
--- Quando se termina a reserva, a viatura passar para disponível----------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
 
+-- Quando se termina a reserva, a viatura passar para disponível
 CREATE OR REPLACE FUNCTION atualizar_estado_viatura_para_disponivel()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -100,13 +100,14 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_reserva_terminada_viatura_disponivel
-AFTER UPDATE OF EstadoReserva_ID
+AFTER UPDATE OF ID_EstadoReserva
 ON Reserva
 FOR EACH ROW
 EXECUTE FUNCTION atualizar_estado_viatura_para_disponivel();
 
---Após criar manutenção para uma viatura a mesma fica em manutenção----------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
 
+-- Após criar manutenção para uma viatura a mesma fica em manutenção
 CREATE OR REPLACE FUNCTION atualizar_estado_viatura_para_em_manutencao()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -126,7 +127,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 
 -- Cria o trigger
 CREATE TRIGGER trigger_manutencao_viatura_em_manutencao
