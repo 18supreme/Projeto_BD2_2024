@@ -29,7 +29,7 @@ CREATE TABLE Marca (
 CREATE TABLE Modelo (
     ID_Modelo SERIAL PRIMARY KEY,
     Nome VARCHAR,
-    Marca_ID INTEGER REFERENCES Marca(ID_Marca),
+    ID_Marca INTEGER REFERENCES Marca(ID_Marca),
     IsActive BOOLEAN
 );
 
@@ -82,14 +82,14 @@ CREATE TABLE Viatura (
     Inspecao DATE,
     IUC MONEY,
     Preco MONEY,
-    Traccao_ID INTEGER REFERENCES Traccao(ID_Traccao),
-    Tipocaixa_ID INTEGER REFERENCES TipoCaixa(ID_Caixa),
-    Combustivel_ID INTEGER REFERENCES Combustivel(ID_Combustivel),
-    Tipo_Viatura_ID INTEGER REFERENCES TipoViatura(ID_TipoViatura),
-    Marca_ID INTEGER REFERENCES Marca(ID_Marca),
-    Modelo_ID INTEGER REFERENCES Modelo(ID_Modelo),
-    Cor_ID INTEGER REFERENCES Cores(ID_Cor),
-    Estado_Viatura_ID INTEGER REFERENCES EstadoViatura(ID_EstadoViatura)
+    ID_Traccao INTEGER REFERENCES Traccao(ID_Traccao),
+    ID_Tipocaixa INTEGER REFERENCES TipoCaixa(ID_Caixa),
+    ID_Combustivel INTEGER REFERENCES Combustivel(ID_Combustivel),
+    ID_Tipo_Viatura INTEGER REFERENCES TipoViatura(ID_TipoViatura),
+    ID_Marca INTEGER REFERENCES Marca(ID_Marca),
+    ID_Modelo INTEGER REFERENCES Modelo(ID_Modelo),
+    ID_Cor INTEGER REFERENCES Cores(ID_Cor),
+    ID_Estado_Viatura INTEGER REFERENCES EstadoViatura(ID_EstadoViatura)
 );
 
 CREATE TABLE EstadoReserva (
@@ -109,7 +109,7 @@ CREATE TABLE Utilizador (
     Nome VARCHAR,
     Password VARCHAR,
     IsActive BOOLEAN,
-    TipoUtilizador_ID INTEGER REFERENCES TipoUtilizador(ID_TipoUtilizador)
+    ID_TipoUtilizador INTEGER REFERENCES TipoUtilizador(ID_TipoUtilizador)
 );
 
 CREATE TABLE Reserva (
@@ -119,9 +119,9 @@ CREATE TABLE Reserva (
     Danos BOOLEAN,
     DanosTexto VARCHAR,
     KMPercorridos INTEGER,
-    Viatura_ID INTEGER REFERENCES Viatura(ID_Viatura),
-    Utilizador_ID INTEGER REFERENCES Utilizador(ID_Utilizador),
-    EstadoReserva_ID INTEGER REFERENCES EstadoReserva(ID_Estado_Reserva)
+    ID_Viatura INTEGER REFERENCES Viatura(ID_Viatura),
+    ID_Utilizador INTEGER REFERENCES Utilizador(ID_Utilizador),
+    ID_EstadoReserva INTEGER REFERENCES EstadoReserva(ID_Estado_Reserva)
 );
 
 CREATE TABLE Fornecedor (
@@ -135,8 +135,8 @@ CREATE TABLE Pecas (
     ID_Peca SERIAL PRIMARY KEY,
     Nome VARCHAR,
     Stock INTEGER,
-    Marca_ID INTEGER REFERENCES Marca(ID_Marca),
-    Modelo_ID INTEGER REFERENCES Modelo(ID_Modelo)
+    ID_Marca INTEGER REFERENCES Marca(ID_Marca),
+    ID_Modelo INTEGER REFERENCES Modelo(ID_Modelo)
 );
 
 CREATE TABLE Manutencao (
@@ -144,7 +144,7 @@ CREATE TABLE Manutencao (
     Valor DECIMAL,
     Descricao TEXT,
     Data DATE,
-    Viatura_ID INTEGER REFERENCES Viatura(ID_Viatura)
+    ID_Viatura INTEGER REFERENCES Viatura(ID_Viatura)
 );
 
 CREATE TABLE Pecas_Manutencao (
@@ -162,8 +162,8 @@ CREATE TABLE EstadoEncomendaFornecedor (
 CREATE TABLE EncomendaFornecedor (
     ID_Encomenda_Fornecedor SERIAL PRIMARY KEY, 
     Quantidade INTEGER NOT NULL,               
-    Valor DECIMAL NOT NULL,                    -
-    Peca_ID INTEGER NOT NULL REFERENCES Pecas(ID_Peca), 
-    Fornecedor_ID INTEGER NOT NULL REFERENCES Fornecedor(ID_Fornecedor),
-    EstadoEncomenda_ID INTEGER NOT NULL REFERENCES EstadoEncomendaFornecedor(ID_EstadoEncomenda) 
+    Valor DECIMAL NOT NULL,
+    ID_Peca INTEGER NOT NULL REFERENCES Pecas(ID_Peca), 
+    ID_Fornecedor INTEGER NOT NULL REFERENCES Fornecedor(ID_Fornecedor),
+    ID_EstadoEncomenda INTEGER NOT NULL REFERENCES EstadoEncomendaFornecedor(ID_EstadoEncomenda) 
 );

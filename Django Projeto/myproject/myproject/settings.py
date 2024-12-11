@@ -92,7 +92,7 @@ DATABASES = {
         'USER': 'gestor_stand',      # O nome de usuário do PostgreSQL
         'PASSWORD': 'admin123',     # A senha do usuário
         'HOST': 'localhost',     # Ou o IP do seu servidor de PostgreSQL
-        'PORT': '5433',          # A porta padrão do PostgreSQL
+        'PORT': '5432',          # A porta padrão do PostgreSQL
     }
     
 }
