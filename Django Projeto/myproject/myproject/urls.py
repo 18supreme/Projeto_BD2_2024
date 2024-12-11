@@ -16,10 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import RedirectView
+from django.shortcuts import redirect  # Importa a função redirect
 
 urlpatterns = [
-    path('admin/', admin.site.urls),                                    # URL para o painel admin
+    path('admin/', include('myapp_administradores.urls')),                                    # URL para o painel admin
     path('clientes/', include('myapp_clientes.urls')),                  # URL para a app 'clientes'
-    path('', RedirectView.as_view(url='/clientes/', permanent=False)),  # Redireciona a raiz para /clientes/
+    path('login/', include('login.urls')),     # Redireciona a raiz para /clientes/
+    path('', lambda request: redirect('login/', permanent=False)),  # Redireciona a raiz para /login/
 ]

@@ -22,13 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-(=&@d@p5z6(6fg8-=1mlkw*9e^o9(6uw-ls_122kpbbi#5%3yt'
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-LOGIN_REDIRECT_URL = '/bem-vindo/'
-LOGOUT_REDIRECT_URL = '/login/'
+
+LOGIN_URL = '/login/'  # URL para a página de login
+LOGIN_REDIRECT_URL = '/'  # URL após o login bem-sucedido
+LOGOUT_REDIRECT_URL = '/login/'  # URL após logout
 
 # Application definition
 
@@ -41,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'myapp_clientes',
     'myapp_colaboradores',
-    'myapp_administradores'
+    'myapp_administradores',
+    'login'
 ]
 
 MIDDLEWARE = [
@@ -52,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'myproject.middlewares.VerificarLoginMiddleware',
 ]
 
 ROOT_URLCONF = 'myproject.urls'
@@ -59,9 +66,7 @@ ROOT_URLCONF = 'myproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / 'templates',  # Este caminho aponta para a pasta templates na raiz do projeto
-        ],
+        'DIRS': [BASE_DIR / "templates"],  # Diretório global para templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -87,8 +92,9 @@ DATABASES = {
         'USER': 'gestor_stand',      # O nome de usuário do PostgreSQL
         'PASSWORD': 'admin123',     # A senha do usuário
         'HOST': 'localhost',     # Ou o IP do seu servidor de PostgreSQL
-        'PORT': '5432',          # A porta padrão do PostgreSQL
+        'PORT': '5433',          # A porta padrão do PostgreSQL
     }
+    
 }
 
 

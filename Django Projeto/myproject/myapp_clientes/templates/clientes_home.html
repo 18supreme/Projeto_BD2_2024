@@ -15,6 +15,14 @@
                 <div class="card-value">{{ percentagem_danos }}%</div>
             </div>
             <div class="card">
+                <div class="card-title">Média de Km</div>
+                <div class="card-value">{{ mediaKmPercorridos }}</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Total de Km</div>
+                <div class="card-value">{{ TotalKmPercorridos }}</div>
+            </div>
+            <div class="card">
                 <div class="card-title">Marca Preferida</div>
                 <div class="card-value">{{ marca_preferida }}</div>
             </div>
@@ -26,15 +34,15 @@
     </div>
 
     <!-- Viaturas nas tendências -->
-    <div style="flex: 1; background-color: black; padding: 20px; color: white; border-radius: 8px;">
+    <div style="max-width: 400px; flex: 1; background-color: black; padding: 20px; color: white; border-radius: 8px;">
         <div style="font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 20px;">Viaturas nas Tendências</div>
         <div class="viaturas-container">
             {% for viatura in viaturas %}
             <a href="{% url 'viatura_detail' viatura.0 %}" class="viatura-item">
-                <div>
+                <div style="justify-content: center;">
                     <img src="https://static.vecteezy.com/ti/vetor-gratis/p1/11716181-ilustracao-de-desenho-animado-de-carro-vetor.jpg" alt="Viatura">
                 </div>
-                <div>
+                <div class="row-gap">
                     <div><strong>Viatura:</strong> {{ viatura.1 }} {{ viatura.2 }}</div>
                     <div><strong>Transmissão:</strong> {{ viatura.3 }}</div>
                     <div><strong>Nº Reservas:</strong> {{ viatura.4 }}</div>
