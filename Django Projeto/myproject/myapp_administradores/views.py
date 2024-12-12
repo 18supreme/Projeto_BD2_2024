@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 
 
 def admin_home(request):
-    user_id = request.session.get('user_id')
+    ID_user = request.session.get('ID_user')
 
     return render(request, 'admin_home.html')
 

@@ -12,12 +12,12 @@
         
         <form method="post" action="{% url 'login' %}" style="display: flex; flex-direction: column; gap: 15px;">
             {% csrf_token %}
-            <label for="username" style="font-size: 14px; font-weight: bold;">Usuário:</label>
-            <input type="text" id="username" name="username" placeholder="Digite seu usuário" required 
+            <label for="username" style="font-size: 14px; font-weight: bold;">Utilizador:</label>
+            <input type="text" id="username" name="username" placeholder="Digite o seu utilizador" required 
                    style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
 
             <label for="password" style="font-size: 14px; font-weight: bold;">Senha:</label>
-            <input type="password" id="password" name="password" placeholder="Digite sua senha" required 
+            <input type="password" id="password" name="password" placeholder="Digite a sua senha" required 
                    style="padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
 
             <button type="submit" 
