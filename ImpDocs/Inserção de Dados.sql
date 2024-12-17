@@ -7,7 +7,6 @@ INSERT INTO Marca (Nome, IsActive) VALUES
 
 -- Inserção de dados para a tabela Modelo
 INSERT INTO Modelo (Nome, ID_Marca, IsActive) VALUES
-INSERT INTO Modelo (Nome, ID_Marca, IsActive) VALUES
 ('307', 2, TRUE),
 ('I8', 1, TRUE),
 ('A3', 3, TRUE),
@@ -56,7 +55,6 @@ INSERT INTO Traccao (Nome, IsActive) VALUES
 
 -- Inserção de dados para a tabela Viatura
 INSERT INTO Viatura (Matricula, Ano, KM, Cilindrada, Potencia, Portas, Lotacao, NumeroMudancas, Inspecao, IUC, Preco, ID_Traccao, ID_Tipocaixa, ID_Combustivel, ID_Tipo_Viatura, ID_Marca, ID_Modelo, ID_Cor, ID_Estado_Viatura) VALUES
-INSERT INTO Viatura (Matricula, Ano, KM, Cilindrada, Potencia, Portas, Lotacao, NumeroMudancas, Inspecao, IUC, Preco, ID_Traccao, ID_Tipocaixa, ID_Combustivel, ID_Tipo_Viatura, ID_Marca, ID_Modelo, ID_Cor, ID_Estado_Viatura) VALUES
 ('18-06-PS', 2003, 150000, '1.6 HDI', 110, 5, 5, 5, '2024-11-24', 22.44,90.51, 1, 1, 1, 1, 2, 1, 5, 1);
 
 -- Inserção de dados para a tabela EstadoReserva
@@ -95,13 +93,10 @@ INSERT INTO Fornecedor (Nome, Valor, IsActive) VALUES
 -- Inserção de dados para a tabela Pecas
 INSERT INTO Pecas (Nome, Stock, ID_Marca, ID_Modelo) VALUES
 ('Filtro de óleo - Universal', 100, 1, 1),  -- Ajuste ID_Marca e ID_Modelo para valores válidos
-INSERT INTO Pecas (Nome, Stock, ID_Marca, ID_Modelo) VALUES
-('Filtro de óleo - Universal', 100, 1, 1),  -- Ajuste ID_Marca e ID_Modelo para valores válidos
 ('Manipulo Mudanças', 50, 2, 1),
 ('Amortecedores dianteiros', 30, 2, 1);
 
 -- Inserção de dados para a tabela Manutencao
-INSERT INTO Manutencao (Valor, Descricao, Data, ID_Viatura) VALUES
 INSERT INTO Manutencao (Valor, Descricao, Data, ID_Viatura) VALUES
 (250.00, 'Troca de óleo', '2024-11-01', 1),
 (500.00, 'Substituição de pastilhas', '2024-10-15', 1),
@@ -120,7 +115,6 @@ INSERT INTO EstadoEncomendaFornecedor (Estado) VALUES
 ('Entregue');
 
 -- Inserção de dados para a tabela EncomendaFornecedor
-INSERT INTO EncomendaFornecedor (Quantidade, Valor, ID_Peca, ID_Fornecedor, ID_EstadoEncomenda) VALUES
 INSERT INTO EncomendaFornecedor (Quantidade, Valor, ID_Peca, ID_Fornecedor, ID_EstadoEncomenda) VALUES
 (10, 100.00, 1, 1, 1), -- Em análise
 (5, 50.00, 2, 2, 2),   -- Em trânsito
