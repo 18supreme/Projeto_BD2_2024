@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
 def clientes_home(request):
-    ID_user = request.session.get('ID_user')
+    user_id = request.session.get('user_id')
     with connection.cursor() as cursor:
             # Executar a consulta para contar o número total de reservas
             cursor.execute("""
@@ -36,7 +36,7 @@ def clientes_home(request):
                 GROUP BY marca.nome
                 ORDER BY COUNT(*) DESC
                 LIMIT 1;
-            """, [ID_user])  # Passa o ID_user para a consulta
+            """, [user_id])  # Passa o ID_user para a consulta
             marca_preferida = cursor.fetchone()
 
             # Executar a consulta para obter o modelo mais usado
@@ -49,7 +49,7 @@ def clientes_home(request):
                 GROUP BY modelo.nome
                 ORDER BY COUNT(*) DESC
                 LIMIT 1;
-            """, [ID_user])
+            """, [user_id])
             modelo_preferido = cursor.fetchone()
 
             # Executar a consulta para obter a média de KM realizados
@@ -129,14 +129,6 @@ def viatura_detail(request, id):
                 tc.Nome AS Tipo_Caixa, 
                 tr.Nome AS Traccao
             FROM Viatura v
-            JOIN Modelo mv ON mv.ID_Modelo = v.ID_Modelo
-            JOIN Marca m ON m.ID_Marca = v.ID_Marca
-            JOIN TipoViatura tv ON tv.ID_TipoViatura = v.ID_Tipo_Viatura
-            JOIN Cores c ON c.ID_Cor = v.ID_Cor
-            JOIN EstadoViatura ev ON ev.ID_EstadoViatura = v.ID_Estado_Viatura
-            JOIN Combustivel i ON i.ID_Combustivel = v.ID_Combustivel
-            JOIN TipoCaixa tc ON tc.ID_Caixa = v.ID_Tipocaixa
-            JOIN Traccao tr ON tr.ID_Traccao = v.ID_Traccao
             JOIN Modelo mv ON mv.ID_Modelo = v.ID_Modelo
             JOIN Marca m ON m.ID_Marca = v.ID_Marca
             JOIN TipoViatura tv ON tv.ID_TipoViatura = v.ID_Tipo_Viatura
