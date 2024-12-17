@@ -13,7 +13,7 @@ def login(request):
             cursor.execute("""
                 SELECT u.id_utilizador, u.nome, tu.tipo
                 FROM utilizador u
-                JOIN tipoutilizador tu ON u.ID_tipoutilizador = tu.id_tipoutilizador
+                JOIN tipoutilizador tu ON u.id_tipoutilizador = tu.id_tipoutilizador
                 WHERE u.nome = %s AND u.password = %s
             """, [username, password])
             
@@ -23,15 +23,17 @@ def login(request):
             ID_user, username, tipo_utilizador = user  # Desempacota os resultados
             
             # Armazena o ID do usuário na sessão
-            request.session['ID_user'] = ID_user  # Armazenar o ID, não o nome
-            
+            request.session['user_id'] = ID_user  # Armazenar o ID, não o nome
+            print(tipo_utilizador)
             # Exemplo de redirecionamento com base no tipo de utilizador
             if tipo_utilizador == 'Cliente':
                 return redirect('clientes_home')
             elif tipo_utilizador == 'Admin':
                 return redirect('admin_home')
+
         else:
             # Caso as credenciais sejam inválidas
+            print("Credenciais inválidas")
             return render(request, 'login.html', {'error': 'Credenciais inválidas.'})
     
     return render(request, 'login.html')
