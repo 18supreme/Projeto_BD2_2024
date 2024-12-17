@@ -3,7 +3,6 @@ from django.db import connection
 from django.shortcuts import render, redirect
 from . import basededados as bd
 
-
 def admin_home(request):
     user_id = request.session.get('ID_user')
 
@@ -66,39 +65,75 @@ def admin_home(request):
     })
 
 def admin_viaturas(request):
-    marca = request.GET.get('marca', '')
-    modelo = request.GET.get('modelo', '')
-    tipo = request.GET.get('tipo', '')
+    marca_filtro = request.GET.get('marca', '')
+    modelo_filtro = request.GET.get('modelo', '')
+    tipo_filtro = request.GET.get('tipo', '')
+
+    where_clauses = []
+    params = []
+
+    if marca_filtro:
+        where_clauses.append("marca.id_marca = %s")
+        params.append(marca_filtro)
+
+    if modelo_filtro:
+        where_clauses.append("modelo.id_modelo = %s")
+        params.append(modelo_filtro)
+
+    if tipo_filtro:
+        where_clauses.append("tipoviatura.id_tipoviatura = %s")
+        params.append(tipo_filtro)
+
+    where_clause = " AND ".join(where_clauses)
+    where_clause = f"WHERE {where_clause}" if where_clause else ""
+
+    query = f"""
+        SELECT
+            v.id_viatura,
+            marca.nome,
+            modelo.nome,
+            tipoviatura.nome,
+            v.matricula,
+            v.preco,
+            v.iuc,
+            v.inspecao,
+            v.km,
+            v.ano
+        FROM viatura v
+        LEFT JOIN marca ON v.id_marca = marca.id_marca
+        LEFT JOIN modelo ON v.id_modelo = modelo.id_modelo
+        LEFT JOIN tipoviatura ON v.id_tipo_viatura = tipoviatura.id_tipoviatura
+        {where_clause}
+    """
 
     with connection.cursor() as cursor:
-        
-        query = """
-            SELECT
-                v.id_viatura,
-                marca.nome,
-                modelo.nome,
-                tipoviatura.nome,
-                v.matricula,
-                v.preco,
-                v.iuc,
-                v.inspecao,
-                v.km,
-                v.ano
-            FROM viatura v
-            LEFT JOIN marca ON v.id_marca = marca.id_marca
-            LEFT JOIN modelo ON v.id_modelo = modelo.id_modelo
-            LEFT JOIN tipoviatura ON v.id_tipo_viatura = tipoviatura.id_tipoviatura
-        """
-        params = []
+        # Obter marcas
+        cursor.execute("SELECT id_marca, nome FROM marca")
+        marcas = cursor.fetchall()
 
+        # Obter modelos
+        cursor.execute("SELECT id_modelo, nome FROM modelo")
+        modelos = cursor.fetchall()
+
+        # Obter tipos de viatura
+        cursor.execute("SELECT id_tipoviatura, nome FROM tipoviatura")
+        tipos = cursor.fetchall()
+
+        # Executar a query de viaturas com os filtros aplicados
         cursor.execute(query, params)
         viaturas = cursor.fetchall()
 
-        # Passar os dados para o template
-        context = {
-            'viaturas': viaturas
+    context = {
+        'viaturas': viaturas,
+        'marcas': marcas,
+        'modelos': modelos,
+        'tipos': tipos,
+        'filtros': {
+            'marca': marca_filtro,
+            'modelo': modelo_filtro,
+            'tipo': tipo_filtro,
         }
-
+    }
     return render(request, 'admin_viaturas.html', context)
 
 def admin_reservas(request):

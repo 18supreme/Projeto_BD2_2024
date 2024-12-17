@@ -1,4 +1,5 @@
-{% extends 'base_admin.html' %} {% block content %}
+{% extends 'base_admin.html' %}
+{% block content %}
 <div class="admin-container">
   <h1>Estatísticas de Viaturas</h1>
   <br />
@@ -8,23 +9,32 @@
     <form method="get">
       <label for="marca">Marca:</label>
       <select name="marca" id="marca">
-        <option value="">Todos</option>
-        <option value="1">Ford</option>
-        <option value="2">BMW</option>
+        <option value="" {% if not filtros.marca %}selected{% endif %}>Todos</option>
+        {% for marca in marcas %}
+        <option value="{{ marca.0 }}" {% if filtros.marca == marca.0|stringformat:"s" %}selected{% endif %}>
+          {{ marca.1 }}
+        </option>
+        {% endfor %}
       </select>
 
       <label for="modelo">Modelo:</label>
       <select name="modelo" id="modelo">
-        <option value="">Todos</option>
-        <option value="1">Focus</option>
-        <option value="2">X5</option>
+        <option value="" {% if not filtros.modelo %}selected{% endif %}>Todos</option>
+        {% for modelo in modelos %}
+        <option value="{{ modelo.0 }}" {% if filtros.modelo == modelo.0|stringformat:"s" %}selected{% endif %}>
+          {{ modelo.1 }}
+        </option>
+        {% endfor %}
       </select>
 
       <label for="tipo">Tipo:</label>
       <select name="tipo" id="tipo">
-        <option value="">Todos</option>
-        <option value="1">SUV</option>
-        <option value="2">Pickup</option>
+        <option value="" {% if not filtros.tipo %}selected{% endif %}>Todos</option>
+        {% for tipo in tipos %}
+        <option value="{{ tipo.0 }}" {% if filtros.tipo == tipo.0|stringformat:"s" %}selected{% endif %}>
+          {{ tipo.1 }}
+        </option>
+        {% endfor %}
       </select>
 
       <button type="submit" class="btn btn-primary">Filtrar</button>
@@ -77,6 +87,19 @@
 
   .search-filter {
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .search-filter label {
+    font-weight: bold;
+  }
+
+  .search-filter select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
   }
 
   .btn {
@@ -101,32 +124,6 @@
     padding: 10px;
     text-align: left;
     border-bottom: 1px solid #ddd;
-  }
-
-  .search-filter {
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  search-filter label {
-    font-weight: bold;
-  }
-
-  .search-filter select {
-    padding: 5px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-
-  .search-filter .btn-primary {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    cursor: pointer;
   }
 </style>
 {% endblock %}
