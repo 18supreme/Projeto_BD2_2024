@@ -2,22 +2,14 @@ from django.shortcuts import render, redirect
 from django.db import connection
 from django.contrib.auth import logout as django_logout
 from django.contrib.auth import authenticate, login
+from . import basededados as bd
 
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-
-        # Executar o JOIN para obter o tipo de utilizador
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT u.id_utilizador, u.nome, tu.tipo
-                FROM utilizador u
-                JOIN tipoutilizador tu ON u.ID_tipoutilizador = tu.id_tipoutilizador
-                WHERE u.nome = %s AND u.password = %s
-            """, [username, password])
-            
-            user = cursor.fetchone()  # Retorna um único registro (ou None)
+        
+        user = bd.getUserByUsernameAndPassword(username, password)
         
         if user:
             ID_user, username, tipo_utilizador = user  # Desempacota os resultados

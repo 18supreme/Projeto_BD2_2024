@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.db import connection
 from django.shortcuts import render, redirect
+from . import basededados as bd
 
 
 def admin_home(request):
@@ -25,19 +26,14 @@ def admin_administracao(request):
     return render(request, 'admin_administracao.html')
 
 def admin_marcaslist(request):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT * FROM marca
-        """)
-        marcas = cursor.fetchall()
+    
+    marcas = bd.getAllMarcas()
     
     # Retorna a lista de viaturas para o template
     return render(request, 'admin_marcaslist.html', {'marcas': marcas})
 
 def admin_marcadelete(request, marcaid):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-                DELETE FROM marca where id_marca = %s
-            """, [marcaid])
+    
+    bd.deleteMarcaById(marcaid)
         
     return redirect('admin_marcaslist')
