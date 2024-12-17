@@ -1,7 +1,132 @@
-{% extends 'base_admin.html' %}
+{% extends 'base_admin.html' %} {% block content %}
+<div class="admin-container">
+  <h1>Estatísticas de Viaturas</h1>
+  <br />
 
-{% block content %}
-<div>
-    
+  <!-- Filtros -->
+  <div class="search-filter">
+    <form method="get">
+      <label for="marca">Marca:</label>
+      <select name="marca" id="marca">
+        <option value="">Todos</option>
+        <option value="1">Ford</option>
+        <option value="2">BMW</option>
+      </select>
+
+      <label for="modelo">Modelo:</label>
+      <select name="modelo" id="modelo">
+        <option value="">Todos</option>
+        <option value="1">Focus</option>
+        <option value="2">X5</option>
+      </select>
+
+      <label for="tipo">Tipo:</label>
+      <select name="tipo" id="tipo">
+        <option value="">Todos</option>
+        <option value="1">SUV</option>
+        <option value="2">Pickup</option>
+      </select>
+
+      <button type="submit" class="btn btn-primary">Filtrar</button>
+    </form>
+  </div>
+
+  <!-- Tabela de Viaturas -->
+  <table class="viaturas-table">
+    <thead>
+      <tr>
+        <th>ID Viatura</th>
+        <th>Marca</th>
+        <th>Modelo</th>
+        <th>Tipo</th>
+        <th>Matrícula</th>
+        <th>Preço</th>
+        <th>IUC</th>
+        <th>Inspeção</th>
+        <th>Kilómetros</th>
+        <th>Ano</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for viatura in viaturas %}
+      <tr>
+        <td>{{ viatura.0 }}</td>
+        <td>{{ viatura.1 }}</td>
+        <td>{{ viatura.2 }}</td>
+        <td>{{ viatura.3 }}</td>
+        <td>{{ viatura.4 }}</td>
+        <td>{{ viatura.5 }}</td>
+        <td>{{ viatura.6 }}</td>
+        <td>{{ viatura.7 }}</td>
+        <td>{{ viatura.8 }}</td>
+        <td>{{ viatura.9 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
+
+<style>
+  .admin-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-filter {
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    padding: 10px 15px;
+    border-radius: 5px;
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+  }
+
+  .viaturas-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .viaturas-table th,
+  .viaturas-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .search-filter {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  search-filter label {
+    font-weight: bold;
+  }
+
+  .search-filter select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  .search-filter .btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+</style>
 {% endblock %}

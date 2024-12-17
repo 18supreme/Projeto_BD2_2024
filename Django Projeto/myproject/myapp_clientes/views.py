@@ -10,7 +10,7 @@ def clientes_home(request):
             cursor.execute("""
                 SELECT COUNT(id_reserva)
                 FROM reserva
-                WHERE utilizador_id = %s;
+                WHERE id_utilizador = %s;
             """, [user_id]) 
             total_reservas = cursor.fetchone()[0]
 
@@ -22,7 +22,7 @@ def clientes_home(request):
                         1
                     ) AS percentagem_com_danos
                 FROM reserva
-                WHERE utilizador_id = %s;
+                WHERE id_utilizador = %s;
             """, [user_id])  # Substitua "userid" por %s e passe o valor de user_id
             percentagem_danos = cursor.fetchone()[0]
 
@@ -30,9 +30,9 @@ def clientes_home(request):
             cursor.execute("""
                 SELECT marca.nome AS marca_preferida
                 FROM reserva
-                JOIN viatura ON reserva.viatura_id = viatura.id_viatura
-                JOIN marca ON viatura.marca_id = marca.id_marca
-                WHERE reserva.utilizador_id = %s  -- Filtro para o usuário específico
+                JOIN viatura ON reserva.id_viatura = viatura.id_viatura
+                JOIN marca ON viatura.id_marca = marca.id_marca
+                WHERE reserva.id_utilizador = %s  -- Filtro para o usuário específico
                 GROUP BY marca.nome
                 ORDER BY COUNT(*) DESC
                 LIMIT 1;
@@ -43,9 +43,9 @@ def clientes_home(request):
             cursor.execute("""
                 SELECT modelo.nome AS modelo_preferido
                 FROM reserva
-                JOIN viatura ON reserva.viatura_id = viatura.id_viatura
-                JOIN modelo ON viatura.modelo_id = modelo.id_modelo
-                WHERE reserva.utilizador_id = %s  -- Filtro para o usuário específico
+                JOIN viatura ON reserva.id_viatura = viatura.id_viatura
+                JOIN modelo ON viatura.id_modelo = modelo.id_modelo
+                WHERE reserva.id_utilizador = %s  -- Filtro para o usuário específico
                 GROUP BY modelo.nome
                 ORDER BY COUNT(*) DESC
                 LIMIT 1;
@@ -57,7 +57,7 @@ def clientes_home(request):
                 SELECT 
                     CONCAT(COALESCE(ROUND(SUM(KMPercorridos) * 1.0 / COUNT(KMPercorridos), 2), 0), ' KM') AS media_km
                 FROM reserva
-                WHERE reserva.utilizador_id = %s  -- Filtro para o usuário específico
+                WHERE reserva.id_utilizador = %s  -- Filtro para o usuário específico
             """, [user_id])
             MédiaKmPercorridos = cursor.fetchone()[0]  # Usando fetchall() para obter as 3 viaturas
 
@@ -66,7 +66,7 @@ def clientes_home(request):
                 SELECT 
                     CONCAT(COALESCE(SUM(KMPercorridos), 0), ' KM') AS total_km
                 FROM reserva
-                WHERE reserva.utilizador_id = %s  -- Filtro para o usuário específico
+                WHERE reserva.id_utilizador = %s  -- Filtro para o usuário específico
             """, [user_id])
             TotalKmPercorridos = cursor.fetchone()[0]  # Usando fetchall() para obter as 3 viaturas
             
@@ -74,10 +74,10 @@ def clientes_home(request):
             cursor.execute("""
                 SELECT viatura.id_viatura, marca.nome AS marca, modelo.nome AS modelo, tipocaixa.nome AS caixa, COUNT(reserva.id_reserva) AS total_reservas
                 FROM reserva
-                JOIN viatura ON reserva.viatura_id = viatura.id_viatura
-                JOIN marca ON viatura.marca_id = marca.id_marca
-                JOIN modelo ON viatura.modelo_id = modelo.id_modelo
-                JOIN tipocaixa ON tipocaixa.ID_Caixa = viatura.Tipocaixa_ID
+                JOIN viatura ON reserva.id_viatura = viatura.id_viatura
+                JOIN marca ON viatura.id_marca = marca.id_marca
+                JOIN modelo ON viatura.id_modelo = modelo.id_modelo
+                JOIN tipocaixa ON tipocaixa.ID_Caixa = viatura.id_Tipocaixa
                 GROUP BY viatura.id_viatura, modelo.nome, tipocaixa.nome, marca.nome, modelo.nome
                         
                 ORDER BY total_reservas DESC
@@ -103,11 +103,11 @@ def viaturas_list(request):
         cursor.execute("""
             SELECT vi.id_viatura, vi.matricula, mo.nome AS modelo, ma.nome AS marca, co.nome AS cor, i.Nome AS Combustivel, tc.Nome AS Tipo_Caixa
             FROM viatura vi
-            JOIN modelo mo ON vi.modelo_id = mo.id_modelo
-            JOIN marca ma ON vi.marca_id = ma.id_marca
-            JOIN cores co ON vi.cor_id = co.id_cor
-            JOIN Combustivel i ON i.ID_Combustivel = vi.Combustivel_ID
-            JOIN TipoCaixa tc ON tc.ID_Caixa = vi.Tipocaixa_ID
+            JOIN modelo mo ON vi.id_modelo = mo.id_modelo
+            JOIN marca ma ON vi.id_marca = ma.id_marca
+            JOIN cores co ON vi.id_cor = co.id_cor
+            JOIN Combustivel i ON i.ID_Combustivel = vi.id_Combustivel
+            JOIN TipoCaixa tc ON tc.ID_Caixa = vi.id_Tipocaixa
         """)
         viaturas = cursor.fetchall()
     
@@ -129,14 +129,14 @@ def viatura_detail(request, id):
                 tc.Nome AS Tipo_Caixa, 
                 tr.Nome AS Traccao
             FROM Viatura v
-            JOIN Modelo mv ON mv.ID_Modelo = v.Modelo_ID
-            JOIN Marca m ON m.ID_Marca = v.Marca_ID
-            JOIN TipoViatura tv ON tv.ID_TipoViatura = v.Tipo_Viatura_ID
-            JOIN Cores c ON c.ID_Cor = v.Cor_ID
-            JOIN EstadoViatura ev ON ev.ID_EstadoViatura = v.Estado_Viatura_ID
-            JOIN Combustivel i ON i.ID_Combustivel = v.Combustivel_ID
-            JOIN TipoCaixa tc ON tc.ID_Caixa = v.Tipocaixa_ID
-            JOIN Traccao tr ON tr.ID_Traccao = v.Traccao_ID
+            JOIN Modelo mv ON mv.ID_Modelo = v.ID_Modelo
+            JOIN Marca m ON m.ID_Marca = v.ID_Marca
+            JOIN TipoViatura tv ON tv.ID_TipoViatura = v.ID_Tipo_Viatura
+            JOIN Cores c ON c.ID_Cor = v.ID_Cor
+            JOIN EstadoViatura ev ON ev.ID_EstadoViatura = v.ID_Estado_Viatura
+            JOIN Combustivel i ON i.ID_Combustivel = v.ID_Combustivel
+            JOIN TipoCaixa tc ON tc.ID_Caixa = v.ID_Tipocaixa
+            JOIN Traccao tr ON tr.ID_Traccao = v.ID_Traccao
             WHERE v.ID_Viatura = %s
         """, [id])  # Passando o id como parâmetro de forma segura
 
@@ -164,14 +164,14 @@ def reservas_list(request):
             FROM 
                 reserva
             JOIN 
-                viatura ON viatura.id_viatura = reserva.viatura_id
+                viatura ON viatura.id_viatura = reserva.id_viatura
             JOIN 
-                marca ON viatura.marca_id = marca.id_marca
+                marca ON viatura.id_marca = marca.id_marca
             JOIN 
-                modelo ON viatura.modelo_id = modelo.id_modelo
+                modelo ON viatura.id_modelo = modelo.id_modelo
             JOIN 
-                estadoreserva ON reserva.EstadoReserva_ID = estadoreserva.ID_Estado_Reserva
-            WHERE utilizador_id = %s
+                estadoreserva ON reserva.ID_EstadoReserva = estadoreserva.ID_Estado_Reserva
+            WHERE id_utilizador = %s
             ORDER BY 
                 reserva.data_inicio DESC;
         """, [user_id])
@@ -181,7 +181,7 @@ def reservas_list(request):
     return render(request, 'reservas_list.html', {'reservas': reservas})
 
 
-def criar_reserva(request, viatura_id):
+def criar_reserva(request, id_viatura):
     user_id = request.session.get('user_id')
     if request.method == 'POST':
         # Obtendo os valores do formulário
@@ -193,14 +193,14 @@ def criar_reserva(request, viatura_id):
             cursor.execute("""
                 SELECT COUNT(*)
                 FROM Reserva
-                WHERE Viatura_ID = %s
+                WHERE ID_Viatura = %s
                 AND (
                     (Data_Inicio <= %s AND Data_Fim >= %s)
                     OR (Data_Inicio <= %s AND Data_Fim >= %s)
                     OR (Data_Inicio >= %s AND Data_Inicio <= %s)
                 )
-                AND Reserva.estadoreserva_id != 5
-            """, [viatura_id, data_inicio, data_fim, data_inicio, data_fim, data_inicio, data_fim])
+                AND Reserva.id_estadoreserva != 5
+            """, [id_viatura, data_inicio, data_fim, data_inicio, data_fim, data_inicio, data_fim])
             
             conflito = cursor.fetchone()[0]  # Obtem o primeiro resultado (contagem)
 
@@ -211,9 +211,9 @@ def criar_reserva(request, viatura_id):
         # Se não houver conflito, insere a nova reserva
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO Reserva (Data_Inicio, Data_Fim, Danos, DanosTexto, KMPercorridos, Viatura_ID, Utilizador_ID, EstadoReserva_ID)
+                INSERT INTO Reserva (Data_Inicio, Data_Fim, Danos, DanosTexto, KMPercorridos, ID_Viatura, ID_Utilizador, ID_EstadoReserva)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, [data_inicio, data_fim, False, '', 0, viatura_id, user_id , 1])
+            """, [data_inicio, data_fim, False, '', 0, id_viatura, user_id , 1])
 
         # Redireciona para a lista de viaturas
         return redirect('viaturas_list')
@@ -222,16 +222,16 @@ def criar_reserva(request, viatura_id):
     return render(request, 'reserva_form.html')
 
 
-def reserva_cancelar(request, reserva_id):
-    print(reserva_id)
+def reserva_cancelar(request, id_reserva):
+    print(id_reserva)
     if request.method == 'POST':
         with connection.cursor() as cursor:
             # Atualiza o estado da reserva para o estado com id=5
             cursor.execute("""
                 UPDATE Reserva
-                SET EstadoReserva_ID = 5
+                SET ID_EstadoReserva = 5
                 WHERE id_reserva = %s
-            """, [reserva_id])  # Usando o parametro reserva_id de forma segura
+            """, [id_reserva])  # Usando o parametro id_reserva de forma segura
 
             # Adicionar mensagem de sucesso
         return redirect('reservas_list')

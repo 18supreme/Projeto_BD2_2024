@@ -1,7 +1,235 @@
 {% extends 'base_admin.html' %}
 
 {% block content %}
-<div>
+<div class="admin-container">
+    <h1>Estatísticas de Reservas</h1>
+    <br>
+
+    <!-- Resumo das Reservas -->
+    <div class="statistics">
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #5bc0de;">
+                    <i class="fa fa-check-circle"></i>
+                </div>
+                <div class="stat-number">{{ reservas_confirmadas }}</div>
+                <div class="stat-text">Reservas Confirmadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #f0ad4e;">
+                    <i class="fa fa-clock"></i>
+                </div>
+                <div class="stat-number">{{ reservas_pendentes }}</div>
+                <div class="stat-text">Reservas Pendentes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #f0ad4e;">
+                    <i class="fa fa-spinner"></i>
+                </div>
+                <div class="stat-number">{{ reservas_em_progresso }}</div>
+                <div class="stat-text">Reservas em Progresso</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #28a745;">
+                    <i class="fa fa-check"></i>
+                </div>
+                <div class="stat-number">{{ reservas_finalizadas }}</div>
+                <div class="stat-text">Reservas Finalizadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background-color: #d9534f;">
+                    <i class="fa fa-times-circle"></i>
+                </div>
+                <div class="stat-number">{{ reservas_canceladas }}</div>
+                <div class="stat-text">Reservas Canceladas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="search-filter">
+        <form method="get">
+            <label for="estado">Estado:</label>
+            <select name="estado" id="estado">
+                <option value="">Todos</option>
+                <option value="1" {% if estado|default:'' == '1' %}selected{% endif %}>Pendente</option>
+                <option value="2" {% if estado|default:'' == '2' %}selected{% endif %}>Confirmada</option>
+                <option value="3" {% if estado|default:'' == '3' %}selected{% endif %}>Em Progresso</option>
+                <option value="4" {% if estado|default:'' == '4' %}selected{% endif %}>Finalizada</option>
+                <option value="5" {% if estado|default:'' == '5' %}selected{% endif %}>Cancelada</option>
+            </select>
     
+            <label for="ordenar">Ordenar por:</label>
+            <select name="ordenar" id="ordenar">
+                <option value="">Sem ordenação</option>
+                <option value="data_inicio_asc" {% if ordenar == 'data_inicio_asc' %}selected{% endif %}>Data Início - Crescente</option>
+                <option value="data_inicio_desc" {% if ordenar == 'data_inicio_desc' %}selected{% endif %}>Data Início - Decrescente</option>
+                <option value="data_fim_asc" {% if ordenar == 'data_fim_asc' %}selected{% endif %}>Data Fim - Crescente</option>
+                <option value="data_fim_desc" {% if ordenar == 'data_fim_desc' %}selected{% endif %}>Data Fim - Decrescente</option>
+            </select>
+    
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </form>
+    </div>
+
+    <!-- Tabela de Reservas -->
+    <table class="reservas-table">
+        <thead>
+            <tr>
+                <th>ID Reserva</th>
+                <th>Data Início</th>
+                <th>Data Fim</th>
+                <th>Danos</th>
+                <th>Descrição Danos</th>
+                <th>Km Percorridos</th>
+                <th>Viatura</th>
+                <th>Utilizador</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+            <tr>
+                <td>{{ reserva.0 }}</td>
+                <td>{{ reserva.1 }}</td>
+                <td>{{ reserva.2 }}</td>
+                <td>{{ reserva.3|yesno:"Sim,Não" }}</td>
+                <td>{{ reserva.4 }}</td>
+                <td>{{ reserva.5 }}</td>
+                <td>{{ reserva.6 }}</td>
+                <td>{{ reserva.7 }}</td>
+                <td>
+                    {% if reserva.8 == 1 %}
+                    <span class="status pending">Pendente</span>
+                    {% elif reserva.8 == 2 %}
+                    <span class="status confirmed">Confirmada</span>
+                    {% elif reserva.8 == 3 %}
+                    <span class="status in-progress">Em Progresso</span>
+                    {% elif reserva.8 == 4 %}
+                    <span class="status completed">Finalizada</span>
+                    {% elif reserva.8 == 5 %}
+                    <span class="status cancelled">Cancelada</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+
+<style>
+    .admin-container {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .search-filter {
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        border-radius: 5px;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+    }
+
+    .statistics {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .stat-cards {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        width: 180px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        font-size: 30px;
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 50%;
+        color: white;
+    }
+
+    .stat-number {
+        font-size: 36px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .stat-text {
+        font-size: 16px;
+        color: #666;
+    }
+
+    .reservas-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .reservas-table th, .reservas-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .status {
+        padding: 5px 10px;
+        border-radius: 3px;
+        text-transform: capitalize;
+    }
+
+    .search-filter {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-filter label {
+        font-weight: bold;
+    }
+
+    .search-filter select {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .search-filter .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .status.pending { background-color: #f0ad4e; }
+    .status.confirmed { background-color: #5bc0de; }
+    .status.in-progress { background-color: #f0ad4e; }
+    .status.cancelled { background-color: #d9534f; }
+    .status.completed { background-color: #28a745; }
+</style>
 {% endblock %}
