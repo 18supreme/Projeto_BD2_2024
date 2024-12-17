@@ -1,7 +1,54 @@
-{% extends 'base_admin.html' %}
-
+{% extends 'base_admin.html' %} 
 {% block content %}
-<div>
-    
+<div class="admin-container">
+  <h1>Estatísticas de Manutenções</h1>
+  <br />
+
+  <!-- Tabela de Manutenções -->
+  <table class="manutencoes-table">
+    <thead>
+      <tr>
+        <th>ID Manutenção</th>
+        <th>Valor</th>
+        <th>Descrição</th>
+        <th>Data</th>
+        <th>Viatura</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for manutencao in manutencoes %}
+      <tr>
+        <td>{{ manutencao.0 }}</td>
+        <td>{{ manutencao.1 }}</td>
+        <td>{{ manutencao.2 }}</td>
+        <td>{{ manutencao.3 }}</td>
+        <td>{{ manutencao.4 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
+
+<style>
+  .admin-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .manutencoes-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .manutencoes-table th,
+  .manutencoes-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+</style>
 {% endblock %}
