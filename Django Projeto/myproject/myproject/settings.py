@@ -88,9 +88,9 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'stand',       # O nome da base de dados que você criou no pgAdmin
-        'USER': 'gestor_stand',      # O nome de usuário do PostgreSQL
-        'PASSWORD': 'admin123',     # A senha do usuário
+        'NAME': 'stand',       # O nome da base de dados no pgAdmin
+        'USER': 'gestor_stand',      # O nome do utilizador do PostgreSQL
+        'PASSWORD': 'admin123',     # A senha do utilizador
         'HOST': 'localhost',     # Ou o IP do seu servidor de PostgreSQL
         'PORT': '5432',          # A porta padrão do PostgreSQL
     }

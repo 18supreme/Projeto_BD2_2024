@@ -3,7 +3,7 @@ from django.db import connection
 from django.shortcuts import render, redirect
 
 def admin_home(request):
-    user_id = request.session.get('user_id')
+    ID_user = request.session.get('ID_user')
 
     with connection.cursor() as cursor:
         # Contar o total de viaturas

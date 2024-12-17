@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
 def clientes_home(request):
-    user_id = request.session.get('user_id')
+    ID_user = request.session.get('ID_user')
     with connection.cursor() as cursor:
             # Executar a consulta para contar o número total de reservas
             cursor.execute("""
@@ -36,7 +36,7 @@ def clientes_home(request):
                 GROUP BY marca.nome
                 ORDER BY COUNT(*) DESC
                 LIMIT 1;
-            """, [user_id])  # Passa o user_id para a consulta
+            """, [ID_user])  # Passa o ID_user para a consulta
             marca_preferida = cursor.fetchone()
 
             # Executar a consulta para obter o modelo mais usado
@@ -49,7 +49,7 @@ def clientes_home(request):
                 GROUP BY modelo.nome
                 ORDER BY COUNT(*) DESC
                 LIMIT 1;
-            """, [user_id])
+            """, [ID_user])
             modelo_preferido = cursor.fetchone()
 
             # Executar a consulta para obter a média de KM realizados
@@ -137,6 +137,14 @@ def viatura_detail(request, id):
             JOIN Combustivel i ON i.ID_Combustivel = v.ID_Combustivel
             JOIN TipoCaixa tc ON tc.ID_Caixa = v.ID_Tipocaixa
             JOIN Traccao tr ON tr.ID_Traccao = v.ID_Traccao
+            JOIN Modelo mv ON mv.ID_Modelo = v.ID_Modelo
+            JOIN Marca m ON m.ID_Marca = v.ID_Marca
+            JOIN TipoViatura tv ON tv.ID_TipoViatura = v.ID_Tipo_Viatura
+            JOIN Cores c ON c.ID_Cor = v.ID_Cor
+            JOIN EstadoViatura ev ON ev.ID_EstadoViatura = v.ID_Estado_Viatura
+            JOIN Combustivel i ON i.ID_Combustivel = v.ID_Combustivel
+            JOIN TipoCaixa tc ON tc.ID_Caixa = v.ID_Tipocaixa
+            JOIN Traccao tr ON tr.ID_Traccao = v.ID_Traccao
             WHERE v.ID_Viatura = %s
         """, [id])  # Passando o id como parâmetro de forma segura
 
@@ -149,7 +157,7 @@ def viatura_detail(request, id):
 
 
 def reservas_list(request):
-    user_id = request.session.get('user_id')
+    ID_user = request.session.get('ID_user')
     # Executa a consulta SQL direta para obter as viaturas
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -174,7 +182,7 @@ def reservas_list(request):
             WHERE id_utilizador = %s
             ORDER BY 
                 reserva.data_inicio DESC;
-        """, [user_id])
+        """, [ID_user])
         reservas = cursor.fetchall()
     
     # Retorna a lista de viaturas para o template
@@ -194,6 +202,7 @@ def criar_reserva(request, id_viatura):
                 SELECT COUNT(*)
                 FROM Reserva
                 WHERE ID_Viatura = %s
+                WHERE ID_Viatura = %s
                 AND (
                     (Data_Inicio <= %s AND Data_Fim >= %s)
                     OR (Data_Inicio <= %s AND Data_Fim >= %s)
@@ -212,6 +221,7 @@ def criar_reserva(request, id_viatura):
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO Reserva (Data_Inicio, Data_Fim, Danos, DanosTexto, KMPercorridos, ID_Viatura, ID_Utilizador, ID_EstadoReserva)
+                INSERT INTO Reserva (Data_Inicio, Data_Fim, Danos, DanosTexto, KMPercorridos, ID_Viatura, ID_Utilizador, ID_EstadoReserva)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, [data_inicio, data_fim, False, '', 0, id_viatura, user_id , 1])
 
@@ -229,6 +239,7 @@ def reserva_cancelar(request, id_reserva):
             # Atualiza o estado da reserva para o estado com id=5
             cursor.execute("""
                 UPDATE Reserva
+                SET ID_EstadoReserva = 5
                 SET ID_EstadoReserva = 5
                 WHERE id_reserva = %s
             """, [id_reserva])  # Usando o parametro id_reserva de forma segura
