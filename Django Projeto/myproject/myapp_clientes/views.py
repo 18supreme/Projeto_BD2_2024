@@ -239,6 +239,6 @@ def reserva_cancelar(request, reserva_id):
 
             # Adicionar mensagem de sucesso
         return redirect('reservas_list')
-
+ 
     # Se for uma requisição GET, exibe o formulário
     return render(request, 'reservas_list.html')
