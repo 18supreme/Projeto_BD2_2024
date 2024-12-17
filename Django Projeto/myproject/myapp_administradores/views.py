@@ -177,7 +177,29 @@ def admin_reservas(request):
     return render(request, 'admin_reservas.html', context)
 
 def admin_manutencoes(request):
-    return render(request, 'admin_manutencoes.html')
+    with connection.cursor() as cursor:
+        # Consulta para buscar os dados das manutenções
+        query = """
+            SELECT 
+                m.id_manutencao,
+                m.valor,
+                m.descricao,
+                m.data,
+                CONCAT(marca.nome, ' ', modelo.nome) AS nome_viatura
+            FROM manutencao m
+            LEFT JOIN viatura v ON m.id_viatura = v.id_viatura
+            LEFT JOIN marca ON v.id_marca = marca.id_marca
+            LEFT JOIN modelo ON v.id_modelo = modelo.id_modelo
+        """
+        cursor.execute(query)
+        manutencoes = cursor.fetchall()
+
+    # Passar os dados para o template
+    context = {
+        'manutencoes': manutencoes
+    }
+
+    return render(request, 'admin_manutencoes.html', context)
 
 def admin_administracao(request):
     return render(request, 'admin_administracao.html')
