@@ -1,0 +1,110 @@
+{% block content %}
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span id="close-modal" class="close">&times;</span>
+    <h1>Criar Manutenção</h1>
+    <br>
+
+    <form method="POST" action="{% url 'admin_manutencao_create' %}" class="form-container">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="valor">Valor (€)</label>
+        <input type="text" name="valor" id="valor" required class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="descricao">Descrição</label>
+        <textarea name="descricao" id="descricao" required class="form-control"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="data">Data</label>
+        <input type="date" name="data" id="data" required class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="viatura">Viatura</label>
+        <select name="viatura" id="viatura" required class="form-control">
+          {% for viatura in viaturas %}
+            <option value="{{ viatura.0 }}">{{ viatura.0 }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success">Criar Manutenção</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  /* Modal Styles */
+  .modal {
+    display: block;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 10px; /* Cantos arredondados */
+    width: 50%;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  /* Formulário */
+  .form-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  /* Estilo do botão */
+  .form-actions {
+    text-align: right;
+  }
+</style>
+
+{% endblock %}

@@ -64,6 +64,7 @@ def admin_home(request):
         'reservas_recentes': reservas_recentes
     })
 
+
 def admin_viaturas(request):
     marca_filtro = request.GET.get('marca', '')
     modelo_filtro = request.GET.get('modelo', '')
@@ -135,6 +136,7 @@ def admin_viaturas(request):
         }
     }
     return render(request, 'admin_viaturas.html', context)
+
 
 def admin_reservas(request):
     estado = request.GET.get('estado', '')
@@ -213,6 +215,7 @@ def admin_reservas(request):
 
     return render(request, 'admin_reservas.html', context)
 
+
 def admin_manutencoes(request):
     with connection.cursor() as cursor:
         # Consulta para buscar os dados das manutenções
@@ -238,8 +241,68 @@ def admin_manutencoes(request):
 
     return render(request, 'admin_manutencoes.html', context)
 
+
+def create_manutencao(request):
+    if request.method == "POST":
+        valor = request.POST.get("valor")
+        descricao = request.POST.get("descricao")
+        data = request.POST.get("data")
+        viatura_id = request.POST.get("viatura")
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO Manutencao (Valor, Descricao, Data, ID_Viatura)
+                VALUES (%s, %s, %s, %s)
+                """, [valor, descricao, data, viatura_id]
+            )
+
+        return redirect('admin_manutencoes')  # Redireciona para a página de manutenções após criação
+    
+    # Se o método for GET, apenas mostra o formulário de criação
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT ID_Viatura, Matricula FROM Viatura")
+        viaturas = cursor.fetchall()
+
+    return render(request, "admin_manutencoes_create.html", {"viaturas": viaturas})
+
+
+def edit_manutencao(request, manutencao_id):
+    if request.method == "POST":
+        valor = request.POST.get("valor")
+        descricao = request.POST.get("descricao")
+        data = request.POST.get("data")
+        viatura_id = request.POST.get("viatura")
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE Manutencao
+                SET Valor = %s, Descricao = %s, Data = %s, ID_Viatura = %s
+                WHERE ID_Manutencao = %s
+                """, [valor, descricao, data, viatura_id, manutencao_id]
+            )
+        return JsonResponse({"success": True})
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM Manutencao WHERE ID_Manutencao = %s", [manutencao_id])
+        manutencao = cursor.fetchone()
+
+        cursor.execute("SELECT ID_Viatura, Matricula FROM Viatura")
+        viaturas = cursor.fetchall()
+
+    return render(request, "manutencoes/edit.html", {"manutencao": manutencao, "viaturas": viaturas})
+
+
+def delete_manutencao(request, manutencao_id):
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM Manutencao WHERE ID_Manutencao = %s", [manutencao_id])
+    return JsonResponse({"success": True})
+
+
 def admin_administracao(request):
     return render(request, 'admin_administracao.html')
+
 
 def admin_marcaslist(request):
     
@@ -247,6 +310,7 @@ def admin_marcaslist(request):
     
     # Retorna a lista de viaturas para o template
     return render(request, 'admin_marcaslist.html', {'marcas': marcas})
+
 
 def admin_marcadelete(request, marcaid):
     
