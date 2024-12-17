@@ -65,7 +65,6 @@ INSERT INTO EstadoReserva (Estado, IsActive) VALUES
 ('Finalizada', TRUE),
 ('Cancelada', TRUE);
 
-
 -- Inserção de dados para a tabela TipoUtilizador
 INSERT INTO TipoUtilizador (Tipo, IsActive) VALUES
 ('Admin', TRUE),
@@ -74,17 +73,16 @@ INSERT INTO TipoUtilizador (Tipo, IsActive) VALUES
 
 -- Inserção de dados para a tabela Utilizador
 INSERT INTO Utilizador (Nome, Password, IsActive, ID_TipoUtilizador) VALUES
-('João Silva', 'password1', TRUE, 1),
-('Maria Costa', 'password2', TRUE, 2),
-('Carlos Rocha', 'password3', TRUE, 3);
+('admin', 'admin', TRUE, 1),
+('cliente', 'cliente', TRUE, 2),
+('fornecedor', 'fornecedor', TRUE, 3);
 
 -- Inserção de dados para a tabela Reserva
 INSERT INTO Reserva (Data_Inicio, Data_Fim, Danos, DanosTexto, KMPercorridos, ID_Viatura, ID_Utilizador, ID_EstadoReserva) VALUES
-('2024-11-01', '2024-11-10', FALSE, '', 200, 1, 1, 4),
-('2024-10-01', '2024-10-10', TRUE, 'Danos no volante', 1000, 1, 1, 4),
-('2024-09-01', '2024-09-10', FALSE, '', 100, 1, 1, 4),
-('2024-08-01', '2024-08-10', FALSE, '', 500, 1, 1, 4);
-
+('2024-11-01', '2024-11-10', FALSE, '', 200, 1, 2, 4),
+('2024-10-01', '2024-10-10', TRUE, 'Danos no volante', 1000, 1, 2, 3),
+('2024-09-01', '2024-09-10', FALSE, '', 100, 1, 2, 2),
+('2024-08-01', '2024-08-10', FALSE, '', 500, 1, 2, 1);
 
 -- Inserção de dados para a tabela Fornecedor
 INSERT INTO Fornecedor (Nome, Valor, IsActive) VALUES
@@ -110,13 +108,11 @@ INSERT INTO Pecas_Manutencao (ID_Peca, ID_Manutencao, Quantidade) VALUES
 (2, 2, 1),
 (3, 1, 2);
 
-
 -- Inserir os estados
 INSERT INTO EstadoEncomendaFornecedor (Estado) VALUES
 ('Em análise'),
 ('Em trânsito'),
 ('Entregue');
-
 
 -- Inserção de dados para a tabela EncomendaFornecedor
 INSERT INTO EncomendaFornecedor (Quantidade, Valor, ID_Peca, ID_Fornecedor, ID_EstadoEncomenda) VALUES
@@ -124,25 +120,26 @@ INSERT INTO EncomendaFornecedor (Quantidade, Valor, ID_Peca, ID_Fornecedor, ID_E
 (5, 50.00, 2, 2, 2),   -- Em trânsito
 (20, 200.00, 3, 3, 3); -- Entregue
 
-
 -- Seleciona todos os registros das tabelas
-SELECT * FROM Marca;
-SELECT * FROM Modelo;
-SELECT * FROM Cores;
-SELECT * FROM Traccao;
-SELECT * FROM TipoViatura;
-SELECT * FROM EstadoViatura;
-SELECT * FROM Viatura;
-SELECT * FROM EstadoReserva;
-SELECT * FROM TipoUtilizador;
-SELECT * FROM Utilizador;
-SELECT * FROM Reserva;
-SELECT * FROM Fornecedor;
-SELECT * FROM Pecas;
-SELECT * FROM Manutencao;
-SELECT * FROM Pecas_Manutencao;
-SELECT * FROM EstadoEncomendaFornecedor;
-SELECT * FROM EncomendaFornecedor;
+SELECT * FROM combustivel;
+SELECT * FROM cores;
+SELECT * FROM encomendafornecedor;
+SELECT * FROM estadoencomendafornecedor;
+SELECT * FROM estadoreserva;
+SELECT * FROM estadoviatura;
+SELECT * FROM fornecedor;
+SELECT * FROM manutencao;
+SELECT * FROM marca;
+SELECT * FROM modelo;
+SELECT * FROM pecas;
+SELECT * FROM pecas_manutencao;
+SELECT * FROM reserva;
+SELECT * FROM tipocaixa;
+SELECT * FROM tipoutilizador;
+SELECT * FROM tipoviatura;
+SELECT * FROM traccao;
+SELECT * FROM utilizador;
+SELECT * FROM viatura;
 
 GRANT ALL
 ON ALL TABLES IN SCHEMA public

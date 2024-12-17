@@ -14,6 +14,7 @@ def login(request):
                 SELECT u.id_utilizador, u.nome, tu.tipo
                 FROM utilizador u
                 JOIN tipoutilizador tu ON u.id_tipoutilizador = tu.id_tipoutilizador
+                JOIN tipoutilizador tu ON u.id_tipoutilizador = tu.id_tipoutilizador
                 WHERE u.nome = %s AND u.password = %s
             """, [username, password])
             
