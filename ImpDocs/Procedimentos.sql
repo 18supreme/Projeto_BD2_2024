@@ -21,8 +21,8 @@ END;
 $$;
 
 -- Exemplo de chamada do PROCEDURE
-CALL registar_Modelo('A3', 3, TRUE);      -- Este já existe
-CALL registar_Modelo('Corolla', 1, TRUE); -- Novo registro
+-- CALL registar_Modelo('A3', 3, TRUE);      -- Este já existe
+-- CALL registar_Modelo('Corolla', 1, TRUE); -- Novo registro
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -49,9 +49,9 @@ END;
 $$;
 
 -- Exemplo de chamadas do PROCEDURE
-CALL registar_Fornecedor('Auto Peças Ltda', 1500.00, TRUE); -- Já existe
-CALL registar_Fornecedor('Peças Rápidas', 2000.00, TRUE);   -- Já existe
-CALL registar_Fornecedor('Peças Novas', 1800.00, TRUE);     -- Novo registro
+-- CALL registar_Fornecedor('Auto Peças Ltda', 1500.00, TRUE); -- Já existe
+-- CALL registar_Fornecedor('Peças Rápidas', 2000.00, TRUE);   -- Já existe
+-- CALL registar_Fornecedor('Peças Novas', 1800.00, TRUE);     -- Novo registro
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -81,5 +81,25 @@ $$;
 SELECT * FROM pecas
 
 -- Exemplo de chamada do PROCEDURE
-CALL registar_Peca('Filtro de óleo - Universal', 100, 1, 1); -- Este já existe
-CALL registar_Peca('Catalisador', 30, 1, 2);                 -- Novo registro
+-- CALL registar_Peca('Filtro de óleo - Universal', 100, 1, 1); -- Este já existe
+-- CALL registar_Peca('Catalisador', 30, 1, 2);                 -- Novo registro
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Eliminar Marca pelo Id
+CREATE OR REPLACE PROCEDURE deleteMarcaById(p_marcaid INTEGER)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Deletar o usuário com o ID fornecido
+    DELETE FROM Marca WHERE ID_Marca = p_marcaid;
+
+    -- Opcional: Verificar se algo foi deletado
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma Marca encontrado com o ID %', p_marcaid;
+    END IF;
+END;
+$$;
+
+-- Exemplo de chamada do PROCEDURE
+-- CALL deleteMarcaById(1);

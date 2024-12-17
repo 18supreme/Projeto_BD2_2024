@@ -2,9 +2,14 @@ from django.shortcuts import render, redirect
 from django.db import connection
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from . import basededados as bd
 
 def clientes_home(request):
     user_id = request.session.get('user_id')
+    
+    # Executar a consulta para contar o número total de reservas
+    total_reservas = bd.getTotalReservasByUser(user_id)
+    
     with connection.cursor() as cursor:
             # Executar a consulta para contar o número total de reservas
             cursor.execute("""
