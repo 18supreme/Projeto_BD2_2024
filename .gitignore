@@ -1,1 +1,6 @@
 Django Projeto/myproject/myproject/settings.py
+/Django Projeto/myproject/myproject/__pycache__
+/Django Projeto/myproject/login/__pycache__
+/Django Projeto/myproject/myapp_administradores/__pycache__
+*.pyc
+Django Projeto/myproject/myproject/settings.py

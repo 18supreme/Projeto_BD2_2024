@@ -2,9 +2,14 @@ from django.shortcuts import render, redirect
 from django.db import connection
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from . import basededados as bd
 
 def clientes_home(request):
     user_id = request.session.get('user_id')
+    
+    # Executar a consulta para contar o número total de reservas
+    total_reservas = bd.getTotalReservasByUser(user_id)
+    
     with connection.cursor() as cursor:
             # Executar a consulta para contar o número total de reservas
             cursor.execute("""
@@ -149,7 +154,7 @@ def viatura_detail(request, id):
 
 
 def reservas_list(request):
-    ID_user = request.session.get('ID_user')
+    ID_user = request.session.get('user_id')
     # Executa a consulta SQL direta para obter as viaturas
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -181,7 +186,7 @@ def reservas_list(request):
     return render(request, 'reservas_list.html', {'reservas': reservas})
 
 
-def criar_reserva(request, id_viatura):
+def criar_reserva(request, viatura_id):
     user_id = request.session.get('user_id')
     if request.method == 'POST':
         # Obtendo os valores do formulário
@@ -194,14 +199,13 @@ def criar_reserva(request, id_viatura):
                 SELECT COUNT(*)
                 FROM Reserva
                 WHERE ID_Viatura = %s
-                WHERE ID_Viatura = %s
                 AND (
                     (Data_Inicio <= %s AND Data_Fim >= %s)
                     OR (Data_Inicio <= %s AND Data_Fim >= %s)
                     OR (Data_Inicio >= %s AND Data_Inicio <= %s)
                 )
                 AND Reserva.id_estadoreserva != 5
-            """, [id_viatura, data_inicio, data_fim, data_inicio, data_fim, data_inicio, data_fim])
+            """, [viatura_id, data_inicio, data_fim, data_inicio, data_fim, data_inicio, data_fim])
             
             conflito = cursor.fetchone()[0]  # Obtem o primeiro resultado (contagem)
 
@@ -213,9 +217,8 @@ def criar_reserva(request, id_viatura):
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO Reserva (Data_Inicio, Data_Fim, Danos, DanosTexto, KMPercorridos, ID_Viatura, ID_Utilizador, ID_EstadoReserva)
-                INSERT INTO Reserva (Data_Inicio, Data_Fim, Danos, DanosTexto, KMPercorridos, ID_Viatura, ID_Utilizador, ID_EstadoReserva)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, [data_inicio, data_fim, False, '', 0, id_viatura, user_id , 1])
+            """, [data_inicio, data_fim, False, '', 0, viatura_id, user_id , 1])
 
         # Redireciona para a lista de viaturas
         return redirect('viaturas_list')
@@ -224,17 +227,15 @@ def criar_reserva(request, id_viatura):
     return render(request, 'reserva_form.html')
 
 
-def reserva_cancelar(request, id_reserva):
-    print(id_reserva)
+def reserva_cancelar(request, reserva_id):
     if request.method == 'POST':
         with connection.cursor() as cursor:
             # Atualiza o estado da reserva para o estado com id=5
             cursor.execute("""
                 UPDATE Reserva
                 SET ID_EstadoReserva = 5
-                SET ID_EstadoReserva = 5
                 WHERE id_reserva = %s
-            """, [id_reserva])  # Usando o parametro id_reserva de forma segura
+            """, [reserva_id])  # Usando o parametro id_reserva de forma segura
 
             # Adicionar mensagem de sucesso
         return redirect('reservas_list')

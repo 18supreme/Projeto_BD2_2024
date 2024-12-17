@@ -28,7 +28,7 @@ END;
 $$;
 
 -- Exemplo de chamadas da FUNCTION
-SELECT * FROM selecionar_Viatura(1); -- Substitua '1' pelo ID desejado
+-- SELECT * FROM selecionar_Viatura(1); -- Substitua '1' pelo ID desejado
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ END;
 $$;
 
 -- Exemplo de chamadas da FUNCTION
-SELECT * FROM selecionar_Fornecedor(1); -- Substitua '1' pelo ID desejado
+-- SELECT * FROM selecionar_Fornecedor(1); -- Substitua '1' pelo ID desejado
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ END;
 $$;
 
 -- Exemplo de chamadas da FUNCTION
-SELECT * FROM selecionar_Manutencao(1); -- Substitua '1' pelo ID desejado
+-- SELECT * FROM selecionar_Manutencao(1); -- Substitua '1' pelo ID desejado
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ END;
 $$;
 
 -- Exemplo de chamadas da FUNCTION
-SELECT * FROM selecionar_Reserva(1); -- Substitua '1' pelo ID desejado
+-- SELECT * FROM selecionar_Reserva(1); -- Substitua '1' pelo ID desejado
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -149,7 +149,7 @@ END;
 $$;
 
 -- Exemplo de chamadas da FUNCTION
-SELECT * FROM selecionar_Peca(1); -- Substitua '1' pelo ID desejado
+-- SELECT * FROM selecionar_Peca(1); -- Substitua '1' pelo ID desejado
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -177,7 +177,7 @@ END;
 $$;
 
 -- Exemplo de chamadas da FUNCTION
-SELECT * FROM selecionar_Marca(1); -- Substitua '1' pelo ID desejado
+-- SELECT * FROM selecionar_Marca(1); -- Substitua '1' pelo ID desejado
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -206,7 +206,7 @@ END;
 $$;
 
 -- Exemplo de chamadas da FUNCTION
-SELECT * FROM selecionar_Modelo(1); -- Substitua '1' pelo ID desejado
+-- SELECT * FROM selecionar_Modelo(1); -- Substitua '1' pelo ID desejado
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -235,4 +235,59 @@ END;
 $$;
 
 -- Exemplo de chamadas da FUNCTION
-SELECT * FROM selecionar_Fornecedor(1); -- Substitua '1' pelo ID desejado
+-- SELECT * FROM selecionar_Fornecedor(1); -- Substitua '1' pelo ID desejado
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Selecionar Utilizador pelo nome e senha
+CREATE OR REPLACE FUNCTION selecionar_UtilizadorByUsernameAndPassword(p_username VARCHAR, p_password VARCHAR)
+RETURNS TABLE (
+    ID_Utilizador INTEGER,
+    Nome VARCHAR,
+    Tipo VARCHAR
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar o utilizador correspondente ao nome e senha fornecidos
+    RETURN QUERY
+    SELECT u.id_utilizador, u.nome, tu.tipo
+    FROM utilizador u
+    JOIN tipoutilizador tu ON u.id_tipoutilizador = tu.id_tipoutilizador
+    WHERE u.nome = p_username AND u.password = p_password;
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhum utilizador encontrado com essa combinação de Utilizador e Senha.';
+    END IF;
+END;
+$$;
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_UtilizadorByUsernameAndPassword("João Silva", "password1");
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Seleciona o numero total de reservas de um determinado utilizador
+CREATE OR REPLACE FUNCTION selecionar_TotalReservasByUser(p_ID_user VARCHAR)
+RETURNS TABLE (
+    Reservas_Totais INTEGER
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar o total das reservas do utilizador fornecido
+    RETURN QUERY
+    SELECT COUNT(id_reserva) AS Reservas_Totais
+    FROM reserva 
+    WHERE ID_utilizador = p_ID_user;
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma reserva encontrada desse Utilizador.';
+    END IF;
+END;
+$$;
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_TotalReservasByUser(1);
