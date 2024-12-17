@@ -1,7 +1,105 @@
 {% extends 'base_admin.html' %}
 
+<!-- 
+Possíveis coisas a adicionar na Dashboard
+✅ - Número total de viaturas
+- Número de viaturas disponíveis para reserva
+✅ - Número total de reservas
+✅ - Número de viaturas com danos
+✅ - Número de manutenções pendentes
+- Valor total das reservas
+✅ - Número total de peças em stock
+- Gráfico de linha: Evolução do número de reservas ao longo do tempo
+- Gráfico de barras: Comparação do número de reservas por tipo de viatura
+-->
+
 {% block content %}
-<div>
+<div class="dashboard">
+    <h1>Dashboard de Administrador</h1>
+    <br>
+
+    <div class="stats-cards" style="display: flex; gap: 20px;">
+        <!-- Cartão Total de Viaturas -->
+        <div class="card" style="flex: 1; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+            <h2>Total de Viaturas</h2>
+            <p style="font-size: 5rem; font-weight: bold;">{{ total_viaturas }}</p>
+            <a href="{% url 'admin_viaturas' %}" style="text-decoration: none; color: red; font-weight: bold;">Ver mais</a>
+        </div>
+
+        <!-- Cartão Total de Viaturas Disponíveis para Reserva -->
+        <div class="card" style="flex: 1; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+            <h2>Viaturas Disponíveis para Reserva</h2>
+            <p style="font-size: 5rem; font-weight: bold;">{{ total_viaturas_reserva }}</p>
+            <a href="{% url 'admin_viaturas' %}" style="text-decoration: none; color: red; font-weight: bold;">Ver mais</a>
+        </div>
+
+        <!-- Cartão Total de Viaturas com Danos -->
+        <div class="card" style="flex: 1; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+            <h2>Viaturas com Danos</h2>
+            <p style="font-size: 5rem; font-weight: bold;">{{ total_danos }}</p>
+            <a href="{% url 'admin_viaturas' %}" style="text-decoration: none; color: red; font-weight: bold;">Ver mais</a>
+        </div>
     
+        <!-- Cartão Total de Reservas -->
+        <div class="card" style="flex: 1; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+            <h2>Total de Reservas</h2>
+            <p style="font-size: 5rem; font-weight: bold;">{{ total_reservas }}</p>
+            <a href="{% url 'admin_reservas' %}" style="text-decoration: none; color: red; font-weight: bold;">Ver mais</a>
+        </div>
+    
+        <!-- Cartão Manutenções Pendentes -->
+        <div class="card" style="flex: 1; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+            <h2>Manutenções Pendentes</h2>
+            <p style="font-size: 5rem; font-weight: bold;">{{ manutencoes_pendentes }}</p>
+            <a href="{% url 'admin_manutencoes' %}" style="text-decoration: none; color: red; font-weight: bold;">Ver mais</a>
+        </div>
+
+        <!-- Cartão Total de Peças em Stock -->
+        <div class="card" style="flex: 1; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+            <h2>Peças em Stock</h2>
+            <p style="font-size: 5rem; font-weight: bold;">{{ total_pecas }}</p>
+            <a href="{% url 'admin_dashboard' %}" style="text-decoration: none; color: red; font-weight: bold;">Ver mais</a>
+        </div>
+    </div>
+
+    <div class="recent-section" style="margin-top: 40px;">
+        <h2>Reservas Recentes</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="background: #ddd;">
+                    <th style="padding: 10px; text-align: left;">ID Reserva</th>
+                    <th style="padding: 10px; text-align: left;">Data Início</th>
+                    <th style="padding: 10px; text-align: left;">Data Fim</th>
+                    <th style="padding: 10px; text-align: left;">Danos</th>
+                    <th style="padding: 10px; text-align: left;">Descrição dos Danos</th>
+                    <th style="padding: 10px; text-align: left;">KM Percorridos</th>
+                    <th style="padding: 10px; text-align: left;">Viatura</th>
+                    <th style="padding: 10px; text-align: left;">Utilizador</th>
+                    <th style="padding: 10px; text-align: left;">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reserva in reservas_recentes %}
+                <tr>
+                    <td style="padding: 10px;">{{ reserva.0 }}</td>
+                    <td style="padding: 10px;">{{ reserva.1 }}</td>
+                    <td style="padding: 10px;">{{ reserva.2 }}</td>
+                    <td style="padding: 10px;">
+                        {% if reserva.3 %}
+                            Sim
+                        {% else %}
+                            Não
+                        {% endif %}
+                    </td>
+                    <td style="padding: 10px;">{{ reserva.4 }}</td>
+                    <td style="padding: 10px;">{{ reserva.5 }}</td>
+                    <td style="padding: 10px;">{{ reserva.6 }}</td>
+                    <td style="padding: 10px;">{{ reserva.7 }}</td>
+                    <td style="padding: 10px;">{{ reserva.8 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
