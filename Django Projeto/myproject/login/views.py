@@ -14,7 +14,6 @@ def login(request):
                 SELECT u.id_utilizador, u.nome, tu.tipo
                 FROM utilizador u
                 JOIN tipoutilizador tu ON u.id_tipoutilizador = tu.id_tipoutilizador
-                JOIN tipoutilizador tu ON u.id_tipoutilizador = tu.id_tipoutilizador
                 WHERE u.nome = %s AND u.password = %s
             """, [username, password])
             
@@ -30,7 +29,7 @@ def login(request):
             if tipo_utilizador == 'Cliente':
                 return redirect('clientes_home')
             elif tipo_utilizador == 'Admin':
-                return redirect('admin_home')
+                return redirect('admin_dashboard')
 
         else:
             # Caso as credenciais sejam inválidas
