@@ -103,3 +103,48 @@ $$;
 
 -- Exemplo de chamada do PROCEDURE
 -- CALL deleteMarcaById(1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Registar Reserva
+CREATE OR REPLACE PROCEDURE registar_Reserva (
+    p_Data_Inicio DATE,
+    p_Data_Fim DATE, 
+    p_Danos BOOLEAN,
+    p_DanosTexto VARCHAR,
+    p_KMPercorridos INTEGER,
+    p_ID_Viatura INTEGER,
+    p_ID_Utilizador INTEGER,
+    p_ID_EstadoReserva INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Inserir o novo registro caso não exista
+    INSERT INTO Reserva (Data_Inicio, Data_Fim, Danos, DanosTexto, KMPercorridos, ID_Viatura, ID_Utilizador, ID_EstadoReserva)
+    VALUES (p_Data_Inicio, p_Data_Fim, p_Danos, p_DanosTexto, p_KMPercorridos, p_ID_Viatura, p_ID_Utilizador, p_ID_EstadoReserva);
+END;
+$$;
+
+-- Exemplo de chamadas do PROCEDURE
+-- CALL registar_Reserva('20-12-2023', '23-12-2023', False, '', 0, 1, 1 , 1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Uptade Reserva
+CREATE OR REPLACE PROCEDURE update_Reserva (
+    p_reserva_id INTEGER,
+    p_ID_EstadoReserva INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Atualiza o estado da reserva para cancelada 
+    UPDATE Reserva
+        SET ID_EstadoReserva = p_ID_EstadoReserva
+        WHERE id_reserva = p_reserva_id
+END;
+$$;
+
+-- Exemplo de chamadas do PROCEDURE
+-- CALL update_Reserva('20-12-2023', '23-12-2023', False, '', 0, 1, 1 , 1);

@@ -269,7 +269,7 @@ $$;
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Seleciona o numero total de reservas de um determinado utilizador
-CREATE OR REPLACE FUNCTION selecionar_TotalReservasByUser(p_ID_user VARCHAR)
+CREATE OR REPLACE FUNCTION selecionar_TotalReservasByUser(p_ID_user INTEGER)
 RETURNS TABLE (
     Reservas_Totais INTEGER
 ) 
@@ -291,3 +291,361 @@ $$;
 
 -- Exemplo de chamadas da FUNCTION
 -- SELECT * FROM selecionar_TotalReservasByUser(1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Seleciona a percentagem de danos de um determinado utilizador
+CREATE OR REPLACE FUNCTION selecionar_PercentDanosByUser(p_ID_user INTEGER)
+RETURNS TABLE (
+    Percentagem_danos INTEGER
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar a percentagem de danos do utilizador fornecido
+    RETURN QUERY
+    SELECT 
+        ROUND(
+            (SUM(CASE WHEN Danos = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(*),
+            1
+        ) AS Percentagem_danos
+    FROM reserva 
+    WHERE ID_utilizador = p_ID_user;
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhum dano encontrado desse Utilizador.';
+    END IF;
+END;
+$$;
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_PercentDanosByUser(1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Seleciona a marca mais usada de um determinado utilizador
+CREATE OR REPLACE FUNCTION selecionar_MarcaByUser(p_ID_user INTEGER)
+RETURNS TABLE (
+    marca_preferida VARCHAR
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar a marca mais usada do utilizador fornecido
+    RETURN QUERY
+    SELECT marca.nome AS marca_preferida
+    FROM reserva 
+    JOIN viatura ON reserva.id_viatura = viatura.id_viatura
+    JOIN marca ON viatura.id_marca = marca.id_marca
+    WHERE reserva.id_utilizador = p_ID_user  -- Filtro para o utilizador específico
+    GROUP BY marca.nome
+    ORDER BY COUNT(*) DESC
+    LIMIT 1;
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma marca encontrada desse Utilizador.';
+    END IF;
+END;
+$$;
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_MarcaByUser(1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Seleciona o modelo mais usado de um determinado utilizador
+CREATE OR REPLACE FUNCTION selecionar_ModeloByUser(p_ID_user INTEGER)
+RETURNS TABLE (
+    marca_preferida VARCHAR
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar o modelo mais usado do utilizador fornecido
+    RETURN QUERY
+    SELECT modelo.nome AS modelo_preferido
+    FROM reserva 
+    JOIN viatura ON reserva.id_viatura = viatura.id_viatura
+    JOIN modelo ON viatura.id_modelo = modelo.id_modelo
+    WHERE reserva.id_utilizador = p_ID_user  -- Filtro para o utilizador específico
+    GROUP BY modelo.nome
+    ORDER BY COUNT(*) DESC
+    LIMIT 1;
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma modelo encontrado desse Utilizador.';
+    END IF;
+END;
+$$;
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_ModeloByUser(1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Seleciona a média de KM realizados por um determinado utilizador
+CREATE OR REPLACE FUNCTION selecionar_MediaKmByUser(p_ID_user INTEGER)
+RETURNS TABLE (
+    media_km DECIMAL(10, 2) -- Correct data type
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar a média de KM realizados por um utilizador fornecido
+    RETURN QUERY
+    SELECT 
+        COALESCE(ROUND(SUM(KMPercorridos) * 1.0 / COUNT(KMPercorridos), 2), 0)
+    FROM reserva 
+    WHERE reserva.id_utilizador = p_ID_user; -- Filtro para o utilizador específico
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma quilometragem encontrada.';
+    END IF;
+END;
+$$;
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_MediaKmByUser(1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Seleciona o total de KM realizados por um determinado utilizador
+CREATE OR REPLACE FUNCTION selecionar_TotalKmByUser(p_ID_user INTEGER)
+RETURNS TABLE (
+    total_km DECIMAL
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar o total de KM realizados por um utilizador fornecido
+    RETURN QUERY
+    SELECT 
+         CONCAT(COALESCE(SUM(KMPercorridos), 0), ' KM') AS total_km
+    FROM reserva 
+    WHERE reserva.id_utilizador = p_ID_user;  -- Filtro para o utilizador específico
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma quilometragem encontrada.';
+    END IF;
+END;
+$$;
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_TotalKmByUser(1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Seleciona as 3 viaturas mais requisitadas
+CREATE OR REPLACE FUNCTION selecionar_getTop3Viaturas()
+RETURNS TABLE (
+    id_viatura INTEGER,
+    marca VARCHAR,
+    modelo VARCHAR,
+    caixa VARCHAR,
+    total_reservas BIGINT
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar as 3 viaturas mais requisitadas
+    RETURN QUERY
+    SELECT 
+        v.id_viatura, 
+        m.nome AS marca, 
+        mo.nome AS modelo, 
+        tc.nome AS caixa, 
+        COUNT(r.id_reserva) AS total_reservas
+    FROM reserva r
+    JOIN viatura v ON r.id_viatura = v.id_viatura
+    JOIN marca m ON v.id_marca = m.id_marca
+    JOIN modelo mo ON v.id_modelo = mo.id_modelo
+    JOIN tipocaixa tc ON tc.id_caixa = v.id_tipocaixa
+    GROUP BY v.id_viatura, m.nome, mo.nome, tc.nome
+    ORDER BY total_reservas DESC
+    LIMIT 3;
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma viatura encontrado.';
+    END IF;
+END;
+$$;
+
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM getTop3Viaturas(1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Seleciona todas as viaturas
+CREATE OR REPLACE FUNCTION selecionar_Viaturas()
+RETURNS TABLE (
+    id_viatura INTEGER, 
+    matricula VARCHAR, 
+    modelo VARCHAR, 
+    marca VARCHAR, 
+    cor VARCHAR, 
+    Combustivel VARCHAR, 
+    Tipo_Caixa VARCHAR, 
+    preco DECIMAL
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar as 3 viaturas mais requisitadas
+    RETURN QUERY
+    SELECT 
+        vi.id_viatura, vi.matricula, mo.nome AS modelo, ma.nome AS marca, co.nome AS cor, i.Nome AS Combustivel, tc.Nome AS Tipo_Caixa, preco
+    FROM viatura vi
+    JOIN modelo mo ON vi.id_modelo = mo.id_modelo
+    JOIN marca ma ON vi.id_marca = ma.id_marca
+    JOIN cores co ON vi.id_cor = co.id_cor
+    JOIN Combustivel i ON i.ID_Combustivel = vi.id_Combustivel
+    JOIN TipoCaixa tc ON tc.ID_Caixa = vi.id_Tipocaixa;
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma viatura encontrada.';
+    END IF;
+END;
+$$;
+
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_Viaturas(1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Seleciona todas as viaturas
+CREATE OR REPLACE FUNCTION selecionar_DetailViaturaById(p_id_viatura INTEGER)
+RETURNS TABLE (
+    ID_Viatura INTEGER, 
+    Matricula VARCHAR, 
+    KM INTEGER, 
+    Ano INTEGER, 
+    Modelo VARCHAR, 
+    Marca VARCHAR, 
+    Tipo_Viatura VARCHAR, 
+    Cor VARCHAR,
+    Estado_Viatura VARCHAR, 
+    Combustivel VARCHAR, 
+    Tipo_Caixa VARCHAR, 
+    Traccao VARCHAR
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar todas as viaturas
+    RETURN QUERY
+    SELECT 
+        v.ID_Viatura, v.Matricula, v.KM, v.Ano, 
+        mv.Nome AS Modelo, 
+        m.Nome AS Marca, 
+        tv.Nome AS Tipo_Viatura, 
+        c.Nome AS Cor, 
+        ev.Estado AS Estado_Viatura, 
+        i.Nome AS Combustivel, 
+        tc.Nome AS Tipo_Caixa, 
+        tr.Nome AS Traccao
+    FROM Viatura v
+    JOIN Modelo mv ON mv.ID_Modelo = v.ID_Modelo
+    JOIN Marca m ON m.ID_Marca = v.ID_Marca
+    JOIN TipoViatura tv ON tv.ID_TipoViatura = v.ID_Tipo_Viatura
+    JOIN Cores c ON c.ID_Cor = v.ID_Cor
+    JOIN EstadoViatura ev ON ev.ID_EstadoViatura = v.ID_Estado_Viatura
+    JOIN Combustivel i ON i.ID_Combustivel = v.ID_Combustivel
+    JOIN TipoCaixa tc ON tc.ID_Caixa = v.ID_Tipocaixa
+    JOIN Traccao tr ON tr.ID_Traccao = v.ID_Traccao
+    WHERE v.ID_Viatura = p_id_viatura;
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma viatura encontrada com o ID %.', p_id_viatura;
+    END IF;
+END;
+$$;
+
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_DetailViaturaById(1);
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Seleciona todas as reservas de um determinado utilizador
+CREATE OR REPLACE FUNCTION selecionar_ReservaByUser(p_ID_user INTEGER)
+RETURNS TABLE (
+    id INTEGER,
+    marca VARCHAR,
+    modelo VARCHAR,
+    status VARCHAR,
+    data_inicio DATE,
+    data_fim DATE,
+    danos BOOLEAN
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar todas as reservas de um utilizador fornecido
+    RETURN QUERY
+    SELECT 
+        reserva.id_reserva AS id,
+        marca.nome AS marca, 
+        modelo.nome AS modelo, 
+        estadoreserva.estado AS status, 
+        reserva.data_inicio AS data_inicio, 
+        reserva.data_fim AS data_fim,
+        reserva.danos AS danos
+    FROM reserva
+    JOIN viatura ON viatura.id_viatura = reserva.id_viatura
+    JOIN marca ON viatura.id_marca = marca.id_marca
+    JOIN modelo ON viatura.id_modelo = modelo.id_modelo
+    JOIN estadoreserva ON reserva.ID_EstadoReserva = estadoreserva.ID_Estado_Reserva
+    WHERE id_utilizador = p_ID_user
+    ORDER BY reserva.data_inicio DESC;
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma reserva encontrada';
+    END IF;
+END;
+$$;
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_ReservaByUser(1)
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Confere se existe alguma reserva para uma determinada viatura, data de inicio e data de fim
+CREATE OR REPLACE FUNCTION selecionar_conflitoReserva(p_viatura_id INTEGER, p_data_inicio DATE, p_data_fim DATE)
+RETURNS TABLE (
+    COUNT BigInt
+) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Retornar todas as reservas de um utilizador fornecido
+    RETURN QUERY
+    SELECT COUNT(*) as COUNT
+    FROM reserva
+    WHERE ID_Viatura = p_viatura_id
+        AND (
+            (Data_Inicio <= p_data_inicio AND Data_Fim >= p_data_fim)
+            OR (Data_Inicio <= p_data_inicio AND Data_Fim >= p_data_fim)
+            OR (Data_Inicio >= p_data_inicio AND Data_Inicio <= p_data_fim)
+        )
+        AND Reserva.id_estadoreserva != 5;
+
+    -- Caso não encontre, exibir uma mensagem (opcional)
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Nenhuma reserva encontrada';
+    END IF;
+END;
+$$;
+
+-- Exemplo de chamadas da FUNCTION
+-- SELECT * FROM selecionar_conflitoReserva(1,'20-12-2023','23-12-2023')
