@@ -148,3 +148,87 @@ $$;
 
 -- Exemplo de chamadas do PROCEDURE
 -- CALL update_Reserva('20-12-2023', '23-12-2023', False, '', 0, 1, 1 , 1);
+------------------------------------------------------------------------------------------------
+-- Criar Manutenção
+CREATE OR REPLACE PROCEDURE registar_Manutencao(
+    p_valor DECIMAL,
+    p_descricao TEXT,
+    p_data DATE,
+    p_id_viatura INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO Manutencao (Valor, Descricao, Data, ID_Viatura)
+    VALUES (p_valor, p_descricao, p_data, p_id_viatura);
+END;
+$$;
+------------------------------------------------------------------------------------------
+-- Registar Uma encomenda ao Fornecedor 
+CREATE OR REPLACE PROCEDURE registar_EncomendaFornecedor(
+    p_quantidade INTEGER,
+    p_valor DECIMAL,
+    p_id_peca INTEGER,
+    p_id_fornecedor INTEGER,
+    p_id_estado_encomenda INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO EncomendaFornecedor (Quantidade, Valor, ID_Peca, ID_Fornecedor, ID_EstadoEncomenda)
+    VALUES (p_quantidade, p_valor, p_id_peca, p_id_fornecedor, p_id_estado_encomenda);
+END;
+$$;
+---------------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE registar_Marca(
+    p_nome VARCHAR,
+    p_isactive BOOLEAN DEFAULT TRUE
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Verificar se já existe uma marca com o mesmo nome
+    IF NOT EXISTS (
+        SELECT 1 FROM Marca WHERE Nome = p_nome
+    ) THEN
+        -- Inserir a nova marca caso não exista
+        INSERT INTO Marca (Nome, IsActive) 
+        VALUES (p_nome, p_isactive);
+    ELSE
+        RAISE NOTICE 'A marca "%" já existe na tabela e não será inserida.', p_nome;
+    END IF;
+END;
+$$;
+------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE registar_Peca_Manutencao(
+    p_id_peca INTEGER,
+    p_id_manutencao INTEGER,
+    p_quantidade INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Verificar se a peça existe
+    IF NOT EXISTS (
+        SELECT 1 FROM Pecas WHERE ID_Peca = p_id_peca
+    ) THEN
+        RAISE EXCEPTION 'A peça com ID % não existe.', p_id_peca;
+    END IF;
+
+    -- Verificar se a manutenção existe
+    IF NOT EXISTS (
+        SELECT 1 FROM Manutencao WHERE ID_Manutencao = p_id_manutencao
+    ) THEN
+        RAISE EXCEPTION 'A manutenção com ID % não existe.', p_id_manutencao;
+    END IF;
+
+    -- Inserir o registro na tabela Pecas_Manutencao
+    INSERT INTO Pecas_Manutencao (ID_Peca, ID_Manutencao, Quantidade)
+    VALUES (p_id_peca, p_id_manutencao, p_quantidade);
+END;
+$$;
+
+
+
+
+
