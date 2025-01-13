@@ -272,7 +272,7 @@ BEGIN
     SELECT COUNT(*)
     INTO contador
     FROM Marca
-    WHERE LOWER(Nome) = LOWER(p_nome) AND IsActive = p_isactive;
+    WHERE LOWER(Nome) = LOWER(p_nome);
 
         -- Determinar o resultado do teste
         IF contador = 1 THEN
@@ -288,15 +288,15 @@ BEGIN
     END;
 
     -- Verificar se a marca foi inserida corretamente
-
+    
     RETURN resultado;
 END;
 $$ LANGUAGE plpgsql;
 
 SELECT * FROM marca
 
-SELECT TEST_registar_Marca('Jaguar', TRUE); -- Marca válida
-SELECT TEST_registar_Marca('BMW', TRUE); -- Marca duplicado
+SELECT TEST_registar_Marca('BMW', TRUE); -- Marca válida
+SELECT TEST_registar_Marca('bmw', TRUE); -- Marca duplicado
 
 ------------------------------------------------------------------------------------
 
@@ -309,22 +309,21 @@ DECLARE
     contador INTEGER;
     resultado TEXT;
 BEGIN
-    -- Tentar chamar o procedimento de inserção
-    BEGIN
-        CALL registar_TipoViatura(p_nome, p_isactive);
-    EXCEPTION
-        WHEN OTHERS THEN
-            RETURN 'NOK - Erro na função registar_TipoViatura: ' || SQLERRM;
-    END;
-
     -- Verificar se o registro foi inserido corretamente
     SELECT COUNT(*)
     INTO contador
     FROM TipoViatura
-    WHERE Nome = p_nome AND IsActive = p_isactive;
+    WHERE Nome = p_nome;
 
     -- Determinar o resultado do teste
-    IF contador > 0 THEN
+    IF contador = 0 THEN
+            -- Tentar chamar o procedimento de inserção
+        BEGIN
+            CALL registar_TipoViatura(p_nome, p_isactive);
+        EXCEPTION
+            WHEN OTHERS THEN
+                RETURN 'NOK - Erro na função registar_TipoViatura: ' || SQLERRM;
+        END;
         resultado := 'OK - TipoViatura inserido com sucesso.';
     ELSE
         resultado := 'NOK - TipoViatura não foi inserido.';
@@ -345,27 +344,26 @@ DECLARE
     contador INTEGER;
     resultado TEXT;
 BEGIN
-    -- Tentar chamar o procedimento de inserção
-    BEGIN
-        CALL registar_EstadoViatura(p_estado, p_isactive);
-    EXCEPTION
-        WHEN OTHERS THEN
-            RETURN 'NOK - Erro na função registar_EstadoViatura: ' || SQLERRM;
-    END;
 
-    -- Verificar se o registro foi inserido corretamente
+-- Verificar se o registro foi inserido corretamente
     SELECT COUNT(*)
     INTO contador
     FROM EstadoViatura
-    WHERE Estado = p_estado AND IsActive = p_isactive;
+    WHERE Estado = p_estado;
 
     -- Determinar o resultado do teste
-    IF contador > 0 THEN
+    IF contador = 0 THEN
+        BEGIN
+            CALL registar_EstadoViatura(p_estado, p_isactive);
+        EXCEPTION
+            WHEN OTHERS THEN
+                RETURN 'NOK - Erro na função registar_EstadoViatura: ' || SQLERRM;
+        END;
         resultado := 'OK - EstadoViatura inserido com sucesso.';
     ELSE
         resultado := 'NOK - EstadoViatura não foi inserido.';
     END IF;
-
+    -- Tentar chamar o procedimento de inserção
     RETURN resultado;
 END;
 $$ LANGUAGE plpgsql;
@@ -381,26 +379,24 @@ DECLARE
     contador INTEGER;
     resultado TEXT;
 BEGIN
-    -- Tentar chamar o procedimento de inserção
-    BEGIN
-        CALL registar_Combustivel(p_nome, p_isactive);
-    EXCEPTION
-        WHEN OTHERS THEN
-            RETURN 'NOK - Erro na função registar_Combustivel: ' || SQLERRM;
-    END;
-
     -- Verificar se o registro foi inserido corretamente
     SELECT COUNT(*)
     INTO contador
     FROM Combustivel
-    WHERE Nome = p_nome AND IsActive = p_isactive;
-
+    WHERE Nome = p_nome;
     -- Determinar o resultado do teste
-    IF contador > 0 THEN
+    IF contador = 0 THEN
+        BEGIN
+            CALL registar_Combustivel(p_nome, p_isactive);
+        EXCEPTION
+            WHEN OTHERS THEN
+                RETURN 'NOK - Erro na função registar_Combustivel: ' || SQLERRM;
+        END;
         resultado := 'OK - Combustível inserido com sucesso.';
     ELSE
         resultado := 'NOK - Combustível não foi inserido.';
     END IF;
+    -- Tentar chamar o procedimento de inserção
 
     RETURN resultado;
 END;
@@ -417,22 +413,22 @@ DECLARE
     contador INTEGER;
     resultado TEXT;
 BEGIN
-    -- Tentar chamar o procedimento de inserção
-    BEGIN
-        CALL registar_TipoCaixa(p_nome, p_isactive);
-    EXCEPTION
-        WHEN OTHERS THEN
-            RETURN 'NOK - Erro na função registar_TipoCaixa: ' || SQLERRM;
-    END;
 
     -- Verificar se o registro foi inserido corretamente
     SELECT COUNT(*)
     INTO contador
     FROM TipoCaixa
-    WHERE Nome = p_nome AND IsActive = p_isactive;
+    WHERE Nome = p_nome;
 
     -- Determinar o resultado do teste
-    IF contador > 0 THEN
+    IF contador = 0 THEN
+        BEGIN
+            -- Tentar chamar o procedimento de inserção
+            CALL registar_TipoCaixa(p_nome, p_isactive);
+        EXCEPTION
+            WHEN OTHERS THEN
+                RETURN 'NOK - Erro na função registar_TipoCaixa: ' || SQLERRM;
+        END;
         resultado := 'OK - TipoCaixa inserido com sucesso.';
     ELSE
         resultado := 'NOK - TipoCaixa não foi inserido.';
@@ -453,22 +449,21 @@ DECLARE
     contador INTEGER;
     resultado TEXT;
 BEGIN
-    -- Tentar chamar o procedimento de inserção
-    BEGIN
-        CALL registar_Traccao(p_nome, p_isactive);
-    EXCEPTION
-        WHEN OTHERS THEN
-            RETURN 'NOK - Erro na função registar_Traccao: ' || SQLERRM;
-    END;
-
     -- Verificar se o registro foi inserido corretamente
     SELECT COUNT(*)
     INTO contador
     FROM Traccao
-    WHERE Nome = p_nome AND IsActive = p_isactive;
+    WHERE Nome = p_nome;
 
     -- Determinar o resultado do teste
-    IF contador > 0 THEN
+    IF contador = 0 THEN
+        BEGIN
+            -- Tentar chamar o procedimento de inserção
+            CALL registar_Traccao(p_nome, p_isactive);
+        EXCEPTION
+            WHEN OTHERS THEN
+                RETURN 'NOK - Erro na função registar_Traccao: ' || SQLERRM;
+        END;
         resultado := 'OK - Tracção inserida com sucesso.';
     ELSE
         resultado := 'NOK - Tracção não foi inserida.';
@@ -489,26 +484,25 @@ DECLARE
     contador INTEGER;
     resultado TEXT;
 BEGIN
-    -- Tentar chamar o procedimento de inserção
-    BEGIN
-        CALL registar_EstadoReserva(p_estado, p_isactive);
-    EXCEPTION
-        WHEN OTHERS THEN
-            RETURN 'NOK - Erro na função registar_EstadoReserva: ' || SQLERRM;
-    END;
-
-    -- Verificar se o registro foi inserido corretamente
+-- Verificar se o registro foi inserido corretamente
     SELECT COUNT(*)
     INTO contador
     FROM EstadoReserva
-    WHERE Estado = p_estado AND IsActive = p_isactive;
+    WHERE Estado = p_estado;
 
     -- Determinar o resultado do teste
-    IF contador > 0 THEN
+    IF contador = 0 THEN
+        BEGIN
+            CALL registar_EstadoReserva(p_estado, p_isactive);
+            EXCEPTION
+                WHEN OTHERS THEN
+            RETURN 'NOK - Erro na função registar_EstadoReserva: ' || SQLERRM;
+        END;
         resultado := 'OK - EstadoReserva inserido com sucesso.';
     ELSE
         resultado := 'NOK - EstadoReserva não foi inserido.';
     END IF;
+    -- Tentar chamar o procedimento de inserção
 
     RETURN resultado;
 END;
@@ -525,26 +519,23 @@ DECLARE
     contador INTEGER;
     resultado TEXT;
 BEGIN
-    -- Tentar chamar o procedimento de inserção
-    BEGIN
-        CALL registar_Cor(p_nome, p_isactive);
-    EXCEPTION
-        WHEN OTHERS THEN
-            RETURN 'NOK - Erro na função registar_Cor: ' || SQLERRM;
-    END;
-
     -- Verificar se o registro foi inserido corretamente
     SELECT COUNT(*)
     INTO contador
     FROM Cores
-    WHERE Nome = p_nome AND IsActive = p_isactive;
+    WHERE Nome = p_nome;
 
     -- Determinar o resultado do teste
     IF contador > 0 THEN
+        CALL registar_Cor(p_nome, p_isactive);
+        EXCEPTION
+            WHEN OTHERS THEN
+                RETURN 'NOK - Erro na função registar_Cor: ' || SQLERRM;
         resultado := 'OK - Cor inserida com sucesso.';
     ELSE
         resultado := 'NOK - Cor não foi inserida.';
     END IF;
+    -- Tentar chamar o procedimento de inserção
 
     RETURN resultado;
 END;
@@ -561,26 +552,26 @@ DECLARE
     contador INTEGER;
     resultado TEXT;
 BEGIN
-    -- Tentar chamar o procedimento de inserção
-    BEGIN
-        CALL registar_TipoUtilizador(p_tipo, p_isactive);
-    EXCEPTION
-        WHEN OTHERS THEN
-            RETURN 'NOK - Erro na função registar_TipoUtilizador: ' || SQLERRM;
-    END;
 
     -- Verificar se o registro foi inserido corretamente
     SELECT COUNT(*)
     INTO contador
     FROM TipoUtilizador
-    WHERE Tipo = p_tipo AND IsActive = p_isactive;
+    WHERE Tipo = p_tipo;
 
     -- Determinar o resultado do teste
     IF contador > 0 THEN
+        BEGIN
+            CALL registar_TipoUtilizador(p_tipo, p_isactive);
+        EXCEPTION
+            WHEN OTHERS THEN
+                RETURN 'NOK - Erro na função registar_TipoUtilizador: ' || SQLERRM;
         resultado := 'OK - TipoUtilizador inserido com sucesso.';
+        END;
     ELSE
         resultado := 'NOK - TipoUtilizador não foi inserido.';
     END IF;
+    -- Tentar chamar o procedimento de inserção
 
     RETURN resultado;
 END;
