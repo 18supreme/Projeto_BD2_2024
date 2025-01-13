@@ -1,0 +1,7 @@
+Grupo 14
+Marco Santos - 22541
+Marco Videira - 22643
+Miguel Dinis - 22461
+Pedro Teixeira - 22702
+
+Os Scripts de invocação estão no final do ficheiro Testes a Base de Dados
