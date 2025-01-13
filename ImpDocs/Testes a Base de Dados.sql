@@ -526,11 +526,13 @@ BEGIN
     WHERE Nome = p_nome;
 
     -- Determinar o resultado do teste
-    IF contador > 0 THEN
-        CALL registar_Cor(p_nome, p_isactive);
-        EXCEPTION
-            WHEN OTHERS THEN
-                RETURN 'NOK - Erro na função registar_Cor: ' || SQLERRM;
+    IF contador = 0 THEN
+        BEGIN
+            CALL registar_Cor(p_nome, p_isactive);
+            EXCEPTION
+                WHEN OTHERS THEN
+            RETURN 'NOK - Erro na função registar_Cor: ' || SQLERRM;
+        END;
         resultado := 'OK - Cor inserida com sucesso.';
     ELSE
         resultado := 'NOK - Cor não foi inserida.';
@@ -560,14 +562,14 @@ BEGIN
     WHERE Tipo = p_tipo;
 
     -- Determinar o resultado do teste
-    IF contador > 0 THEN
+    IF contador = 0 THEN
         BEGIN
             CALL registar_TipoUtilizador(p_tipo, p_isactive);
-        EXCEPTION
-            WHEN OTHERS THEN
-                RETURN 'NOK - Erro na função registar_TipoUtilizador: ' || SQLERRM;
-        resultado := 'OK - TipoUtilizador inserido com sucesso.';
+            EXCEPTION
+                WHEN OTHERS THEN
+            RETURN 'NOK - Erro na função registar_TipoUtilizador: ' || SQLERRM;
         END;
+        resultado := 'OK - TipoUtilizador inserido com sucesso.';
     ELSE
         resultado := 'NOK - TipoUtilizador não foi inserido.';
     END IF;
@@ -638,7 +640,7 @@ $$ LANGUAGE plpgsql;
 ------------------------------------------------------------------------------------
 
 -- TipoViatura
-SELECT TEST_registar_TipoViatura('SUV', TRUE);
+SELECT TEST_registar_TipoViatura('Cross', TRUE);
 
 -- EstadoViatura
 SELECT TEST_registar_EstadoViatura('Disponível', TRUE);
