@@ -268,24 +268,26 @@ DECLARE
 BEGIN
     -- Tentar chamar o procedimento de inserção
     BEGIN
-        CALL registar_Marca(p_nome, p_isactive);
+
+    SELECT COUNT(*)
+    INTO contador
+    FROM Marca
+    WHERE LOWER(Nome) = LOWER(p_nome) AND IsActive = p_isactive;
+
+        -- Determinar o resultado do teste
+        IF contador = 1 THEN
+            resultado := 'NOK - Marca duplicada ou não foi inserida.';
+        ELSE
+            CALL registar_Marca(p_nome, p_isactive);
+            resultado := 'OK- Marca adicionada com sucesso.';
+        END IF;
+
     EXCEPTION
         WHEN OTHERS THEN
             RETURN 'NOK - Erro na função registar_Marca: ' || SQLERRM;
     END;
 
     -- Verificar se a marca foi inserida corretamente
-    SELECT COUNT(*)
-    INTO contador
-    FROM Marca
-    WHERE LOWER(Nome) = LOWER(p_nome) AND IsActive = p_isactive;
-
-    -- Determinar o resultado do teste
-    IF contador = 1 THEN
-        resultado := 'OK - Marca inserida com sucesso.';
-    ELSE
-        resultado := 'NOK - Marca duplicada ou não foi inserida.';
-    END IF;
 
     RETURN resultado;
 END;
@@ -293,8 +295,8 @@ $$ LANGUAGE plpgsql;
 
 SELECT * FROM marca
 
-SELECT TEST_registar_Marca('BMW', TRUE); -- Marca válida
-SELECT TEST_registar_Marca('bmw', TRUE); -- Marca duplicado
+SELECT TEST_registar_Marca('Jaguar', TRUE); -- Marca válida
+SELECT TEST_registar_Marca('BMW', TRUE); -- Marca duplicado
 
 ------------------------------------------------------------------------------------
 
