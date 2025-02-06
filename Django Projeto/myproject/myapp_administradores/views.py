@@ -304,16 +304,74 @@ def admin_administracao(request):
     return render(request, 'admin_administracao.html')
 
 
+# Lista de Marcas
 def admin_marcaslist(request):
-    
-    marcas = bd.getAllMarcas()
-    
-    # Retorna a lista de viaturas para o template
-    return render(request, 'admin_marcaslist.html', {'marcas': marcas})
+    with connection.cursor() as cursor:
+        # Consulta SQL para obter as marcas
+        cursor.execute("SELECT ID_Marca, Nome, IsActive FROM Marca")
+        marcas = cursor.fetchall()
+
+    context = {'marcas': marcas}
+    return render(request, 'admin_marcaslist.html', context)
+
+# Criar Marca
+def admin_marcacreate(request):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        is_active = request.POST.get("is_active", "on") == "on"
+
+        try:
+            with connection.cursor() as cursor:
+                # Usa CALL para invocar o procedimento
+                cursor.execute("CALL registar_marca(%s, %s)", [nome, is_active])
+            return redirect('admin_marcaslist')
+        except Exception as e:
+            # Captura qualquer erro gerado pelo procedimento
+            context = {'error': str(e)}
+            return render(request, 'admin_marcas_create.html', context)
+
+    return render(request, 'admin_marcas_create.html')
+
+# Editar Marca
+def admin_marcaedit(request, marcaid):
+    # Busca os dados da marca no banco de dados
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT ID_Marca, Nome, IsActive FROM Marca WHERE ID_Marca = %s", [marcaid])
+        marca = cursor.fetchone()
+
+    if not marca:
+        return redirect('admin_marcaslist')  # Redireciona caso a marca não exista
+
+    # Processa a submissão do formulário
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        is_active = request.POST.get("is_active", "on") == "on"
+
+        try:
+            with connection.cursor() as cursor:
+                # Chama o procedimento para atualizar a marca
+                cursor.execute("CALL update_marca(%s, %s, %s)", [marcaid, nome, is_active])
+            return redirect('admin_marcaslist')
+        except Exception as e:
+            # Captura erros do procedimento
+            context = {'marca': marca, 'error': str(e)}
+            return render(request, 'admin_marcas_edit.html', context)
+
+    # Renderiza o template de edição
+    context = {'marca': marca}
+    return render(request, 'admin_marcas_edit.html', context)
 
 
+# Eliminar Marca
 def admin_marcadelete(request, marcaid):
-    
-    bd.deleteMarcaById(marcaid)
-        
+    if request.method == "POST":
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL deleteMarcaById(%s)", [marcaid])  # Chama o procedimento no PostgreSQL
+            return redirect('admin_marcaslist')  # Redireciona para a lista de marcas
+        except Exception as e:
+            print(f"Erro ao eliminar a marca: {e}")
+            return redirect('admin_marcaslist')
+
+    # Redireciona se não for um método POST
     return redirect('admin_marcaslist')

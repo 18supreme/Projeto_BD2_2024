@@ -1,55 +1,122 @@
 {% extends 'base_admin.html' %}
 
 {% block content %}
-<div>
-    <div style="display: flex; flex-direction: row; flex-wrap: wrap; width: 100%; gap: 50px;">
-        <a href="{% url 'admin_marcaslist'%}"  style="text-decoration: none; color: rgb(102, 181, 255); font-size: 24px;">
-            <div style="display:flex; width: 20vw; background: black; justify-content:center; height: 20vh; align-items: center;"> 
-                Marcas
-            </div>
-        </a>
+<style>
+    .dashboard {
+        padding: 20px;
+    }
 
-        <a href="" style="text-decoration: none; color: rgb(102, 181, 255); font-size: 24px;">
-            <div style="display:flex; width: 20vw; background: black; justify-content:center; height: 20vh; align-items: center;"> 
-                Modelos
-            </div>
-        </a>
+    .stats-cards {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 
-        <a href="" style="text-decoration: none; color: rgb(102, 181, 255); font-size: 24px;">
-            <div style="display:flex; width: 20vw; background: black; justify-content:center; height: 20vh; align-items: center;"> 
-                Cores
-            </div>
-        </a>
+    .card {
+        flex: 1;
+        min-width: 200px;
+        max-width: 300px;
+        padding: 20px;
+        background: #f0f0f0;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
 
-        <a href="" style="text-decoration: none; color: rgb(102, 181, 255); font-size: 24px;">
-            <div style="display:flex; width: 20vw; background: black; justify-content:center; height: 20vh; align-items: center;"> 
-                Combustiveis
-            </div>
-        </a>
+    .card:hover {
+        transform: scale(1.05);
+        background-color: #e0e0e0;
+        box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+    }
 
-        <a href="" style="text-decoration: none; color: rgb(102, 181, 255); font-size: 24px;">
-            <div style="display:flex; width: 20vw; background: black; justify-content:center; height: 20vh; align-items: center;"> 
-                Fornecedores
-            </div>
-        </a>
+    .card h2 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: #333;
+    }
 
-        <a href="" style="text-decoration: none; color: rgb(102, 181, 255); font-size: 24px;">
-            <div style="display:flex; width: 20vw; background: black; justify-content:center; height: 20vh; align-items: center;"> 
-                Manutenções
-            </div>
-        </a>
+    .card p {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #007bff;
+        margin: 0;
+    }
 
-        <a href="" style="text-decoration: none; color: rgb(102, 181, 255); font-size: 24px;">
-            <div style="display:flex; width: 20vw; background: black; justify-content:center; height: 20vh; align-items: center;"> 
-                Peças
-            </div>
-        </a>
+    .card a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        text-decoration: none;
+    }
+</style>
 
-        <a href="" style="text-decoration: none; color: rgb(102, 181, 255); font-size: 24px;">
-            <div style="display:flex; width: 20vw; background: black; justify-content:center; height: 20vh; align-items: center;"> 
-                Utilizadores
-            </div>
-        </a>
+<div class="dashboard">
+    <h1>Dashboard de Administração</h1>
+    <br>
+
+    <div class="stats-cards">
+        <!-- Cartão Marcas -->
+        <div class="card">
+            <h2>Marcas</h2>
+            <p>{{ total_marcas }}</p>
+            <a href="{% url 'admin_marcaslist' %}"></a>
+        </div>
+
+        <!-- Cartão Modelos -->
+        <div class="card">
+            <h2>Modelos</h2>
+            <p>{{ total_modelos }}</p>
+            <a href=""></a>
+        </div>
+
+        <!-- Cartão Cores -->
+        <div class="card">
+            <h2>Cores</h2>
+            <p>{{ total_cores }}</p>
+            <a href=""></a>
+        </div>
+
+        <!-- Cartão Combustíveis -->
+        <div class="card">
+            <h2>Combustíveis</h2>
+            <p>{{ total_combustiveis }}</p>
+            <a href=""></a>
+        </div>
+
+        <!-- Cartão Fornecedores -->
+        <div class="card">
+            <h2>Fornecedores</h2>
+            <p>{{ total_fornecedores }}</p>
+            <a href=""></a>
+        </div>
+
+        <!-- Cartão Manutenções -->
+        <div class="card">
+            <h2>Manutenções</h2>
+            <p>{{ total_manutencoes }}</p>
+            <a href=""></a>
+        </div>
+
+        <!-- Cartão Peças -->
+        <div class="card">
+            <h2>Peças</h2>
+            <p>{{ total_pecas }}</p>
+            <a href=""></a>
+        </div>
+
+        <!-- Cartão Utilizadores -->
+        <div class="card">
+            <h2>Utilizadores</h2>
+            <p>{{ total_utilizadores }}</p>
+            <a href=""></a>
+        </div>
     </div>
 </div>
 {% endblock %}

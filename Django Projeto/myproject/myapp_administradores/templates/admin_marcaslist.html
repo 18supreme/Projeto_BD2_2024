@@ -1,91 +1,132 @@
 {% extends 'base_admin.html' %}
 
-{% block title %}Marcas{% endblock %}
-
 {% block content %}
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Marcas</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 16px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-    </style>
-</head>
-<body>
+<div class="admin-container">
+  <h1>Lista de Marcas</h1>
+  <br />
 
-    <h1>Lista de Marcas</h1>
+  <!-- Botão Criar Nova Marca -->
+  <div style="text-align: right; margin-bottom: 20px;">
+    <button onclick="window.location.href='{% url 'admin_marcacreate' %}'" class="btn btn-success">
+      Criar Nova Marca
+    </button>
+  </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Marca</th>
-                <th>Ativo</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for marca in marcas %}
-            <tr>
-                <td>{{ marca.1 }}</td>
-                <td>{{ marca.2 }}</td>
-                <td> 
-                    <button onclick="openModal({{ marca.0 }})">Eliminar</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <!-- Tabela de Marcas -->
+  <table class="marcas-table">
+    <thead>
+      <tr>
+        <th>ID Marca</th>
+        <th>Nome</th>
+        <th>Ativo</th>
+        <th style="text-align: center;">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for marca in marcas %}
+      <tr>
+        <td>{{ marca.0 }}</td>
+        <td>{{ marca.1 }}</td>
+        <td>{{ marca.2 }}</td>
+        <td style="text-align: center;">
+          <!-- Botão Editar -->
+          <button onclick="window.location.href='{% url 'admin_marcaedit' marca.0 %}'" class="btn btn-warning">
+            Editar
+          </button>
+          <!-- Botão Eliminar -->
+          <button onclick="openModal({{ marca.0 }})" class="btn btn-danger">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" style="text-align: center; color: #888;">Nenhuma marca encontrada.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-    <div id="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
-        <div style="position: relative; background-color: #fff; padding: 20px; border-radius: 8px; width: 300px;">
-            Tem certeza que deseja eliminar esta Marca ?
-            <form id="eliminarmarca" action="admin_marca_delete" method="post" style="display: flex; flex-direction: row; gap: 10px; width: 100%; margin: 0 auto; justify-content: center;">
-                {% csrf_token %}
-                <input type="hidden" id="marcaid" name="marcaid">
-                <button type="button" onclick="closeModal()" style="padding: 10px; font-size: 16px; background-color: red; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
-                    Cancelar
-                </button>
-                <button type="submit" style="padding: 10px; font-size: 16px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
-                    Confirmar
-                </button>
-            </form>
-        </div>
-    </div>
+<!-- Modal -->
+<div id="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+  <div style="position: relative; background-color: #fff; padding: 20px; border-radius: 8px; width: 300px; text-align: center;">
+    Tem certeza que deseja eliminar esta Marca?
+    <form id="eliminarmarca" action="" method="post">
+      {% csrf_token %}
+      <input type="hidden" id="marcaid" name="marcaid">
+      <button type="button" onclick="closeModal()" class="btn btn-danger" style="margin: 10px;">Cancelar</button>
+      <button type="submit" class="btn btn-primary" style="margin: 10px;">Confirmar</button>
+    </form>
+  </div>
+</div>
 
-    <script>
-        // Função para abrir o modal e passar o ID da reserva
-        function openModal(marcaid) {
-            // Ajusta a ação do formulário com o ID da reserva
-            console.log(marcaid);
-            document.getElementById('eliminarmarca').action = "marcas/delete/" + marcaid + "/";
-            document.getElementById('modal').style.display = 'flex';
-            const marcaInput = document.getElementById('marcaid');
-            marcaInput.value = marcaId;
-        }
+<script>
+  function openModal(marcaid) {
+    document.getElementById('eliminarmarca').action = `/administracao/marcas/delete/${marcaid}/`;
+    document.getElementById('modal').style.display = 'flex';
+  }
 
-        // Função para fechar o modal
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-    </script>
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+  }
+</script>
 
-</body>
-</html>
+<!-- Estilos -->
+<style>
+  .admin-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn {
+    padding: 10px 15px;
+    border-radius: 5px;
+    color: white;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-success {
+    background-color: #28a745;
+  }
+
+  .btn-warning {
+    background-color: #ffc107;
+    color: black;
+  }
+
+  .btn-danger {
+    background-color: #dc3545;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+  }
+
+  .marcas-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .marcas-table th,
+  .marcas-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .marcas-table th {
+    font-weight: bold;
+  }
+
+  .marcas-table tr:hover {
+    background-color: #f9f9f9;
+  }
+</style>
 {% endblock %}

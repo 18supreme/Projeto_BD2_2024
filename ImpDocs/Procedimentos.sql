@@ -186,7 +186,7 @@ $$;
 
 ------------------------------------------------------------------------------------
 
-CREATE OR REPLACE PROCEDURE registar_Marca(
+CREATE OR REPLACE PROCEDURE registar_marca(
     p_nome VARCHAR,
     p_isactive BOOLEAN DEFAULT TRUE
 )
@@ -205,8 +205,36 @@ BEGIN
         RAISE NOTICE 'Marca "%" inserida com sucesso.', p_nome;
     ELSE
         -- Caso o nome já exista
-        RAISE NOTICE 'A marca "%" já existe e não será inserida.', p_nome;
+        RAISE EXCEPTION 'A marca "%" já existe.', p_nome;
     END IF;
+END;
+$$;
+
+
+------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE update_marca(
+    p_id_marca INTEGER,
+    p_nome VARCHAR,
+    p_isactive BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Verifica se já existe outra marca com o mesmo nome
+    IF EXISTS (
+        SELECT 1
+        FROM Marca
+        WHERE LOWER(Nome) = LOWER(p_nome) AND ID_Marca != p_id_marca
+    ) THEN
+        RAISE EXCEPTION 'Já existe uma marca com o nome "%"!', p_nome;
+    END IF;
+
+    -- Atualiza a marca no banco de dados
+    UPDATE Marca
+    SET Nome = p_nome, IsActive = p_isactive
+    WHERE ID_Marca = p_id_marca;
+
+    RAISE NOTICE 'Marca "%" atualizada com sucesso.', p_nome;
 END;
 $$;
 
