@@ -315,51 +315,54 @@ def admin_marcaslist(request):
     return render(request, 'admin_marcaslist.html', context)
 
 # Criar Marca
+from django.shortcuts import render, redirect
+from django.db import connection, DatabaseError
+
 def admin_marcacreate(request):
     if request.method == "POST":
         nome = request.POST.get("nome")
-        is_active = request.POST.get("is_active", "on") == "on"
+        is_active = request.POST.get("is_active")
+
+        is_active = True if is_active == "on" else False  # Converte para Booleano
 
         try:
             with connection.cursor() as cursor:
-                # Usa CALL para invocar o procedimento
-                cursor.execute("CALL registar_marca(%s, %s)", [nome, is_active])
+                cursor.execute("CALL registar_Marca(%s, %s)", [nome, is_active])  # Chama o PROCEDURE
             return redirect('admin_marcaslist')
-        except Exception as e:
-            # Captura qualquer erro gerado pelo procedimento
-            context = {'error': str(e)}
-            return render(request, 'admin_marcas_create.html', context)
+
+        except DatabaseError as e:
+            error_message = "Erro: A marca já existe!" if "já existe" in str(e) else "Erro ao criar a marca!"
+            return render(request, 'admin_marcas_create.html', {"error": error_message})
 
     return render(request, 'admin_marcas_create.html')
 
+
+
 # Editar Marca
 def admin_marcaedit(request, marcaid):
-    # Busca os dados da marca no banco de dados
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT ID_Marca, Nome, IsActive FROM Marca WHERE ID_Marca = %s", [marcaid])
-        marca = cursor.fetchone()
-
-    if not marca:
-        return redirect('admin_marcaslist')  # Redireciona caso a marca não exista
-
-    # Processa a submissão do formulário
     if request.method == "POST":
         nome = request.POST.get("nome")
-        is_active = request.POST.get("is_active", "on") == "on"
+        is_active = request.POST.get("is_active")
+
+        # Converter checkbox para Booleano
+        is_active = True if is_active == "on" else False  
 
         try:
             with connection.cursor() as cursor:
-                # Chama o procedimento para atualizar a marca
-                cursor.execute("CALL update_marca(%s, %s, %s)", [marcaid, nome, is_active])
+                cursor.execute("CALL update_Marca(%s, %s, %s)", [marcaid, nome, is_active])
             return redirect('admin_marcaslist')
-        except Exception as e:
-            # Captura erros do procedimento
-            context = {'marca': marca, 'error': str(e)}
-            return render(request, 'admin_marcas_edit.html', context)
 
-    # Renderiza o template de edição
-    context = {'marca': marca}
-    return render(request, 'admin_marcas_edit.html', context)
+        except DatabaseError as e:
+            error_message = "Erro: Já existe uma outra marca com este nome!" if "já existe" in str(e) else "Erro ao editar a marca!"
+            return render(request, 'admin_marcas_edit.html', {"marcaid": marcaid, "marca": (nome, is_active), "error": error_message})
+
+    # Obter os dados da marca para exibir no formulário
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT Nome, IsActive FROM Marca WHERE ID_Marca = %s", [marcaid])
+        marca = cursor.fetchone()
+
+    return render(request, 'admin_marcas_edit.html', {"marcaid": marcaid, "marca": marca})
+
 
 
 # Eliminar Marca
@@ -376,3 +379,79 @@ def admin_marcadelete(request, marcaid):
 
     # Se o método não for POST, redireciona para evitar erro
     return redirect('admin_marcaslist')
+
+# Lista de Modelos
+def admin_modeloslist(request):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT m.ID_Modelo, m.Nome, ma.Nome, m.IsActive 
+            FROM Modelo m 
+            INNER JOIN Marca ma ON m.ID_Marca = ma.ID_Marca
+            ORDER BY ma.Nome, m.Nome
+        """)
+        modelos = cursor.fetchall()
+
+    return render(request, 'admin_modelos_list.html', {'modelos': modelos})
+
+# Criar Modelo
+def admin_modelocreate(request):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        id_marca = request.POST.get("id_marca")
+        is_active = request.POST.get("is_active")
+
+        is_active = True if is_active == "on" else False  
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL registar_Modelo(%s, %s, %s)", [nome, id_marca, is_active])
+            return redirect('admin_modeloslist')
+        except DatabaseError as e:
+            error_message = "Erro: O modelo já existe para esta marca!" if "já existe" in str(e) else "Erro ao criar o modelo!"
+            return render(request, 'admin_modelos_create.html', {"error": error_message})
+
+    # Buscar marcas para dropdown
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT ID_Marca, Nome FROM Marca")
+        marcas = cursor.fetchall()
+
+    return render(request, 'admin_modelos_create.html', {'marcas': marcas})
+
+# Editar Modelo
+def admin_modeloedit(request, modelo_id):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        id_marca = request.POST.get("id_marca")
+        is_active = request.POST.get("is_active")
+
+        is_active = True if is_active == "on" else False  
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL update_Modelo(%s, %s, %s, %s)", [modelo_id, nome, id_marca, is_active])
+            return redirect('admin_modeloslist')
+        except DatabaseError as e:
+            error_message = "Erro: Já existe outro modelo com este nome para esta marca!" if "já existe" in str(e) else "Erro ao editar o modelo!"
+            return render(request, 'admin_modelos_edit.html', {"modelo_id": modelo_id, "modelo": (nome, id_marca, is_active), "error": error_message})
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT Nome, ID_Marca, IsActive FROM Modelo WHERE ID_Modelo = %s", [modelo_id])
+        modelo = cursor.fetchone()
+
+        cursor.execute("SELECT ID_Marca, Nome FROM Marca")
+        marcas = cursor.fetchall()
+
+    return render(request, 'admin_modelos_edit.html', {"modelo_id": modelo_id, "modelo": modelo, "marcas": marcas})
+
+# Eliminar Modelo
+def admin_modelodelete(request, modelo_id):
+    if request.method == "POST":
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL delete_Modelo(%s)", [modelo_id])
+            return redirect('admin_modeloslist')
+        except Exception as e:
+            print(f"Erro ao eliminar modelo: {e}")
+            return redirect('admin_modeloslist')
+
+    return redirect('admin_modeloslist')

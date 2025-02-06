@@ -1,24 +1,27 @@
 -- Registar Modelo
-CREATE OR REPLACE PROCEDURE registar_Modelo (
-    p_Nome VARCHAR,
-    p_ID_Marca INTEGER,
-    p_IsActive BOOLEAN DEFAULT TRUE
+CREATE OR REPLACE PROCEDURE registar_Modelo(
+    p_nome VARCHAR,
+    p_id_marca INTEGER,
+    p_isactive BOOLEAN DEFAULT TRUE
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Verificar se já existe um registro com o mesmo Nome
-    IF NOT EXISTS (
-        SELECT 1 FROM Modelo WHERE Nome = p_Nome AND ID_Marca = p_ID_Marca
+    -- Verificar se já existe um modelo com o mesmo nome para essa marca
+    IF EXISTS (
+        SELECT 1 
+        FROM Modelo 
+        WHERE LOWER(Nome) = LOWER(p_nome) AND ID_Marca = p_id_marca
     ) THEN
-        -- Inserir o novo registro caso não exista
-        INSERT INTO Modelo (Nome, ID_Marca, IsActive) 
-        VALUES (p_Nome, p_ID_Marca, p_IsActive);
+        RAISE EXCEPTION 'O modelo "%" já existe para esta marca!', p_nome;
     ELSE
-        RAISE NOTICE 'O modelo "%" já existe na tabela e não será inserido.', p_Nome;
+        -- Inserir o modelo se não existir
+        INSERT INTO Modelo (Nome, ID_Marca, IsActive) 
+        VALUES (p_nome, p_id_marca, p_isactive);
     END IF;
 END;
 $$;
+
 
 -- Exemplo de chamada do PROCEDURE
 -- CALL registar_Modelo('A3', 3, TRUE);      -- Este já existe
