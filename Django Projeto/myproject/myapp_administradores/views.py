@@ -367,11 +367,12 @@ def admin_marcadelete(request, marcaid):
     if request.method == "POST":
         try:
             with connection.cursor() as cursor:
-                cursor.execute("CALL deleteMarcaById(%s)", [marcaid])  # Chama o procedimento no PostgreSQL
-            return redirect('admin_marcaslist')  # Redireciona para a lista de marcas
+                # Chama o procedimento armazenado no PostgreSQL
+                cursor.execute("CALL deleteMarcaById(%s)", [marcaid])
+            return redirect('admin_marcaslist')  # Redireciona para a lista após a eliminação
         except Exception as e:
             print(f"Erro ao eliminar a marca: {e}")
             return redirect('admin_marcaslist')
 
-    # Redireciona se não for um método POST
+    # Se o método não for POST, redireciona para evitar erro
     return redirect('admin_marcaslist')

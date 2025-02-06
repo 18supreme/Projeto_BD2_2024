@@ -20,6 +20,7 @@ from django.shortcuts import redirect  # Importa a função redirect
 
 urlpatterns = [
     path('admin/', include('myapp_administradores.urls')),                                    # URL para o painel admin
+    path('administracao/', include('myapp_administradores.urls')),
     path('clientes/', include('myapp_clientes.urls')),                  # URL para a app 'clientes'
     path('login/', include('login.urls')),     # Redireciona a raiz para /clientes/
     path('', lambda request: redirect('login/', permanent=False)),  # Redireciona a raiz para /login/

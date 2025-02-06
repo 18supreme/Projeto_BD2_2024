@@ -11,5 +11,5 @@ path('', views.admin_home, name='admin_dashboard'),
     path('administracao/marcas', views.admin_marcaslist, name='admin_marcaslist'),
     path('administracao/marcas/create/', views.admin_marcacreate, name='admin_marcacreate'),
     path('administracao/marcas/edit/<int:marcaid>/', views.admin_marcaedit, name='admin_marcaedit'),
-    path('administracao/marcas/delete/<int:marcaid>/', views.admin_marcadelete, name='admin_marcadelete'),
+    path('marcas/delete/<int:marcaid>/', views.admin_marcadelete, name='admin_marcadelete'),
 ]
