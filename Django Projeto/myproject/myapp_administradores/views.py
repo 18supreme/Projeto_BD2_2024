@@ -225,7 +225,8 @@ def admin_manutencoes(request):
                 m.valor,
                 m.descricao,
                 m.data,
-                CONCAT(marca.nome, ' ', modelo.nome) AS nome_viatura
+                marca.nome AS marca,
+                modelo.nome AS modelo
             FROM manutencao m
             LEFT JOIN viatura v ON m.id_viatura = v.id_viatura
             LEFT JOIN marca ON v.id_marca = marca.id_marca
@@ -316,9 +317,69 @@ def criar_manutencao(request):
 
     return render(request, "admin_manutencoes_create.html", {"viaturas": viaturas})
 
-def eliminar_manutencao(request, manutencao_id):
+def editar_manutencao(request, manutencao_id):
+    # Verifica se o método da requisição é POST (submissão do formulário)
+    if request.method == "POST":
+        viatura_id = request.POST.get("viatura")
+        valor = request.POST.get("valor")
+        descricao = request.POST.get("descricao")
+        data = request.POST.get("data")
+
+        # Atualiza os dados da manutenção no banco de dados
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE manutencao
+                SET id_viatura = %s, valor = %s, descricao = %s, data = %s
+                WHERE id_manutencao = %s
+                """,
+                [viatura_id, valor, descricao, data, manutencao_id],
+            )
+        return redirect("admin_manutencoes")  # Redireciona para a lista de manutenções
+
+    # Buscar os dados da manutenção a ser editada
     with connection.cursor() as cursor:
-        cursor.execute("DELETE FROM Manutencao WHERE ID_Manutencao = %s", [manutencao_id])
+        cursor.execute(
+            """
+            SELECT id_manutencao, id_viatura, valor, descricao, data
+            FROM manutencao
+            WHERE id_manutencao = %s
+            """,
+            [manutencao_id],
+        )
+        manutencao = cursor.fetchone()
+
+    # Se a manutenção não for encontrada, redireciona para a lista
+    if not manutencao:
+        return redirect("admin_manutencoes")
+
+    # Formatar a data para o formato 'YYYY-MM-DD' necessário para o campo <input type="date">
+    manutencao_data = manutencao[4]
+    if manutencao_data:
+        manutencao_data = manutencao_data.strftime('%Y-%m-%d')  # Formato 'YYYY-MM-DD'
+
+    # Buscar as viaturas para o dropdown (agora com Marca + Modelo)
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT v.id_viatura, CONCAT(m.nome, ' ', mo.nome) AS marca_modelo
+            FROM viatura v
+            JOIN marca m ON v.id_marca = m.id_marca
+            JOIN modelo mo ON v.id_modelo = mo.id_modelo
+            """
+        )
+        viaturas = cursor.fetchall()
+
+    # Passa os dados para o template
+    return render(
+        request,
+        "admin_manutencoes_edit.html",  # Template de edição
+        {"manutencao": manutencao, "viaturas": viaturas, "manutencao_data": manutencao_data},
+    )
+
+def eliminar_manutencao(request, id_manutencao):
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM Manutencao WHERE ID_Manutencao = %s", [id_manutencao])
     
     return redirect('admin_manutencoes')
 

@@ -12,7 +12,7 @@
         <option value="" {% if not filtros.viatura %}selected{% endif %}>Todas</option>
         {% for viatura in viaturas %}
         <option value="{{ viatura.0 }}" {% if filtros.viatura == viatura.0|stringformat:"s" %}selected{% endif %}>
-          {{ viatura.1 }}
+          {{ viatura.1 }} - {{ viatura.2 }}  <!-- Exibindo Marca e Modelo -->
         </option>
         {% endfor %}
       </select>
@@ -49,15 +49,16 @@
         <td>{{ manutencao.1 }}</td>
         <td>{{ manutencao.2 }}</td>
         <td>{{ manutencao.3 }}</td>
-        <td>{{ manutencao.4 }}</td>
+        <td>{{ manutencao.4 }} {{ manutencao.5 }}</td>
 
         <td>
-          <button class="btn btn-warning">Editar</button>
-          
-          <form action="{% url 'eliminar_manutencao' manutencao.0 %}" method="POST" onsubmit="return confirm('Tens a certeza que queres eliminar esta manutenção?');" style="display: inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-danger mx-2">Eliminar</button>
-          </form>
+        <form action="{% url 'admin_manutencoes_editar' manutencao.0 %}" method="GET" style="display: inline;">
+            <button type="submit" class="btn btn-warning mx-2">Editar</button>
+        </form>
+        <form action="{% url 'eliminar_manutencao' manutencao.0 %}" method="POST" onsubmit="return confirm('Tens a certeza que queres eliminar esta manutenção?');" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger mx-2">Eliminar</button>
+        </form>        
         </td>
       </tr>
       {% endfor %}
@@ -66,6 +67,7 @@
 </div>
 
 <style>
+  /* Estilos para o layout da página */
   .admin-container {
     padding: 20px;
   }

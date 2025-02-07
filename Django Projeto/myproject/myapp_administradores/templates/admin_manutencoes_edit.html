@@ -1,0 +1,38 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; height: 80vh;">
+    <div style="width: 400px; background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);">
+        <h2 style="text-align: center; margin-bottom: 20px;">Editar Manutenção</h2>
+        <form method="POST" action="{% url 'admin_manutencoes_editar' manutencao.0 %}">
+            {% csrf_token %}
+            <div style="margin-bottom: 15px;">
+                <label for="viatura" style="display: block; margin-bottom: 5px;">Viatura</label>
+                <select name="viatura" id="viatura" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    {% for viatura in viaturas %}
+                    <option value="{{ viatura.0 }}" {% if viatura.0 == manutencao.1 %}selected{% endif %}>
+                        {{ viatura.1 }}  <!-- Marca + Modelo -->
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="valor" style="display: block; margin-bottom: 5px;">Valor (€)</label>
+                <input type="number" name="valor" id="valor" step="0.01" value="{{ manutencao.2 }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="descricao" style="display: block; margin-bottom: 5px;">Descrição</label>
+                <textarea name="descricao" id="descricao" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">{{ manutencao.3 }}</textarea>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="data" style="display: block; margin-bottom: 5px;">Data</label>
+                <input type="date" name="data" id="data" value="{{ manutencao_data }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+            </div>
+            <div style="text-align: center;">
+                <a href="{% url 'admin_manutencoes' %}" style="text-decoration: none; margin-right: 10px; color: #555;">Voltar</a>
+                <button type="submit" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Guardar Alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
