@@ -310,9 +310,14 @@ def criar_manutencao(request):
 
         return redirect("admin_manutencoes")
 
-    # Buscar as viaturas para o dropdown
+    # Buscar as viaturas com Marca + Modelo para o dropdown
     with connection.cursor() as cursor:
-        cursor.execute("SELECT id_viatura, matricula FROM viatura")
+        cursor.execute("""
+            SELECT v.id_viatura, CONCAT(marca.nome, ' ', modelo.nome) AS nome_viatura
+            FROM viatura v
+            JOIN marca ON v.id_marca = marca.id_marca
+            JOIN modelo ON v.id_modelo = modelo.id_modelo
+        """)
         viaturas = cursor.fetchall()
 
     return render(request, "admin_manutencoes_create.html", {"viaturas": viaturas})
