@@ -1,6 +1,6 @@
-from django.shortcuts import render
-from django.db import connection
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.db import connection, DatabaseError
+from django.contrib import messages
 from . import basededados as bd
 
 def admin_home(request):
@@ -215,7 +215,7 @@ def admin_reservas(request):
 
     return render(request, 'admin_reservas.html', context)
 
-
+# ---| Manutenções |---
 def admin_manutencoes(request):
     with connection.cursor() as cursor:
         # Consulta para buscar os dados das manutenções
@@ -241,68 +241,89 @@ def admin_manutencoes(request):
 
     return render(request, 'admin_manutencoes.html', context)
 
+def listar_manutencoes(request):
+    viatura_id = request.GET.get("viatura", "")
+    data = request.GET.get("data", "")
+    valor = request.GET.get("valor", "")
 
-def create_manutencao(request):
+    query = """
+        SELECT m.id_manutencao, m.valor, m.descricao, m.data, ma.nome AS marca, mo.nome AS modelo
+        FROM manutencao m
+        JOIN viatura v ON m.id_viatura = v.id_viatura
+        JOIN modelo mo ON v.id_modelo = mo.id_modelo
+        JOIN marca ma ON v.id_marca = ma.id_marca
+        WHERE 1=1
+    """
+    params = []
+
+    if viatura_id:
+        query += " AND m.id_viatura = %s"
+        params.append(viatura_id)
+
+    if data:
+        query += " AND m.data = %s"
+        params.append(data)
+
+    if valor:
+        query += " AND m.valor <= %s"
+        params.append(valor)
+
+    with connection.cursor() as cursor:
+        cursor.execute(query, params)
+        manutencoes = cursor.fetchall()
+
+    # Buscar todas as viaturas para popular o filtro corretamente
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT v.id_viatura, ma.nome AS marca, mo.nome AS modelo
+            FROM viatura v
+            JOIN modelo mo ON v.id_modelo = mo.id_modelo
+            JOIN marca ma ON v.id_marca = ma.id_marca;
+        """)
+        viaturas = cursor.fetchall()
+
+    filtros = {
+        "viatura": viatura_id,
+        "data": data,
+        "valor": valor
+    }
+
+    return render(request, "admin_manutencoes.html", {
+        "manutencoes": manutencoes,
+        "viaturas": viaturas,
+        "filtros": filtros
+    })
+
+def criar_manutencao(request):
     if request.method == "POST":
+        viatura_id = request.POST.get("viatura")
         valor = request.POST.get("valor")
         descricao = request.POST.get("descricao")
         data = request.POST.get("data")
-        viatura_id = request.POST.get("viatura")
 
         with connection.cursor() as cursor:
             cursor.execute(
-                """
-                INSERT INTO Manutencao (Valor, Descricao, Data, ID_Viatura)
-                VALUES (%s, %s, %s, %s)
-                """, [valor, descricao, data, viatura_id]
+                "CALL registar_Manutencao(%s, %s, %s, %s)",
+                [valor, descricao, data, viatura_id]
             )
 
-        return redirect('admin_manutencoes')  # Redireciona para a página de manutenções após criação
-    
-    # Se o método for GET, apenas mostra o formulário de criação
+        return redirect("admin_manutencoes")
+
+    # Buscar as viaturas para o dropdown
     with connection.cursor() as cursor:
-        cursor.execute("SELECT ID_Viatura, Matricula FROM Viatura")
+        cursor.execute("SELECT id_viatura, matricula FROM viatura")
         viaturas = cursor.fetchall()
 
     return render(request, "admin_manutencoes_create.html", {"viaturas": viaturas})
 
-
-def edit_manutencao(request, manutencao_id):
-    if request.method == "POST":
-        valor = request.POST.get("valor")
-        descricao = request.POST.get("descricao")
-        data = request.POST.get("data")
-        viatura_id = request.POST.get("viatura")
-
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                UPDATE Manutencao
-                SET Valor = %s, Descricao = %s, Data = %s, ID_Viatura = %s
-                WHERE ID_Manutencao = %s
-                """, [valor, descricao, data, viatura_id, manutencao_id]
-            )
-        return JsonResponse({"success": True})
-
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM Manutencao WHERE ID_Manutencao = %s", [manutencao_id])
-        manutencao = cursor.fetchone()
-
-        cursor.execute("SELECT ID_Viatura, Matricula FROM Viatura")
-        viaturas = cursor.fetchall()
-
-    return render(request, "manutencoes/edit.html", {"manutencao": manutencao, "viaturas": viaturas})
-
-
-def delete_manutencao(request, manutencao_id):
+def eliminar_manutencao(request, manutencao_id):
     with connection.cursor() as cursor:
         cursor.execute("DELETE FROM Manutencao WHERE ID_Manutencao = %s", [manutencao_id])
-    return JsonResponse({"success": True})
-
+    
+    return redirect('admin_manutencoes')
 
 def admin_administracao(request):
     return render(request, 'admin_administracao.html')
-
 
 # Lista de Marcas
 def admin_marcaslist(request):
@@ -313,10 +334,6 @@ def admin_marcaslist(request):
 
     context = {'marcas': marcas}
     return render(request, 'admin_marcaslist.html', context)
-
-# Criar Marca
-from django.shortcuts import render, redirect
-from django.db import connection, DatabaseError
 
 def admin_marcacreate(request):
     if request.method == "POST":
@@ -335,8 +352,6 @@ def admin_marcacreate(request):
             return render(request, 'admin_marcas_create.html', {"error": error_message})
 
     return render(request, 'admin_marcas_create.html')
-
-
 
 # Editar Marca
 def admin_marcaedit(request, marcaid):
@@ -362,8 +377,6 @@ def admin_marcaedit(request, marcaid):
         marca = cursor.fetchone()
 
     return render(request, 'admin_marcas_edit.html', {"marcaid": marcaid, "marca": marca})
-
-
 
 # Eliminar Marca
 def admin_marcadelete(request, marcaid):

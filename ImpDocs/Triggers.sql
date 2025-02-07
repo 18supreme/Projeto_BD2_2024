@@ -16,7 +16,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_atualizar_stock
+CREATE OR REPLACE TRIGGER trigger_atualizar_stock
 AFTER INSERT ON Pecas_Manutencao
 FOR EACH ROW
 EXECUTE FUNCTION atualizar_stock_peca();
@@ -38,7 +38,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
    
-CREATE TRIGGER trigger_atualizar_stock
+CREATE OR REPLACE TRIGGER trigger_atualizar_stock
 AFTER UPDATE OF ID_EstadoEncomenda
 ON EncomendaFornecedor
 FOR EACH ROW
@@ -64,7 +64,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_reserva_viatura
+CREATE OR REPLACE TRIGGER trigger_reserva_viatura
 AFTER INSERT
 ON Reserva
 FOR EACH ROW
@@ -99,7 +99,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_reserva_terminada_viatura_disponivel
+CREATE OR REPLACE TRIGGER trigger_reserva_terminada_viatura_disponivel
 AFTER UPDATE OF ID_EstadoReserva
 ON Reserva
 FOR EACH ROW
@@ -121,15 +121,15 @@ BEGIN
 
     -- Atualizamos o estado da viatura associada
     UPDATE Viatura
-    SET Estado_Viatura_ID = estado_em_manutencao_id
-    WHERE ID_Viatura = NEW.Viatura_ID;
+    SET ID_Estado_Viatura = estado_em_manutencao_id
+    WHERE ID_Viatura = NEW.ID_Viatura;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 -- Cria o trigger
-CREATE TRIGGER trigger_manutencao_viatura_em_manutencao
+CREATE OR REPLACE TRIGGER trigger_manutencao_viatura_em_manutencao
 AFTER INSERT ON Manutencao
 FOR EACH ROW
 EXECUTE FUNCTION atualizar_estado_viatura_para_em_manutencao();
