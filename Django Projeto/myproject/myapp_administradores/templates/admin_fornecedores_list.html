@@ -1,0 +1,137 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Lista de Fornecedores{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>Lista de Fornecedores</h1>
+
+    <div class="top-right">
+        <button onclick="window.location.href='{% url 'admin_fornecedorcreate' %}'" class="btn btn-create">
+            Criar Novo Fornecedor
+        </button>
+    </div>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Valor</th>
+                <th>Ativo</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fornecedor in fornecedores %}
+            <tr>
+                <td>{{ fornecedor.0 }}</td>
+                <td>{{ fornecedor.1 }}</td>
+                <td>{{ fornecedor.2 }}</td>
+                <td>{% if fornecedor.3 %}✔️{% else %}❌{% endif %}</td>
+                <td>
+                    <a href="{% url 'admin_fornecedoredit' fornecedor.0 %}" class="btn btn-warning">Editar</a>
+                    <button class="btn btn-danger" onclick="openModal({{ fornecedor.0 }})">Eliminar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal de Confirmação para Eliminação -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <p>Tem certeza que deseja eliminar este Fornecedor?</p>
+        <form id="eliminarFornecedor" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="fornecedorId" name="fornecedorId">
+            <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(fornecedorId) {
+        document.getElementById('eliminarFornecedor').action = "/administracao/fornecedores/delete/" + fornecedorId + "/";
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+</script>
+
+<style>
+    .admin-container {
+        padding: 20px;
+    }
+
+    .top-right {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 15px;
+    }
+
+    .btn {
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        color: white;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-create {
+        background-color: #28a745;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .styled-table th, .styled-table td {
+        padding: 12px;
+        font-size: 16px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        width: 350px;
+        text-align: center;
+    }
+</style>
+{% endblock %}

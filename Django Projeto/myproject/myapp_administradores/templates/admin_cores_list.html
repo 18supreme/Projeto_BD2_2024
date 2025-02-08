@@ -1,15 +1,15 @@
 {% extends 'base_admin.html' %}
 
-{% block title %}Lista de Modelos{% endblock %}
+{% block title %}Lista de Cores{% endblock %}
 
 {% block content %}
 <div class="admin-container">
-    <h1>Lista de Modelos</h1>
+    <h1>Lista de Cores</h1>
     <br />
 
     <div class="top-right">
-        <button onclick="window.location.href='{% url 'admin_modelocreate' %}'" class="btn btn-create">
-            Criar Novo Modelo
+        <button onclick="window.location.href='{% url 'admin_corcreate' %}'" class="btn btn-create">
+            Criar Nova Cor
         </button>
     </div>
 
@@ -17,22 +17,20 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Modelo</th>
-                <th>Marca</th>
+                <th>Nome</th>
                 <th>Ativo</th>
                 <th>Ações</th>
             </tr>
         </thead>
         <tbody>
-            {% for modelo in modelos %}
+            {% for cor in cores %}
             <tr>
-                <td>{{ modelo.0 }}</td>
-                <td>{{ modelo.1 }}</td>
-                <td>{{ modelo.2 }}</td>
-                <td>{% if modelo.3 %}✔️{% else %}❌{% endif %}</td>
+                <td>{{ cor.0 }}</td>
+                <td>{{ cor.1 }}</td>
+                <td>{% if cor.2 %}✔️{% else %}❌{% endif %}</td>
                 <td>
-                    <a href="{% url 'admin_modeloedit' modelo.0 %}" class="btn btn-warning">Editar</a>
-                    <a href="#" onclick="openModal({{ modelo.0 }})" class="btn btn-danger">Eliminar</a>
+                    <a href="{% url 'admin_coredit' cor.0 %}" class="btn btn-warning">Editar</a>
+                    <a href="#" onclick="openModal({{ cor.0 }})" class="btn btn-danger">Eliminar</a>
                 </td>
             </tr>
             {% endfor %}
@@ -43,10 +41,10 @@
 <!-- Modal de Confirmação -->
 <div id="modal" class="modal">
     <div class="modal-content">
-        <p>Tem certeza que deseja eliminar este Modelo?</p>
-        <form id="eliminarModelo" method="post">
+        <p>Tem certeza que deseja eliminar esta Cor?</p>
+        <form id="eliminarCor" method="post">
             {% csrf_token %}
-            <input type="hidden" id="modeloId" name="modeloId">
+            <input type="hidden" id="corId" name="corId">
             <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
             <button type="submit" class="btn btn-danger">Eliminar</button>
         </form>
@@ -54,8 +52,8 @@
 </div>
 
 <script>
-    function openModal(modeloId) {
-        document.getElementById('eliminarModelo').action = "/admin/administracao/modelos/delete/" + modeloId + "/";
+    function openModal(corId) {
+        document.getElementById('eliminarCor').action = "/admin/administracao/cores/delete/" + corId + "/";
         document.getElementById('modal').style.display = 'flex';
     }
 

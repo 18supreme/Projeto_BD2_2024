@@ -29,8 +29,45 @@ $$;
 
 ------------------------------------------------------------------------------------
 
+CREATE OR REPLACE PROCEDURE update_Modelo(
+    p_modeloid INTEGER,
+    p_nome VARCHAR,
+    p_id_marca INTEGER,
+    p_isactive BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Verificar se já existe outro modelo com o mesmo nome para essa marca
+    IF EXISTS (
+        SELECT 1 
+        FROM Modelo 
+        WHERE LOWER(Nome) = LOWER(p_nome) AND ID_Modelo != p_modeloid AND ID_Marca = p_id_marca
+    ) THEN
+        RAISE EXCEPTION 'Já existe um outro modelo com este nome para esta marca!';
+    ELSE
+        -- Atualizar os dados do modelo
+        UPDATE Modelo
+        SET Nome = p_nome, ID_Marca = p_id_marca, IsActive = p_isactive
+        WHERE ID_Modelo = p_modeloid;
+    END IF;
+END;
+$$;
+------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE delete_Modelo(
+    p_modeloid INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM Modelo WHERE ID_Modelo = p_modeloid;
+END;
+$$;
+
+------------------------------------------------------------------------------------
+
 -- Registar Fornecedor
-CREATE OR REPLACE PROCEDURE registar_Fornecedor (
+CREATE OR REPLACE PROCEDURE registar_Fornecedor(
     p_Nome VARCHAR,
     p_Valor DECIMAL,
     p_IsActive BOOLEAN DEFAULT TRUE
@@ -38,18 +75,57 @@ CREATE OR REPLACE PROCEDURE registar_Fornecedor (
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Verificar se já existe um registro com o mesmo nome
-    IF NOT EXISTS (
-        SELECT 1 FROM Fornecedor WHERE Nome = p_Nome
+    -- Verificar se já existe um fornecedor com o mesmo nome
+    IF EXISTS (
+        SELECT 1 FROM Fornecedor WHERE LOWER(Nome) = LOWER(p_Nome)
     ) THEN
-        -- Inserir o novo registro caso não exista
-        INSERT INTO Fornecedor (Nome, Valor, IsActive) 
-        VALUES (p_Nome, p_Valor, p_IsActive);
+        RAISE EXCEPTION 'O fornecedor "%" já existe!', p_Nome;
     ELSE
-        RAISE NOTICE 'O fornecedor "%" já existe na tabela e não será inserido.', p_Nome;
+        -- Inserir o novo fornecedor
+        INSERT INTO Fornecedor (Nome, Valor, IsActive)
+        VALUES (p_Nome, p_Valor, p_IsActive);
     END IF;
 END;
 $$;
+
+--------------------------------------------------------------------------------------
+--Atualizar Fornecedor 
+CREATE OR REPLACE PROCEDURE update_Fornecedor(
+    p_fornecedorid INTEGER,
+    p_Nome VARCHAR,
+    p_Valor DECIMAL,
+    p_IsActive BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Verificar se já existe outro fornecedor com o mesmo nome
+    IF EXISTS (
+        SELECT 1 FROM Fornecedor WHERE LOWER(Nome) = LOWER(p_Nome) AND ID_Fornecedor != p_fornecedorid
+    ) THEN
+        RAISE EXCEPTION 'Já existe outro fornecedor com este nome!';
+    ELSE
+        -- Atualizar os dados do fornecedor
+        UPDATE Fornecedor
+        SET Nome = p_Nome, Valor = p_Valor, IsActive = p_IsActive
+        WHERE ID_Fornecedor = p_fornecedorid;
+    END IF;
+END;
+$$;
+
+---------------------------------------------------------------------------------------------------------
+--Eliminar Fornecedor
+CREATE OR REPLACE PROCEDURE delete_Fornecedor(
+    p_fornecedorid INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Apagar o fornecedor pelo ID
+    DELETE FROM Fornecedor WHERE ID_Fornecedor = p_fornecedorid;
+END;
+$$;
+
 
 -- Exemplo de chamadas do PROCEDURE
 -- CALL registar_Fornecedor('Auto Peças Ltda', 1500.00, TRUE); -- Já existe
@@ -324,18 +400,53 @@ CREATE OR REPLACE PROCEDURE registar_Combustivel(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Verificar se já existe um registro com o mesmo Nome
-    IF NOT EXISTS (
-        SELECT 1 FROM Combustivel WHERE Nome = p_nome
+    -- Verificar se já existe um combustível com o mesmo nome (case insensitive)
+    IF EXISTS (
+        SELECT 1 FROM Combustivel WHERE LOWER(Nome) = LOWER(p_nome)
     ) THEN
-        -- Inserir o novo registro caso não exista
+        -- Gera um erro que será capturado no Django
+        RAISE EXCEPTION 'O combustível "%" já existe!', p_nome;
+    ELSE
+        -- Inserir o novo combustível caso não exista
         INSERT INTO Combustivel (Nome, IsActive)
         VALUES (p_nome, p_isactive);
-    ELSE
-        RAISE NOTICE 'O Combustível "%" já existe na tabela e não será inserido.', p_nome;
     END IF;
 END;
 $$;
+------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE update_Combustivel(
+    p_combustivelid INTEGER,
+    p_nome VARCHAR,
+    p_isactive BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Verificar se já existe outro combustível com o mesmo nome
+    IF EXISTS (
+        SELECT 1 FROM Combustivel WHERE LOWER(Nome) = LOWER(p_nome) AND ID_Combustivel != p_combustivelid
+    ) THEN
+        RAISE EXCEPTION 'Já existe outro combustível com este nome!';
+    ELSE
+        -- Atualizar o combustível
+        UPDATE Combustivel
+        SET Nome = p_nome, IsActive = p_isactive
+        WHERE ID_Combustivel = p_combustivelid;
+    END IF;
+END;
+$$;
+------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE delete_Combustivel(
+    p_combustivelid INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Apagar o combustível pelo ID
+    DELETE FROM Combustivel WHERE ID_Combustivel = p_combustivelid;
+END;
+$$;
+
 
 ------------------------------------------------------------------------------------
 
@@ -412,16 +523,54 @@ CREATE OR REPLACE PROCEDURE registar_Cor(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Verificar se já existe um registro com o mesmo Nome
-    IF NOT EXISTS (
-        SELECT 1 FROM Cores WHERE Nome = p_nome
+    -- Verificar se já existe uma cor com o mesmo nome (case insensitive)
+    IF EXISTS (
+        SELECT 1 FROM Cores WHERE LOWER(Nome) = LOWER(p_nome)
     ) THEN
-        -- Inserir o novo registro caso não exista
+        -- Gera um erro que será capturado no Django
+        RAISE EXCEPTION 'A cor "%" já existe!', p_nome;
+    ELSE
+        -- Inserir a nova cor caso não exista
         INSERT INTO Cores (Nome, IsActive)
         VALUES (p_nome, p_isactive);
-    ELSE
-        RAISE NOTICE 'A cor "%" já existe na tabela e não será inserida.', p_nome;
     END IF;
+END;
+$$;
+
+
+
+------------------------------------------------------------------------------------
+-- Dar Update na cor 
+CREATE OR REPLACE PROCEDURE update_Cor(
+    p_corid INTEGER,
+    p_nome VARCHAR,
+    p_isactive BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Verificar se já existe outra cor com o mesmo nome
+    IF EXISTS (
+        SELECT 1 FROM Cores WHERE LOWER(Nome) = LOWER(p_nome) AND ID_Cor != p_corid
+    ) THEN
+        RAISE EXCEPTION 'Já existe outra cor com este nome!';
+    ELSE
+        -- Atualizar a cor
+        UPDATE Cores
+        SET Nome = p_nome, IsActive = p_isactive
+        WHERE ID_Cor = p_corid;
+    END IF;
+END;
+$$;
+
+------------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE delete_Cor(
+    p_corid INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM Cores WHERE ID_Cor = p_corid;
 END;
 $$;
 

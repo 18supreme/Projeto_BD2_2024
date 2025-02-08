@@ -534,3 +534,204 @@ def admin_modelodelete(request, modelo_id):
             return redirect('admin_modeloslist')
 
     return redirect('admin_modeloslist')
+
+# Selecionar cor 
+def admin_coreslist(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT ID_Cor, Nome, IsActive FROM Cores ORDER BY Nome")
+        cores = cursor.fetchall()
+
+    return render(request, 'admin_cores_list.html', {'cores': cores})
+
+# Criar Cor
+def admin_corcreate(request):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        is_active = request.POST.get("is_active")
+
+        is_active = True if is_active == "on" else False  
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL registar_Cor(%s, %s)", [nome, is_active])
+            return redirect('admin_coreslist')
+        except DatabaseError as e:
+            error_message = "Erro: A cor já existe!" if "já existe" in str(e) else "Erro ao criar a cor!"
+            return render(request, 'admin_cores_create.html', {"error": error_message})
+
+    return render(request, 'admin_cores_create.html')
+
+
+
+#Editar Cor  
+def admin_coredit(request, cor_id):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        is_active = request.POST.get("is_active")
+
+        is_active = True if is_active == "on" else False  
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL update_Cor(%s, %s, %s)", [cor_id, nome, is_active])
+            return redirect('admin_coreslist')
+        except DatabaseError as e:
+            error_message = "Erro: Já existe outra cor com este nome!" if "já existe" in str(e) else "Erro ao editar a cor!"
+            return render(request, 'admin_cores_edit.html', {"cor_id": cor_id, "cor": (nome, is_active), "error": error_message})
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT Nome, IsActive FROM Cores WHERE ID_Cor = %s", [cor_id])
+        cor = cursor.fetchone()
+
+    return render(request, 'admin_cores_edit.html', {"cor_id": cor_id, "cor": cor})
+
+
+#Apagar Cor 
+def admin_cordelete(request, cor_id):
+    if request.method == "POST":
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL delete_Cor(%s)", [cor_id])
+            return redirect('admin_coreslist')
+        except Exception as e:
+            print(f"Erro ao eliminar cor: {e}")
+            return redirect('admin_coreslist')
+
+    return redirect('admin_coreslist')
+
+
+#Listar combustiveis
+
+def admin_combustiveislist(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT ID_Combustivel, Nome, IsActive FROM Combustivel ORDER BY Nome")
+        combustiveis = cursor.fetchall()
+
+    return render(request, 'admin_combustiveis_list.html', {'combustiveis': combustiveis})
+
+#Criar combustiveis 
+def admin_combustivelcreate(request):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        is_active = request.POST.get("is_active")
+
+        is_active = True if is_active == "on" else False  
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL registar_Combustivel(%s, %s)", [nome, is_active])
+            return redirect('admin_combustiveislist')
+
+        except DatabaseError as e:
+            error_message = "Erro: O combustível já existe!" if "O combustível" in str(e) else "Erro ao criar o combustível!"
+            return render(request, 'admin_combustiveis_create.html', {"error": error_message})
+
+    return render(request, 'admin_combustiveis_create.html')
+
+#Editar combustiveis 
+def admin_combustiveledit(request, combustivel_id):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        is_active = request.POST.get("is_active")
+
+        # Converter o checkbox corretamente para True ou False
+        is_active = True if is_active == "on" else False  
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL update_Combustivel(%s, %s, %s)", [combustivel_id, nome, is_active])
+            return redirect('admin_combustiveislist')
+        except DatabaseError as e:
+            error_message = "Erro: Já existe outro combustível com este nome!" if "já existe" in str(e) else "Erro ao editar o combustível!"
+            return render(request, 'admin_combustiveis_edit.html', {"combustivel_id": combustivel_id, "combustivel": (nome, is_active), "error": error_message})
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT Nome, IsActive FROM Combustivel WHERE ID_Combustivel = %s", [combustivel_id])
+        combustivel = cursor.fetchone()
+
+    return render(request, 'admin_combustiveis_edit.html', {"combustivel_id": combustivel_id, "combustivel": combustivel})
+
+
+#Eliminar Combustiveis 
+def admin_combustiveldelete(request, combustivel_id):
+    if request.method == "POST":
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL delete_Combustivel(%s)", [combustivel_id])
+            return redirect('admin_combustiveislist')
+        except Exception as e:
+            print(f"Erro ao eliminar combustível: {e}")
+            return redirect('admin_combustiveislist')
+
+    return redirect('admin_combustiveislist')
+
+
+#Listar Fornecedores 
+def admin_fornecedoreslist(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT ID_Fornecedor, Nome, Valor, IsActive FROM Fornecedor ORDER BY Nome")
+        fornecedores = cursor.fetchall()
+
+    return render(request, 'admin_fornecedores_list.html', {'fornecedores': fornecedores})
+
+
+#Criar Fornecedor 
+def admin_fornecedorcreate(request):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        valor = request.POST.get("valor")
+        is_active = request.POST.get("is_active")
+
+        is_active = True if is_active == "on" else False  
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL registar_Fornecedor(%s, %s, %s)", [nome, valor, is_active])
+            return redirect('admin_fornecedoreslist')
+
+        except DatabaseError as e:
+            error_message = "Erro: O fornecedor já existe!" if "O fornecedor" in str(e) else "Erro ao criar o fornecedor!"
+            return render(request, 'admin_fornecedores_create.html', {"error": error_message})
+
+    return render(request, 'admin_fornecedores_create.html')
+
+
+#Editar Fornecedor 
+def admin_fornecedoredit(request, fornecedor_id):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        valor = request.POST.get("valor")
+        is_active = request.POST.get("is_active")
+
+        is_active = True if is_active == "on" else False  
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL update_Fornecedor(%s, %s, %s, %s)", [fornecedor_id, nome, valor, is_active])
+            return redirect('admin_fornecedoreslist')
+        except DatabaseError as e:
+            error_message = "Erro: Já existe outro fornecedor com este nome!" if "já existe" in str(e) else "Erro ao editar o fornecedor!"
+            return render(request, 'admin_fornecedores_edit.html', {"fornecedor_id": fornecedor_id, "fornecedor": (nome, valor, is_active), "error": error_message})
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT Nome, Valor, IsActive FROM Fornecedor WHERE ID_Fornecedor = %s", [fornecedor_id])
+        fornecedor = cursor.fetchone()
+
+    return render(request, 'admin_fornecedores_edit.html', {"fornecedor_id": fornecedor_id, "fornecedor": fornecedor})
+
+
+#Eliminar Fornecedor 
+def admin_fornecedordelete(request, fornecedor_id):
+    if request.method == "POST":
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL delete_Fornecedor(%s)", [fornecedor_id])
+            return redirect('admin_fornecedoreslist')
+        except Exception as e:
+            print(f"Erro ao eliminar fornecedor: {e}")
+            return redirect('admin_fornecedoreslist')
+
+    return redirect('admin_fornecedoreslist')
+
+
+
