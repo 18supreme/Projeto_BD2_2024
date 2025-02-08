@@ -30,6 +30,18 @@ path('', views.admin_home, name='admin_dashboard'),
     path('administracao/fornecedores/create/', views.admin_fornecedorcreate, name='admin_fornecedorcreate'),
     path('administracao/fornecedores/delete/<int:fornecedor_id>/', views.admin_fornecedordelete, name='admin_fornecedordelete'),
     path('administracao/fornecedores/edit/<int:fornecedor_id>/', views.admin_fornecedoredit, name='admin_fornecedoredit'),
+    path('administracao/encomendas/', views.admin_encomendaslist, name='admin_encomendaslist'),
+    path('administracao/encomendas/create/', views.admin_encomendacreate, name='admin_encomendacreate'),
+    path('administracao/encomendas/edit/<int:encomenda_id>/', views.admin_encomendaedit, name='admin_encomendaedit'),
+    path('administracao/encomendas/delete/<int:encomenda_id>/', views.admin_encomendadelete, name='admin_encomendadelete'),
+    path("administracao/pecas/", views.admin_pecaslist, name="admin_pecaslist"),
+    path("administracao/pecas/create/", views.admin_pecacreate, name="admin_pecacreate"),
+    path("administracao/pecas/edit/<int:peca_id>/", views.admin_pecaedit, name="admin_pecaedit"),
+    path("administracao/pecas/delete/<int:peca_id>/", views.admin_pecadelete, name="admin_pecadelete"),
+    path("administracao/utilizadores/", views.admin_utilizadoreslist, name="admin_utilizadoreslist"),
+    path("administracao/utilizadores/create/", views.admin_utilizadorcreate, name="admin_utilizadorcreate"),
+    path("administracao/utilizadores/edit/<int:utilizador_id>/", views.admin_utilizadoredit, name="admin_utilizadoredit"),
+    path("administracao/utilizadores/delete/<int:utilizador_id>/", views.admin_utilizadordelete, name="admin_utilizadordelete"),
     
 ]
 

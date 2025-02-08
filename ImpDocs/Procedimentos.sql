@@ -115,16 +115,25 @@ $$;
 
 ---------------------------------------------------------------------------------------------------------
 --Eliminar Fornecedor
-CREATE OR REPLACE PROCEDURE delete_Fornecedor(
-    p_fornecedorid INTEGER
-)
+CREATE OR REPLACE PROCEDURE delete_Fornecedor(p_fornecedor_id INTEGER)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Apagar o fornecedor pelo ID
-    DELETE FROM Fornecedor WHERE ID_Fornecedor = p_fornecedorid;
+    -- Verificar se o fornecedor tem encomendas associadas
+    IF EXISTS (
+        SELECT 1 FROM EncomendaFornecedor WHERE ID_Fornecedor = p_fornecedor_id
+    ) THEN
+        RAISE EXCEPTION 'O fornecedor tem encomendas associadas e não pode ser eliminado.';
+    END IF;
+
+    -- Se não houver encomendas, eliminar o fornecedor
+    DELETE FROM Fornecedor WHERE ID_Fornecedor = p_fornecedor_id;
+
+    -- Mensagem opcional para logs
+    RAISE NOTICE 'Fornecedor com ID % eliminado com sucesso.', p_fornecedor_id;
 END;
 $$;
+
 
 
 -- Exemplo de chamadas do PROCEDURE
@@ -144,11 +153,11 @@ CREATE OR REPLACE PROCEDURE registar_Peca (
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Verificar se já existe um registro com o mesmo Nome
+    -- Verificar se já existe um registro com o mesmo Nome e Marca
     IF NOT EXISTS (
-        SELECT 1 FROM Pecas WHERE Nome = p_Nome AND ID_Marca = p_ID_Marca
+        SELECT 1 FROM Pecas WHERE LOWER(Nome) = LOWER(p_Nome) AND ID_Marca = p_ID_Marca
     ) THEN
-        -- Inserir o novo registro caso não exista
+        -- Inserir a peça caso não exista
         INSERT INTO Pecas (Nome, Stock, ID_Marca, ID_Modelo) 
         VALUES (p_Nome, p_Stock, p_ID_Marca, p_ID_Modelo);
     ELSE
@@ -157,7 +166,42 @@ BEGIN
 END;
 $$;
 
-SELECT * FROM pecas
+--Atualizar Peça
+CREATE OR REPLACE PROCEDURE update_Peca (
+    p_ID_Peca INTEGER,
+    p_Nome VARCHAR,
+    p_Stock INTEGER,
+    p_ID_Marca INTEGER,
+    p_ID_Modelo INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Atualizar os dados da peça
+    UPDATE Pecas
+    SET Nome = p_Nome, Stock = p_Stock, ID_Marca = p_ID_Marca, ID_Modelo = p_ID_Modelo
+    WHERE ID_Peca = p_ID_Peca;
+END;
+$$;
+
+--Eliminar Peça
+CREATE OR REPLACE PROCEDURE delete_Peca (
+    p_ID_Peca INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Verifica se a peça está associada a uma manutenção antes de eliminar
+    IF EXISTS (SELECT 1 FROM Pecas_Manutencao WHERE ID_Peca = p_ID_Peca) THEN
+        RAISE EXCEPTION 'A peça não pode ser eliminada porque está associada a uma manutenção.';
+    ELSE
+        DELETE FROM Pecas WHERE ID_Peca = p_ID_Peca;
+    END IF;
+END;
+$$;
+
+
+
 
 -- Exemplo de chamada do PROCEDURE
 -- CALL registar_Peca('Filtro de óleo - Universal', 100, 1, 1); -- Este já existe
@@ -248,18 +292,80 @@ $$;
 ------------------------------------------------------------------------------------
 
 -- Registar Uma encomenda ao Fornecedor 
-CREATE OR REPLACE PROCEDURE registar_EncomendaFornecedor(
-    p_quantidade INTEGER,
-    p_valor DECIMAL,
-    p_id_peca INTEGER,
-    p_id_fornecedor INTEGER,
-    p_id_estado_encomenda INTEGER
+CREATE OR REPLACE PROCEDURE registar_Encomenda(
+    p_ID_Fornecedor INTEGER,
+    p_ID_Peca INTEGER,
+    p_Quantidade INTEGER,
+    p_Valor DECIMAL,
+    p_ID_EstadoEncomenda INTEGER
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    INSERT INTO EncomendaFornecedor (Quantidade, Valor, ID_Peca, ID_Fornecedor, ID_EstadoEncomenda)
-    VALUES (p_quantidade, p_valor, p_id_peca, p_id_fornecedor, p_id_estado_encomenda);
+    INSERT INTO EncomendaFornecedor (ID_Fornecedor, ID_Peca, Quantidade, Valor, ID_EstadoEncomenda) 
+    VALUES (p_ID_Fornecedor, p_ID_Peca, p_Quantidade, p_Valor, p_ID_EstadoEncomenda);
+    
+    -- Atualizar o saldo do fornecedor automaticamente ao fazer a encomenda
+    UPDATE Fornecedor
+    SET Valor = Valor + p_Valor
+    WHERE ID_Fornecedor = p_ID_Fornecedor;
+END;
+$$;
+
+--Atualizar Encomenda
+CREATE OR REPLACE PROCEDURE update_Encomenda(
+    p_ID_Encomenda INTEGER,
+    p_Quantidade INTEGER,
+    p_Valor DECIMAL,
+    p_ID_EstadoEncomenda INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_FornecedorID INTEGER;
+    v_ValorAntigo DECIMAL;
+BEGIN
+    -- Obter o ID do Fornecedor e o valor antigo da encomenda
+    SELECT ID_Fornecedor, Valor INTO v_FornecedorID, v_ValorAntigo
+    FROM EncomendaFornecedor
+    WHERE ID_Encomenda_Fornecedor = p_ID_Encomenda;
+
+    -- Atualizar os dados da encomenda
+    UPDATE EncomendaFornecedor
+    SET Quantidade = p_Quantidade, 
+        Valor = p_Valor, 
+        ID_EstadoEncomenda = p_ID_EstadoEncomenda  -- 📌 Garante que está a atualizar o estado!
+    WHERE ID_Encomenda_Fornecedor = p_ID_Encomenda;
+
+    -- Ajustar o saldo do fornecedor
+    UPDATE Fornecedor
+    SET Valor = Valor - v_ValorAntigo + p_Valor
+    WHERE ID_Fornecedor = v_FornecedorID;
+END;
+$$;
+
+-- Eleminar Encomenda
+CREATE OR REPLACE PROCEDURE delete_Encomenda(
+    p_ID_Encomenda INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_FornecedorID INTEGER;
+    v_Valor DECIMAL;
+BEGIN
+    -- Obter o ID do Fornecedor e o valor da encomenda
+    SELECT ID_Fornecedor, Valor INTO v_FornecedorID, v_Valor
+    FROM EncomendaFornecedor
+    WHERE ID_Encomenda_Fornecedor = p_ID_Encomenda;
+
+    -- Eliminar a encomenda
+    DELETE FROM EncomendaFornecedor WHERE ID_Encomenda_Fornecedor = p_ID_Encomenda;
+
+    -- Atualizar o saldo do fornecedor ao remover a encomenda
+    UPDATE Fornecedor
+    SET Valor = Valor - v_Valor
+    WHERE ID_Fornecedor = v_FornecedorID;
 END;
 $$;
 
@@ -689,5 +795,59 @@ BEGIN
 
     -- Exibir mensagem de sucesso
     RAISE NOTICE 'Viatura com matrícula "%" inserida com sucesso.', p_matricula;
+END;
+$$;
+
+------------------------------------------------------------------------------------
+
+-- Criar um novo utilizador
+CREATE OR REPLACE PROCEDURE registar_Utilizador(
+    p_Nome VARCHAR,
+    p_Password VARCHAR,
+    p_ID_TipoUtilizador INTEGER,
+    p_IsActive BOOLEAN DEFAULT TRUE
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Verificar se já existe um utilizador com o mesmo nome
+    IF NOT EXISTS (SELECT 1 FROM Utilizador WHERE Nome = p_Nome) THEN
+        INSERT INTO Utilizador (Nome, Password, ID_TipoUtilizador, IsActive)
+        VALUES (p_Nome, p_Password, p_ID_TipoUtilizador, p_IsActive);
+    ELSE
+        RAISE NOTICE 'O utilizador "%" já existe na tabela e não será inserido.', p_Nome;
+    END IF;
+END;
+$$;
+
+
+-- Atualizar um utilizador
+CREATE OR REPLACE PROCEDURE update_Utilizador(
+    p_ID_Utilizador INTEGER,
+    p_Nome VARCHAR,
+    p_Password VARCHAR,
+    p_IsActive BOOLEAN,
+    p_ID_TipoUtilizador INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE Utilizador
+    SET Nome = p_Nome,
+        Password = p_Password,
+        IsActive = p_IsActive,
+        ID_TipoUtilizador = p_ID_TipoUtilizador
+    WHERE ID_Utilizador = p_ID_Utilizador;
+END;
+$$;
+
+-- Eliminar um utilizador
+CREATE OR REPLACE PROCEDURE delete_Utilizador(
+    p_ID_Utilizador INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM Utilizador WHERE ID_Utilizador = p_ID_Utilizador;
 END;
 $$;

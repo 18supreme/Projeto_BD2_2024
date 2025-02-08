@@ -1,62 +1,46 @@
 {% extends 'base_admin.html' %}
 
-{% block title %}Lista de Fornecedores{% endblock %}
+{% block title %}Lista de Utilizadores{% endblock %}
 
 {% block content %}
 <div class="admin-container">
-    <h1>Lista de Fornecedores</h1>
-    <br />
+    <h1>Lista de Utilizadores</h1>
 
-    <!-- Exibir mensagens de erro/sucesso -->
-    {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="message {% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <!-- Botão Criar Novo Fornecedor -->
     <div class="top-right">
-        <button onclick="window.location.href='{% url 'admin_fornecedorcreate' %}'" class="btn btn-success">
-            Criar Novo Fornecedor
+        <button onclick="window.location.href='{% url 'admin_utilizadorcreate' %}'" class="btn btn-success">
+            Criar Novo Utilizador
         </button>
     </div>
 
-    <!-- Tabela de Fornecedores -->
-    <table class="fornecedores-table">
+    <table class="utilizadores-table">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Nome</th>
-                <th>Valor</th>
+                <th>Tipo</th>
                 <th>Ativo</th>
                 <th style="text-align: center;">Ações</th>
             </tr>
         </thead>
         <tbody>
-            {% for fornecedor in fornecedores %}
+            {% for utilizador in utilizadores %}
             <tr>
-                <td>{{ fornecedor.0 }}</td>
-                <td>{{ fornecedor.1 }}</td>
-                <td>€ {{ fornecedor.2 }}</td>
-                <td>{% if fornecedor.3 %}✔️{% else %}❌{% endif %}</td>
+                <td>{{ utilizador.0 }}</td>
+                <td>{{ utilizador.1 }}</td>
+                <td>{{ utilizador.2 }}</td>
+                <td>{% if utilizador.3 %}✔️{% else %}❌{% endif %}</td>
                 <td style="text-align: center;">
-                    <!-- Botão Editar -->
-                    <button onclick="window.location.href='{% url 'admin_fornecedoredit' fornecedor.0 %}'" class="btn btn-warning">
+                    <button onclick="window.location.href='{% url 'admin_utilizadoredit' utilizador.0 %}'" class="btn btn-warning">
                         Editar
                     </button>
-                    <!-- Botão Eliminar -->
-                    <button onclick="openModal({{ fornecedor.0 }}, '{{ fornecedor.1 }}')" class="btn btn-danger">
+                    <button onclick="openModal({{ utilizador.0 }}, '{{ utilizador.1 }}')" class="btn btn-danger">
                         Eliminar
                     </button>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" style="text-align: center; color: #888;">Nenhum fornecedor encontrado.</td>
+                <td colspan="5" style="text-align: center; color: #888;">Nenhum utilizador encontrado.</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -67,8 +51,8 @@
 <div id="modal" class="modal">
     <div class="modal-content">
         <h3>Confirmação de Eliminação</h3>
-        <p>Tem certeza que deseja eliminar o fornecedor <strong id="fornecedor-nome"></strong>?</p>
-        <form id="eliminarfornecedor" action="" method="post">
+        <p>Tem certeza que deseja eliminar o utilizador <strong id="utilizador-nome"></strong>?</p>
+        <form id="eliminarutilizador" action="" method="post">
             {% csrf_token %}
             <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
             <button type="submit" class="btn btn-danger">Confirmar</button>
@@ -76,11 +60,11 @@
     </div>
 </div>
 
-<!-- Script para Abrir e Fechar o Modal -->
+<!-- Script para Modal -->
 <script>
-    function openModal(fornecedorid, nome) {
-        document.getElementById('fornecedor-nome').textContent = nome;
-        document.getElementById('eliminarfornecedor').action = `/admin/administracao/fornecedores/delete/${fornecedorid}/`;
+    function openModal(utilizadorid, nome) {
+        document.getElementById('utilizador-nome').textContent = nome;
+        document.getElementById('eliminarutilizador').action = `/admin/administracao/utilizadores/delete/${utilizadorid}/`;
         document.getElementById('modal').style.display = 'flex';
     }
 
@@ -133,49 +117,17 @@
         background-color: #6c757d;
     }
 
-    .fornecedores-table {
+    .utilizadores-table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
     }
 
-    .fornecedores-table th,
-    .fornecedores-table td {
+    .utilizadores-table th,
+    .utilizadores-table td {
         padding: 10px;
         text-align: left;
         border-bottom: 1px solid #ddd;
-    }
-
-    .fornecedores-table th {
-        font-weight: bold;
-    }
-
-    .fornecedores-table tr:hover {
-        background-color: #f9f9f9;
-    }
-
-    /* Mensagens */
-    .messages {
-        width: 100%;
-        margin-bottom: 15px;
-    }
-
-    .message {
-        padding: 10px;
-        border-radius: 5px;
-        text-align: center;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .error-message {
-        background-color: #ff4d4d;
-        color: white;
-    }
-
-    .success-message {
-        background-color: #28a745;
-        color: white;
     }
 
     /* Modal */
@@ -198,10 +150,6 @@
         width: 300px;
         text-align: center;
         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .modal h3 {
-        margin-bottom: 15px;
     }
 </style>
 {% endblock %}

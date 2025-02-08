@@ -1,62 +1,53 @@
 {% extends 'base_admin.html' %}
 
-{% block title %}Lista de Fornecedores{% endblock %}
+{% block title %}Lista de Peças{% endblock %}
 
 {% block content %}
 <div class="admin-container">
-    <h1>Lista de Fornecedores</h1>
+    <h1>Lista de Peças</h1>
     <br />
 
-    <!-- Exibir mensagens de erro/sucesso -->
-    {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="message {% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <!-- Botão Criar Novo Fornecedor -->
+    <!-- Botão Criar Nova Peça -->
     <div class="top-right">
-        <button onclick="window.location.href='{% url 'admin_fornecedorcreate' %}'" class="btn btn-success">
-            Criar Novo Fornecedor
+        <button onclick="window.location.href='{% url 'admin_pecacreate' %}'" class="btn btn-success">
+            Criar Nova Peça
         </button>
     </div>
 
-    <!-- Tabela de Fornecedores -->
-    <table class="fornecedores-table">
+    <!-- Tabela de Peças -->
+    <table class="pecas-table">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Nome</th>
-                <th>Valor</th>
-                <th>Ativo</th>
+                <th>Stock</th>
+                <th>Marca</th>
+                <th>Modelo</th>
                 <th style="text-align: center;">Ações</th>
             </tr>
         </thead>
         <tbody>
-            {% for fornecedor in fornecedores %}
+            {% for peca in pecas %}
             <tr>
-                <td>{{ fornecedor.0 }}</td>
-                <td>{{ fornecedor.1 }}</td>
-                <td>€ {{ fornecedor.2 }}</td>
-                <td>{% if fornecedor.3 %}✔️{% else %}❌{% endif %}</td>
+                <td>{{ peca.0 }}</td>
+                <td>{{ peca.1 }}</td>
+                <td>{{ peca.2 }}</td>
+                <td>{{ peca.3 }}</td>
+                <td>{{ peca.4 }}</td>
                 <td style="text-align: center;">
                     <!-- Botão Editar -->
-                    <button onclick="window.location.href='{% url 'admin_fornecedoredit' fornecedor.0 %}'" class="btn btn-warning">
+                    <button onclick="window.location.href='{% url 'admin_pecaedit' peca.0 %}'" class="btn btn-warning">
                         Editar
                     </button>
                     <!-- Botão Eliminar -->
-                    <button onclick="openModal({{ fornecedor.0 }}, '{{ fornecedor.1 }}')" class="btn btn-danger">
+                    <button onclick="openModal({{ peca.0 }}, '{{ peca.1 }}')" class="btn btn-danger">
                         Eliminar
                     </button>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" style="text-align: center; color: #888;">Nenhum fornecedor encontrado.</td>
+                <td colspan="6" style="text-align: center; color: #888;">Nenhuma peça encontrada.</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -67,8 +58,8 @@
 <div id="modal" class="modal">
     <div class="modal-content">
         <h3>Confirmação de Eliminação</h3>
-        <p>Tem certeza que deseja eliminar o fornecedor <strong id="fornecedor-nome"></strong>?</p>
-        <form id="eliminarfornecedor" action="" method="post">
+        <p>Tem certeza que deseja eliminar a peça <strong id="peca-nome"></strong>?</p>
+        <form id="eliminarpeca" action="" method="post">
             {% csrf_token %}
             <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
             <button type="submit" class="btn btn-danger">Confirmar</button>
@@ -78,9 +69,9 @@
 
 <!-- Script para Abrir e Fechar o Modal -->
 <script>
-    function openModal(fornecedorid, nome) {
-        document.getElementById('fornecedor-nome').textContent = nome;
-        document.getElementById('eliminarfornecedor').action = `/admin/administracao/fornecedores/delete/${fornecedorid}/`;
+    function openModal(pecaid, nome) {
+        document.getElementById('peca-nome').textContent = nome;
+        document.getElementById('eliminarpeca').action = `/admin/administracao/pecas/delete/${pecaid}/`;
         document.getElementById('modal').style.display = 'flex';
     }
 
@@ -96,7 +87,6 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
     }
 
     .top-right {
@@ -129,53 +119,16 @@
         background-color: #dc3545;
     }
 
-    .btn-secondary {
-        background-color: #6c757d;
-    }
-
-    .fornecedores-table {
+    .pecas-table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
     }
 
-    .fornecedores-table th,
-    .fornecedores-table td {
+    .pecas-table th, .pecas-table td {
         padding: 10px;
         text-align: left;
         border-bottom: 1px solid #ddd;
-    }
-
-    .fornecedores-table th {
-        font-weight: bold;
-    }
-
-    .fornecedores-table tr:hover {
-        background-color: #f9f9f9;
-    }
-
-    /* Mensagens */
-    .messages {
-        width: 100%;
-        margin-bottom: 15px;
-    }
-
-    .message {
-        padding: 10px;
-        border-radius: 5px;
-        text-align: center;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .error-message {
-        background-color: #ff4d4d;
-        color: white;
-    }
-
-    .success-message {
-        background-color: #28a745;
-        color: white;
     }
 
     /* Modal */
@@ -197,11 +150,6 @@
         border-radius: 8px;
         width: 300px;
         text-align: center;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .modal h3 {
-        margin-bottom: 15px;
     }
 </style>
 {% endblock %}

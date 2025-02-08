@@ -97,25 +97,25 @@
             <a href="{% url 'admin_fornecedoreslist' %}"></a>
         </div>
 
-        <!-- Cartão Manutenções -->
+        <!-- Cartão Encomendas -->
         <div class="card">
-            <h2>Manutenções</h2>
-            <p>{{ total_manutencoes }}</p>
-            <a href=""></a>
+            <h2>Encomendas</h2>
+            <p>{{ total_encomendas }}</p>
+            <a href="{% url 'admin_encomendaslist' %}"></a>
         </div>
 
         <!-- Cartão Peças -->
         <div class="card">
             <h2>Peças</h2>
             <p>{{ total_pecas }}</p>
-            <a href=""></a>
+            <a href="{% url 'admin_pecaslist' %}"></a>
         </div>
 
         <!-- Cartão Utilizadores -->
         <div class="card">
             <h2>Utilizadores</h2>
             <p>{{ total_utilizadores }}</p>
-            <a href=""></a>
+            <a href="{% url 'admin_utilizadoreslist' %}"></a>
         </div>
     </div>
 </div>

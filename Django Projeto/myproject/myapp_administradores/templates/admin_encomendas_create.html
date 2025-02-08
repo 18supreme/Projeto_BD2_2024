@@ -1,0 +1,83 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Criar Nova Encomenda{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>Criar Nova Encomenda</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="fornecedor">Fornecedor:</label>
+        <select name="fornecedor" id="fornecedor" required>
+            {% for fornecedor in fornecedores %}
+            <option value="{{ fornecedor.0 }}">{{ fornecedor.1 }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="peca">Peça:</label>
+        <select name="peca" id="peca" required>
+            {% for peca in pecas %}
+            <option value="{{ peca.0 }}">{{ peca.1 }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="quantidade">Quantidade:</label>
+        <input type="number" name="quantidade" id="quantidade" required>
+
+        <label for="valor">Valor (€):</label>
+        <input type="number" name="valor" id="valor" step="0.01" required>
+
+        <label for="estado">Estado:</label>
+        <select name="estado" id="estado" required>
+            {% for estado in estados %}
+            <option value="{{ estado.0 }}">{{ estado.1 }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-success">Criar Encomenda</button>
+    </form>
+</div>
+
+<style>
+    .admin-container {
+        padding: 20px;
+        width: 40%;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    select, input {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        width: 100%;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+</style>
+{% endblock %}

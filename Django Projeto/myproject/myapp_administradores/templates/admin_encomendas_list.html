@@ -1,0 +1,150 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}Lista de Encomendas{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>Lista de Encomendas</h1>
+
+    <div class="top-right">
+        <button onclick="window.location.href='{% url 'admin_encomendacreate' %}'" class="btn btn-create">
+            Criar Nova Encomenda
+        </button>
+    </div>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fornecedor</th>
+                <th>Peça</th>
+                <th>Quantidade</th>
+                <th>Valor (€)</th>
+                <th>Estado</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for encomenda in encomendas %}
+            <tr>
+                <td>{{ encomenda.0 }}</td>
+                <td>{{ encomenda.1 }}</td>
+                <td>{{ encomenda.2 }}</td>
+                <td>{{ encomenda.3 }}</td>
+                <td>{{ encomenda.4 }}</td>
+                <td>{{ encomenda.5 }}</td>
+                <td>
+                    <a href="{% url 'admin_encomendaedit' encomenda.0 %}" class="btn btn-warning">Editar</a>
+                    <button class="btn btn-danger" onclick="openModal({{ encomenda.0 }})">Eliminar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal de Confirmação para Eliminação -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <p>Tem certeza que deseja eliminar esta encomenda?</p>
+        <form id="eliminarEncomenda" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="encomendaId" name="encomendaId">
+            <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(encomendaId) {
+        document.getElementById('eliminarEncomenda').action = "/admin/administracao/encomendas/delete/" + encomendaId + "/";
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+</script>
+
+<style>
+    .admin-container {
+        padding: 20px;
+    }
+
+    .top-right {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 15px;
+    }
+
+    .btn-create {
+        background-color: #28a745;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .styled-table th, .styled-table td {
+        padding: 12px;
+        font-size: 16px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: black;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        width: 350px;
+        text-align: center;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

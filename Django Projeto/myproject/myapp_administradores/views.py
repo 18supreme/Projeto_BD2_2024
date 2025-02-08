@@ -727,11 +727,317 @@ def admin_fornecedordelete(request, fornecedor_id):
             with connection.cursor() as cursor:
                 cursor.execute("CALL delete_Fornecedor(%s)", [fornecedor_id])
             return redirect('admin_fornecedoreslist')
-        except Exception as e:
-            print(f"Erro ao eliminar fornecedor: {e}")
-            return redirect('admin_fornecedoreslist')
+        except DatabaseError as e:  # Captura erros do PostgreSQL
+            error_message = str(e)
+            print(f"Erro ao eliminar fornecedor: {error_message}")  # Debug no terminal Django
+
+            if "O fornecedor tem encomendas associadas" in error_message:
+                messages.error(request, "O fornecedor tem encomendas associadas e não pode ser eliminado.")
+            else:
+                messages.error(request, "Erro ao eliminar fornecedor. Tente novamente.")
+
+        return redirect('admin_fornecedoreslist')
 
     return redirect('admin_fornecedoreslist')
 
 
+# Listar encomendas
+def admin_encomendaslist(request):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT e.ID_Encomenda_Fornecedor, f.Nome, p.Nome, e.Quantidade, e.Valor, ef.Estado
+            FROM EncomendaFornecedor e
+            JOIN Fornecedor f ON e.ID_Fornecedor = f.ID_Fornecedor
+            JOIN Pecas p ON e.ID_Peca = p.ID_Peca
+            JOIN EstadoEncomendaFornecedor ef ON e.ID_EstadoEncomenda = ef.ID_EstadoEncomenda
+            ORDER BY e.ID_Encomenda_Fornecedor
+        """)
+        encomendas = cursor.fetchall()
+
+    return render(request, 'admin_encomendas_list.html', {'encomendas': encomendas})
+
+
+# Criar EncomendaFornecedor
+def admin_encomendacreate(request):
+    if request.method == "POST":
+        fornecedor_id = request.POST['fornecedor']
+        peca_id = request.POST['peca']
+        quantidade = request.POST['quantidade']
+        valor = request.POST['valor']
+        estado_id = request.POST['estado']
+        
+        with connection.cursor() as cursor:
+            cursor.execute("CALL registar_Encomenda(%s, %s, %s, %s, %s)", 
+                           [fornecedor_id, peca_id, quantidade, valor, estado_id])
+
+        return redirect('admin_encomendaslist')
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT ID_Fornecedor, Nome FROM Fornecedor")
+        fornecedores = cursor.fetchall()
+        
+        cursor.execute("SELECT ID_Peca, Nome FROM Pecas")
+        pecas = cursor.fetchall()
+
+        cursor.execute("SELECT ID_EstadoEncomenda, Estado FROM EstadoEncomendaFornecedor")
+        estados = cursor.fetchall()
+
+    return render(request, 'admin_encomendas_create.html', {
+        'fornecedores': fornecedores, 
+        'pecas': pecas, 
+        'estados': estados
+    })
+
+# Editar EncomendaFornecedor
+def admin_encomendaedit(request, encomenda_id):
+    with connection.cursor() as cursor:
+        # Buscar os dados da encomenda
+        cursor.execute("""
+            SELECT Quantidade, Valor, ID_EstadoEncomenda 
+            FROM EncomendaFornecedor
+            WHERE ID_Encomenda_Fornecedor = %s
+        """, [encomenda_id])
+        encomenda = cursor.fetchone()
+
+        # Buscar a lista de estados
+        cursor.execute("SELECT ID_EstadoEncomenda, Estado FROM EstadoEncomendaFornecedor")
+        estados = cursor.fetchall()
+
+    if request.method == "POST":
+        quantidade = request.POST["quantidade"]
+        valor = request.POST["valor"]
+        estado = request.POST["estado"]
+
+        with connection.cursor() as cursor:
+            cursor.execute("CALL update_Encomenda(%s, %s, %s, %s)", 
+                           [encomenda_id, quantidade, valor, estado])
+
+        return redirect('admin_encomendaslist')
+
+    return render(request, 'admin_encomendas_edit.html', {
+        'encomenda': encomenda,
+        'estados': estados
+    })
+
+
+
+# Eliminar EncomendaFornecedor
+def admin_encomendadelete(request, encomenda_id):
+    if request.method == "POST":
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL delete_Encomenda(%s)", [encomenda_id])
+            return redirect('admin_encomendaslist')
+        except Exception as e:
+            print(f"Erro ao eliminar encomenda: {e}")
+
+    return redirect('admin_encomendaslist')
+
+# 🔹 Listar Peças
+def admin_pecaslist(request):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT p.ID_Peca, p.Nome, p.Stock, m.Nome AS Marca, mo.Nome AS Modelo
+            FROM Pecas p
+            LEFT JOIN Marca m ON p.ID_Marca = m.ID_Marca
+            LEFT JOIN Modelo mo ON p.ID_Modelo = mo.ID_Modelo
+        """)
+        pecas = cursor.fetchall()
+
+    return render(request, "admin_pecas_list.html", {"pecas": pecas})
+
+# 🔹 Criar Peça
+def admin_pecacreate(request):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        stock = request.POST.get("stock", 0)
+        id_marca = request.POST.get("id_marca")
+        id_modelo = request.POST.get("id_modelo")
+
+        if not id_marca or not id_modelo:
+            return render(request, 'admin_pecas_create.html', {
+                "error": "Selecione uma marca e um modelo!",
+                "marcas": marcas,
+                "modelos": modelos
+            })
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL registar_Peca(%s, %s, %s, %s)", [nome, stock, id_marca, id_modelo])
+            return redirect('admin_pecaslist')
+
+        except Exception as e:
+            error_message = "Erro ao criar peça: " + str(e)
+            return render(request, 'admin_pecas_create.html', {
+                "error": error_message,
+                "marcas": marcas,
+                "modelos": modelos
+            })
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT ID_Marca, Nome FROM Marca ORDER BY Nome")
+        marcas = cursor.fetchall()
+
+        cursor.execute("SELECT ID_Modelo, Nome FROM Modelo ORDER BY Nome")
+        modelos = cursor.fetchall()
+
+    return render(request, 'admin_pecas_create.html', {"marcas": marcas, "modelos": modelos})
+
+# 🔹 Editar Peça
+def admin_pecaedit(request, peca_id):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        stock = request.POST.get("stock", 0)
+        id_marca = request.POST.get("id_marca")
+        id_modelo = request.POST.get("id_modelo")
+
+        if not id_marca or not id_modelo:
+            return render(request, 'admin_pecas_edit.html', {
+                "error": "Selecione uma marca e um modelo!",
+                "peca": (peca_id, nome, stock, id_marca, id_modelo),
+                "marcas": marcas,
+                "modelos": modelos
+            })
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL update_Peca(%s, %s, %s, %s, %s)", [peca_id, nome, stock, id_marca, id_modelo])
+            return redirect('admin_pecaslist')
+
+        except Exception as e:
+            error_message = "Erro ao atualizar peça: " + str(e)
+            return render(request, 'admin_pecas_edit.html', {
+                "error": error_message,
+                "peca": (peca_id, nome, stock, id_marca, id_modelo),
+                "marcas": marcas,
+                "modelos": modelos
+            })
+
+    with connection.cursor() as cursor:
+        # Buscar os dados da peça
+        cursor.execute("SELECT Nome, Stock, ID_Marca, ID_Modelo FROM Pecas WHERE ID_Peca = %s", [peca_id])
+        peca = cursor.fetchone()
+
+        # Se a peça não for encontrada, redirecionar para a lista
+        if not peca:
+            return redirect('admin_pecaslist')
+
+        cursor.execute("SELECT ID_Marca, Nome FROM Marca ORDER BY Nome")
+        marcas = cursor.fetchall()
+
+        cursor.execute("SELECT ID_Modelo, Nome FROM Modelo ORDER BY Nome")
+        modelos = cursor.fetchall()
+
+    return render(request, 'admin_pecas_edit.html', {
+        "peca_id": peca_id,
+        "peca": peca,
+        "marcas": marcas,
+        "modelos": modelos
+    })
+
+
+
+# 🔹 Eliminar Peça
+def admin_pecadelete(request, peca_id):
+    if request.method == "POST":
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL delete_Peca(%s)", [peca_id])
+            messages.success(request, "Peça eliminada com sucesso.")
+        except DatabaseError as e:
+            messages.error(request, "Erro ao eliminar a peça: " + str(e))
+
+    return redirect("admin_pecaslist")
+
+# 🔹 Listar Utilizadores
+
+def admin_utilizadoreslist(request):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT U.ID_Utilizador, U.Nome, TU.Tipo, U.IsActive
+            FROM Utilizador U
+            JOIN TipoUtilizador TU ON U.ID_TipoUtilizador = TU.ID_TipoUtilizador
+            ORDER BY U.Nome
+        """)
+        utilizadores = cursor.fetchall()
+
+    return render(request, 'admin_utilizadores_list.html', {'utilizadores': utilizadores})
+
+# 🔹 Criar Utilizador
+def admin_utilizadorcreate(request):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        password = request.POST.get("password")
+        id_tipo_utilizador = request.POST.get("id_tipo_utilizador")
+        is_active = request.POST.get("is_active")
+
+        # Converte o checkbox corretamente
+        is_active = True if is_active == "on" else False
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL registar_Utilizador(%s, %s, %s, %s)", [nome, password, id_tipo_utilizador, is_active])
+            return redirect('admin_utilizadoreslist')
+
+        except Exception as e:
+            error_message = "Erro ao criar o utilizador! Verifica os dados."
+            return render(request, 'admin_utilizadores_create.html', {"error": error_message})
+
+    # Buscar os tipos de utilizador para o dropdown
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT ID_TipoUtilizador, Tipo FROM TipoUtilizador")
+        tipos_utilizador = cursor.fetchall()
+
+    return render(request, 'admin_utilizadores_create.html', {"tipos_utilizador": tipos_utilizador})
+
+# 🔹 Editar Utilizador
+def admin_utilizadoredit(request, utilizador_id):
+    if request.method == "POST":
+        nome = request.POST.get("nome")
+        password = request.POST.get("password")
+        id_tipo_utilizador = request.POST.get("id_tipo_utilizador")
+        is_active = request.POST.get("is_active")
+
+        is_active = True if is_active == "on" else False  
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL update_Utilizador(%s, %s, %s, %s, %s)", [utilizador_id, nome, password, is_active, id_tipo_utilizador])
+            return redirect('admin_utilizadoreslist')
+        except Exception as e:
+            error_message = "Erro ao editar o utilizador!"
+            return render(request, 'admin_utilizadores_edit.html', {
+                "error": error_message,
+                "utilizador_id": utilizador_id,
+                "utilizador": (nome, password, is_active, id_tipo_utilizador)
+            })
+
+    with connection.cursor() as cursor:
+        # Buscar os dados do utilizador
+        cursor.execute("SELECT Nome, Password, IsActive, ID_TipoUtilizador FROM Utilizador WHERE ID_Utilizador = %s", [utilizador_id])
+        utilizador = cursor.fetchone()
+
+        # Buscar os tipos de utilizador
+        cursor.execute("SELECT ID_TipoUtilizador, Tipo FROM TipoUtilizador")
+        tipos_utilizador = cursor.fetchall()
+
+    return render(request, 'admin_utilizadores_edit.html', {
+        "utilizador_id": utilizador_id,
+        "utilizador": utilizador,
+        "tipos_utilizador": tipos_utilizador
+    })
+
+
+# 🔹 Eliminar Utilizador
+def admin_utilizadordelete(request, utilizador_id):
+    if request.method == "POST":
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL delete_Utilizador(%s)", [utilizador_id])
+            return redirect('admin_utilizadoreslist')
+        except Exception as e:
+            print(f"Erro ao eliminar utilizador: {e}")
+            return redirect('admin_utilizadoreslist')
+
+    return redirect('admin_utilizadoreslist')
 
