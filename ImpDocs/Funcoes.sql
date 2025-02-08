@@ -524,7 +524,7 @@ $$;
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Seleciona todas as viaturas
-CREATE OR REPLACE FUNCTION selecionar_DetailViaturaById(p_id_viatura INTEGER)
+CREATE OR REPLACE FUNCTION selecionar_detailviaturabyid(p_id_viatura INTEGER)
 RETURNS TABLE (
     ID_Viatura INTEGER, 
     Matricula VARCHAR, 
@@ -537,15 +537,20 @@ RETURNS TABLE (
     Estado_Viatura VARCHAR, 
     Combustivel VARCHAR, 
     Tipo_Caixa VARCHAR, 
-    Traccao VARCHAR
+    Traccao VARCHAR,
+    Potencia VARCHAR,
+    Portas INTEGER
 ) 
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Retornar todas as viaturas
+    -- Retornar todas as viaturas com base no ID fornecido
     RETURN QUERY
     SELECT 
-        v.ID_Viatura, v.Matricula, v.KM, v.Ano, 
+        v.ID_Viatura, 
+        v.Matricula, 
+        v.KM, 
+        v.Ano, 
         mv.Nome AS Modelo, 
         m.Nome AS Marca, 
         tv.Nome AS Tipo_Viatura, 
@@ -553,7 +558,9 @@ BEGIN
         ev.Estado AS Estado_Viatura, 
         i.Nome AS Combustivel, 
         tc.Nome AS Tipo_Caixa, 
-        tr.Nome AS Traccao
+        tr.Nome AS Traccao,
+        v.Potencia,
+        v.Portas
     FROM Viatura v
     JOIN Modelo mv ON mv.ID_Modelo = v.ID_Modelo
     JOIN Marca m ON m.ID_Marca = v.ID_Marca
@@ -561,16 +568,17 @@ BEGIN
     JOIN Cores c ON c.ID_Cor = v.ID_Cor
     JOIN EstadoViatura ev ON ev.ID_EstadoViatura = v.ID_Estado_Viatura
     JOIN Combustivel i ON i.ID_Combustivel = v.ID_Combustivel
-    JOIN TipoCaixa tc ON tc.ID_Caixa = v.ID_Tipocaixa
+    JOIN TipoCaixa tc ON tc.ID_Caixa = v.ID_TipoCaixa -- Ajuste no nome da coluna
     JOIN Traccao tr ON tr.ID_Traccao = v.ID_Traccao
     WHERE v.ID_Viatura = p_id_viatura;
 
-    -- Caso não encontre, exibir uma mensagem (opcional)
+    -- Exibir uma mensagem caso nenhuma viatura seja encontrada
     IF NOT FOUND THEN
         RAISE NOTICE 'Nenhuma viatura encontrada com o ID %.', p_id_viatura;
     END IF;
 END;
 $$;
+
 
 
 -- Exemplo de chamadas da FUNCTION
