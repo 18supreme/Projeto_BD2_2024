@@ -52,13 +52,13 @@ RETURNS TRIGGER AS $$
 BEGIN
     -- Atualiza o estado da viatura para o ID correspondente ao estado "Alugado"
     UPDATE Viatura
-    SET Estado_Viatura_ID = (
+    SET id_estado_viatura = (
         SELECT ID_EstadoViatura
         FROM EstadoViatura
         WHERE Estado = 'Alugado'
         LIMIT 1
     )
-    WHERE ID_Viatura = NEW.Viatura_ID;
+    WHERE ID_Viatura = NEW.ID_Viatura;
 
     RETURN NEW;
 END;
@@ -85,14 +85,14 @@ BEGIN
     WHERE Estado = 'Disponível';
 
     --Se o novo estado da reserva for "Finalizada", atualizamos a viatura
-    IF NEW.EstadoReserva_ID = (
+    IF NEW.ID_reserva = (
         SELECT ID_Estado_Reserva
         FROM EstadoReserva
         WHERE Estado = 'Finalizada'
     ) THEN
         UPDATE Viatura
-        SET Estado_Viatura_ID = estado_disponivel_id
-        WHERE ID_Viatura = NEW.Viatura_ID;
+        SET id_estado_viatura = estado_disponivel_id
+        WHERE ID_Viatura = NEW.ID_Viatura;
     END IF;
 
     RETURN NEW;

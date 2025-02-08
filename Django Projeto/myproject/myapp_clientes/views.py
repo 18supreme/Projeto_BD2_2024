@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.db import connection
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from . import basededados as bd
 
@@ -30,7 +30,7 @@ def clientes_home(request):
     
     # Passar os valores para o template
     return render(request, 'clientes_home.html', {
-        'total_reservas': 1 if total_reservas else "Sem reservas",
+        'total_reservas': total_reservas if total_reservas else "Sem reservas",
         'percentagem_danos': percentagem_danos if percentagem_danos else "0",
         'marca_preferida': marca_preferida[0] if marca_preferida else "-",
         'modelo_preferido': modelo_preferido[0] if modelo_preferido else "-",
@@ -72,33 +72,54 @@ def reservas_list(request):
 
 def criar_reserva(request, viatura_id):
     user_id = request.session.get('user_id')
+    print(user_id)
     if request.method == 'POST':
         # Obtendo os valores do formulário
         data_inicio = request.POST.get('data_inicio')
         data_fim = request.POST.get('data_fim')
 
-        # Executar a consulta para todas as reservas do utilizador
-        conflito = bd.getconflitoReserva(viatura_id, data_inicio, data_fim)
+        # Verificar conflitos de reserva
+        conflito = bd.getconflitoReserva(viatura_id, data_inicio, data_fim) or 0
 
         if conflito > 0:
-            # Se houver conflito, retorna uma mensagem ao usuário
-            return HttpResponse("A viatura já está reservada nesse intervalo de datas.", status=400)
+            return JsonResponse({"error": "A viatura já está reservada nesse intervalo de datas."}, status=400)
 
-        # Se não houver conflito, insere a nova reserva
-        bd.CreateNewReserva(data_inicio, data_fim, False, '', 0, viatura_id, user_id, 1)
+        # Criar reserva
+        bd.CreateNewReserva(
+            data_inicio, 
+            data_fim, 
+            False,  # Booleano correto
+            None,   # Substituir string vazia por NULL
+            0, 
+            int(viatura_id),  # Garantir que é um número
+            int(user_id),  # Garantir que é um número
+            1
+        )
 
         # Redireciona para a lista de viaturas
         return redirect('viaturas_list')
 
-    # Se for uma requisição GET, exibe o formulário
+    # Exibir formulário se for GET
     return render(request, 'reserva_form.html')
 
 
 def reserva_cancelar(request, reserva_id):
+    print("cancelar")
     if request.method == 'POST':
-        
         # Atualiza o estado da reserva para cancelada
         bd.UpdateReserva(reserva_id, 5)
+
+            # Adicionar mensagem de sucesso
+        return redirect('reservas_list')
+ 
+    # Se for uma requisição GET, exibe o formulário
+    return render(request, 'reservas_list.html')
+
+def reserva_entregar(request, reserva_id):
+    print("entrega")
+    if request.method == 'POST':
+        # Atualiza o estado da reserva para cancelada
+        bd.UpdateReserva(reserva_id, 4)
 
             # Adicionar mensagem de sucesso
         return redirect('reservas_list')

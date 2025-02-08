@@ -92,11 +92,9 @@ DATABASES = {
         'USER': 'gestor_stand',      # O nome do utilizador do PostgreSQL
         'PASSWORD': 'admin123',     # A senha do utilizador
         'HOST': 'localhost',     # Ou o IP do seu servidor de PostgreSQL
-        'PORT': '5432',          # A porta padrão do PostgreSQL (5433 no mac)
-    }
-    
+        'PORT': '5433',          # A porta padrão do PostgreSQL (5433 no mac)
+    }    
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

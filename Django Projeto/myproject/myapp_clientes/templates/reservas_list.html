@@ -38,7 +38,8 @@
                 <th>Reserva</th>
                 <th>Marca</th>
                 <th>Modelo</th>
-                <th></th>
+                <th>Estado</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -47,12 +48,24 @@
                 <td>{{ reserva.4 }} - {{ reserva.5 }}</td>
                 <td>{{ reserva.1 }}</td>
                 <td>{{ reserva.2 }}</td>
+                <td>{{ reserva.3 }}</td>
                 <td> 
                     <!-- Passa o ID da reserva para o modal -->
-                    
-                    {% if reserva.3 != 'Cancelada' %}  <button onclick="openModal({{ reserva.0 }})">Cancelar</button>
-                            {% else %}
+   
+                    {% if reserva.3 == 'Em progresso' %} 
+                        {% now "Y-m-d" as current_time %}
+                            {% if current_time  >= reserva.4|date:"Y-m-d"%}
+                                <button onclick="openModal1({{ reserva.0 }})">Entregar</button>
                             {% endif %}
+                        
+                    {% endif %}
+
+                    {% if reserva.3 != 'Em progresso' and reserva.3 != 'Cancelada'%}
+                        {% now "Y-m-d" as current_time %}
+                        {% if current_time  < reserva.4|date:"Y-m-d"%}
+                            <button onclick="openModal({{ reserva.0 }})">Cancelar</button>
+                        {% endif %}
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -75,6 +88,22 @@
         </div>
     </div>
 
+    <div id="modal1" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+        <div style="position: relative; background-color: #fff; padding: 20px; border-radius: 8px; width: 300px;">
+            Tem certeza que deseja entregar o carro?
+            <!-- Formulário de cancelamento -->
+            <form id="entregar" method="post" style="display: flex; flex-direction: row; gap: 10px; width: 100%; margin: 0 auto; justify-content: center;">
+                {% csrf_token %}
+                <button type="button" onclick="closeModal1()" style="padding: 10px; font-size: 16px; background-color: red; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+                    Cancelar
+                </button>
+                <button type="submit" style="padding: 10px; font-size: 16px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+                    Confirmar
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Função para abrir o modal e passar o ID da reserva
         function openModal(reservaId) {
@@ -84,9 +113,20 @@
             document.getElementById('modal').style.display = 'flex';
         }
 
+        function openModal1(reservaId) {
+            // Ajusta a ação do formulário com o ID da reserva
+            console.log("entregar")
+            document.getElementById('entregar').action = "entregar/" + reservaId + "/";
+            document.getElementById('modal1').style.display = 'flex';
+        }
+
         // Função para fechar o modal
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
+        }
+
+        function closeModal1() {
+            document.getElementById('modal1').style.display = 'none';
         }
     </script>
 

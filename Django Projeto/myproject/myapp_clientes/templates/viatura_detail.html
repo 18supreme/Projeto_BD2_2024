@@ -56,10 +56,13 @@
         </div>
     </div>
     <div style="margin: 35px 0px 0px 0px;"> <!--- outros detalhes -->
+        {% load static %}
         <text style="font-weight: bolder; font-size: 20px;"> Destaques </text>
         <div style="display: flex; flex-direction: row; flex-wrap: wrap; column-gap: 2.6%; row-gap: 60px; margin-top: 25px;">
             <div style="background-color: black; height: 150px; width: 150px;">
-                <div style="background-color: white; margin: 25px  auto 25px auto; width: 50px; height: 50px;"> <img src="../static/Img/fuel.png" width="50px"/>  </div>
+                <div style="background-color: black; margin: 25px  auto 25px auto; width: 50px; height: 50px; "> 
+                    <img src="{% static 'Img/fuel.png' %}" width="50px" alt="Fuel" style="filter: invert(1);"/>
+                </div>
                 <div style="color: white; text-align: center"> 
                     {{ viatura.9}} 
                 </div>

@@ -297,7 +297,7 @@ $$;
 -- Seleciona a percentagem de danos de um determinado utilizador
 CREATE OR REPLACE FUNCTION selecionar_PercentDanosByUser(p_ID_user INTEGER)
 RETURNS TABLE (
-    Percentagem_danos INTEGER
+    Percentagem_danos NUMERIC(5,2) -- Alterado para suportar decimais
 ) 
 LANGUAGE plpgsql
 AS $$
@@ -305,16 +305,19 @@ BEGIN
     -- Retornar a percentagem de danos do utilizador fornecido
     RETURN QUERY
     SELECT 
-        ROUND(
-            (SUM(CASE WHEN Danos = TRUE THEN 1 ELSE 0 END) * 100.0) / COUNT(*),
-            1
+        COALESCE(
+            ROUND(
+                (SUM(CASE WHEN Danos = TRUE THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0),
+                1
+            ),
+            0.0
         ) AS Percentagem_danos
     FROM reserva 
     WHERE ID_utilizador = p_ID_user;
 
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
-        RAISE NOTICE 'Nenhum dano encontrado desse Utilizador.';
+        RAISE NOTICE 'Nenhuma reserva encontrada para este utilizador.';
     END IF;
 END;
 $$;
@@ -416,15 +419,14 @@ $$;
 -- Seleciona o total de KM realizados por um determinado utilizador
 CREATE OR REPLACE FUNCTION selecionar_TotalKmByUser(p_ID_user INTEGER)
 RETURNS TABLE (
-    total_km DECIMAL
+    total_km NUMERIC(10,2) -- Define precisão para melhor controle
 ) 
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Retornar o total de KM realizados por um utilizador fornecido
+    -- Retornar o total de KM percorridos por um utilizador fornecido
     RETURN QUERY
-    SELECT 
-         CONCAT(COALESCE(SUM(KMPercorridos), 0), ' KM') AS total_km
+    SELECT COALESCE(SUM(KMPercorridos), 0) AS total_km
     FROM reserva 
     WHERE reserva.id_utilizador = p_ID_user;  -- Filtro para o utilizador específico
 
@@ -492,7 +494,7 @@ RETURNS TABLE (
     cor VARCHAR, 
     Combustivel VARCHAR, 
     Tipo_Caixa VARCHAR, 
-    preco DECIMAL
+    preco MONEY
 ) 
 LANGUAGE plpgsql
 AS $$
@@ -500,7 +502,7 @@ BEGIN
     -- Retornar as 3 viaturas mais requisitadas
     RETURN QUERY
     SELECT 
-        vi.id_viatura, vi.matricula, mo.nome AS modelo, ma.nome AS marca, co.nome AS cor, i.Nome AS Combustivel, tc.Nome AS Tipo_Caixa, preco
+        vi.id_viatura, vi.matricula, mo.nome AS modelo, ma.nome AS marca, co.nome AS cor, i.Nome AS Combustivel, tc.Nome AS Tipo_Caixa, vi.preco
     FROM viatura vi
     JOIN modelo mo ON vi.id_modelo = mo.id_modelo
     JOIN marca ma ON vi.id_marca = ma.id_marca
@@ -630,15 +632,14 @@ AS $$
 BEGIN
     -- Retornar todas as reservas de um utilizador fornecido
     RETURN QUERY
-    SELECT COUNT(*) as COUNT
-    FROM reserva
-    WHERE ID_Viatura = p_viatura_id
-        AND (
-            (Data_Inicio <= p_data_inicio AND Data_Fim >= p_data_fim)
-            OR (Data_Inicio <= p_data_inicio AND Data_Fim >= p_data_fim)
-            OR (Data_Inicio >= p_data_inicio AND Data_Inicio <= p_data_fim)
-        )
-        AND Reserva.id_estadoreserva != 5;
+        SELECT COUNT(*) as COUNT
+        FROM reserva
+        WHERE ID_Viatura = p_viatura_id
+            AND (
+                (Data_Inicio <= p_data_fim AND Data_Fim >= p_data_inicio)
+            )
+            AND (reserva.id_estadoreserva != 5)  -- Exclui reservas com estado "Cancelada"
+            AND (reserva.id_estadoreserva != 4); -- Exclui reservas com estado "Finalizado"
 
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
