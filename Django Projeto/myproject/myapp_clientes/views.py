@@ -54,6 +54,8 @@ def viatura_detail(request, id):
     # Executar a consulta para obter os detalhes de uma viatura
     viatura = bd.getDetailViaturaById(id)
 
+    print(viatura)  # Verifica se "portas" aparece no terminal
+    
     if viatura:
         return render(request, 'viatura_detail.html', {'viatura': viatura})
     else:
