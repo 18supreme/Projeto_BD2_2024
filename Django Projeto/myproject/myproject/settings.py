@@ -93,7 +93,16 @@ DATABASES = {
         'PASSWORD': 'admin123',     # A senha do utilizador
         'HOST': 'localhost',     # Ou o IP do seu servidor de PostgreSQL
         'PORT': '5432',          # A porta padrão do PostgreSQL (5433 no mac)
-    }    
+    },
+    'mongo': {
+        'ENGINE': 'djongo',
+        'NAME': 'BD2Projeto',
+        'ENFORCE_SCHEMA': False,
+        'CLIENT': {
+            'host': 'localhost',  # Ou a URL do teu servidor MongoDB
+            'port': 27017,
+        }
+    }
 }
 
 # Password validation

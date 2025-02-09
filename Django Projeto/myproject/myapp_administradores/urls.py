@@ -42,6 +42,4 @@ path('', views.admin_home, name='admin_dashboard'),
     path("administracao/utilizadores/create/", views.admin_utilizadorcreate, name="admin_utilizadorcreate"),
     path("administracao/utilizadores/edit/<int:utilizador_id>/", views.admin_utilizadoredit, name="admin_utilizadoredit"),
     path("administracao/utilizadores/delete/<int:utilizador_id>/", views.admin_utilizadordelete, name="admin_utilizadordelete"),
-    
 ]
-

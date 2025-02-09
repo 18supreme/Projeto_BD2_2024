@@ -2,7 +2,31 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import connection, DatabaseError
 from django.contrib import messages
 from . import basededados as bd
+from pymongo import MongoClient
+import datetime
 
+# ---| Ligação ao MongoDB |---
+client = MongoClient('mongodb://localhost:27017/')
+db = client['BD2Projeto']
+logs_collection = db['logs']
+
+def salvar_log_mongo(mensagem):
+    log_entry = {
+        'mensagem': mensagem,
+        'data_hora': datetime.datetime.now(),
+        'tipo': 'evento'
+    }
+    
+    logs_collection.insert_one(log_entry)
+
+def consultar_logs(request):
+    logs = logs_collection.find()
+    logs = list(logs)
+    
+    return render(request, 'logs.html', {'logs': logs})
+
+
+# ---| Administrador |---
 def admin_home(request):
     user_id = request.session.get('ID_user')
 
@@ -15,9 +39,23 @@ def admin_home(request):
         cursor.execute("SELECT COUNT(*) FROM reserva")
         total_reservas = cursor.fetchone()[0]
 
-        # Contar manutenções pendentes
-        cursor.execute("SELECT COUNT(*) FROM manutencao")
-        manutencoes_pendentes = cursor.fetchone()[0]
+        # ---| Manutenções |---
+        from datetime import datetime
+        # Definir a data de hoje (sem considerar horas, minutos ou segundos)
+        hoje = datetime.now().date()
+        # Contar manutenções criadas hoje (comparamos apenas a parte da data, ignorando hora/minuto/segundo)
+        manutencoes_pendentes = logs_collection.count_documents(
+            {'mensagem': {'$regex': '.*Manutenção.*criada.*', '$options': 'i'},
+            'data_hora': {'$gte': datetime.combine(hoje, datetime.min.time()), '$lt': datetime.combine(hoje, datetime.max.time())}}
+        )
+        # Contar manutenções eliminadas hoje
+        manutencoes_eliminadas = logs_collection.count_documents(
+            {'mensagem': {'$regex': '.*Manutenção.*eliminada.*', '$options': 'i'},
+            'data_hora': {'$gte': datetime.combine(hoje, datetime.min.time()), '$lt': datetime.combine(hoje, datetime.max.time())}}
+        )
+        # Subtrair manutenções eliminadas do total
+        manutencoes_pendentes -= manutencoes_eliminadas
+
 
         # Contar o total de veículos com danos
         cursor.execute("SELECT COUNT(*) FROM reserva WHERE danos = true")
@@ -64,7 +102,11 @@ def admin_home(request):
         'reservas_recentes': reservas_recentes
     })
 
+def admin_administracao(request):
+    return render(request, 'admin_administracao.html')
 
+
+# ---| Viaturas |---
 def admin_viaturas(request):
     marca_filtro = request.GET.get('marca', '')
     modelo_filtro = request.GET.get('modelo', '')
@@ -138,6 +180,7 @@ def admin_viaturas(request):
     return render(request, 'admin_viaturas.html', context)
 
 
+# ---| Reservas |---
 def admin_reservas(request):
     estado = request.GET.get('estado', '')
     ordenar = request.GET.get('ordenar', '')
@@ -214,6 +257,7 @@ def admin_reservas(request):
     }
 
     return render(request, 'admin_reservas.html', context)
+
 
 # ---| Manutenções |---
 def admin_manutencoes(request):
@@ -308,6 +352,8 @@ def criar_manutencao(request):
                 [valor, descricao, data, viatura_id]
             )
 
+        salvar_log_mongo(f"Manutenção criada para a viatura ID {viatura_id} com valor {valor}.")
+
         return redirect("admin_manutencoes")
 
     # Buscar as viaturas com Marca + Modelo para o dropdown
@@ -340,6 +386,9 @@ def editar_manutencao(request, manutencao_id):
                 """,
                 [viatura_id, valor, descricao, data, manutencao_id],
             )
+
+        salvar_log_mongo(f"Manutenção com ID {manutencao_id} editada para a viatura ID {viatura_id}.")
+        
         return redirect("admin_manutencoes")  # Redireciona para a lista de manutenções
 
     # Buscar os dados da manutenção a ser editada
@@ -385,13 +434,13 @@ def editar_manutencao(request, manutencao_id):
 def eliminar_manutencao(request, id_manutencao):
     with connection.cursor() as cursor:
         cursor.execute("DELETE FROM Manutencao WHERE ID_Manutencao = %s", [id_manutencao])
+
+    salvar_log_mongo(f"Manutenção com ID {id_manutencao} eliminada.")
     
     return redirect('admin_manutencoes')
 
-def admin_administracao(request):
-    return render(request, 'admin_administracao.html')
 
-# Lista de Marcas
+# ---| Marcas |---
 def admin_marcaslist(request):
     with connection.cursor() as cursor:
         # Consulta SQL para obter as marcas
@@ -419,7 +468,6 @@ def admin_marcacreate(request):
 
     return render(request, 'admin_marcas_create.html')
 
-# Editar Marca
 def admin_marcaedit(request, marcaid):
     if request.method == "POST":
         nome = request.POST.get("nome")
@@ -444,7 +492,6 @@ def admin_marcaedit(request, marcaid):
 
     return render(request, 'admin_marcas_edit.html', {"marcaid": marcaid, "marca": marca})
 
-# Eliminar Marca
 def admin_marcadelete(request, marcaid):
     if request.method == "POST":
         try:
@@ -459,7 +506,8 @@ def admin_marcadelete(request, marcaid):
     # Se o método não for POST, redireciona para evitar erro
     return redirect('admin_marcaslist')
 
-# Lista de Modelos
+
+# ---| Modelos |---
 def admin_modeloslist(request):
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -472,7 +520,6 @@ def admin_modeloslist(request):
 
     return render(request, 'admin_modelos_list.html', {'modelos': modelos})
 
-# Criar Modelo
 def admin_modelocreate(request):
     if request.method == "POST":
         nome = request.POST.get("nome")
@@ -496,7 +543,6 @@ def admin_modelocreate(request):
 
     return render(request, 'admin_modelos_create.html', {'marcas': marcas})
 
-# Editar Modelo
 def admin_modeloedit(request, modelo_id):
     if request.method == "POST":
         nome = request.POST.get("nome")
@@ -522,7 +568,6 @@ def admin_modeloedit(request, modelo_id):
 
     return render(request, 'admin_modelos_edit.html', {"modelo_id": modelo_id, "modelo": modelo, "marcas": marcas})
 
-# Eliminar Modelo
 def admin_modelodelete(request, modelo_id):
     if request.method == "POST":
         try:
