@@ -1,0 +1,264 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+  <div class="form-container">
+    <h1>Criar Nova Viatura</h1>
+
+    {% if error %}
+      <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'admin_viaturas_create' %}">
+      {% csrf_token %}
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="matricula">Matrícula</label>
+            <input type="text" id="matricula" name="matricula" class="form-control" placeholder="Exemplo: 12-34-AB" required>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="ano">Ano</label>
+            <input type="number" id="ano" name="ano" class="form-control" placeholder="Exemplo: 2020" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="km">Kilómetros</label>
+            <input type="number" id="km" name="km" class="form-control" placeholder="Exemplo: 15000" required>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="cilindrada">Cilindrada</label>
+            <input type="text" id="cilindrada" name="cilindrada" class="form-control" placeholder="Exemplo: 2.0" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="potencia">Potência</label>
+            <input type="text" id="potencia" name="potencia" class="form-control" placeholder="Exemplo: 150cv" required>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="portas">Número de Portas</label>
+            <input type="number" id="portas" name="portas" class="form-control" placeholder="Exemplo: 4" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="lotacao">Lotação</label>
+            <input type="number" id="lotacao" name="lotacao" class="form-control" placeholder="Exemplo: 5" required>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="numero_mudancas">Número de Mudanças</label>
+            <input type="number" id="numero_mudancas" name="numero_mudancas" class="form-control" placeholder="Exemplo: 6" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="inspecao">Data da Inspeção</label>
+        <input type="date" id="inspecao" name="inspecao" class="form-control" required>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="iuc">IUC (€)</label>
+            <input type="number" step="0.01" id="iuc" name="iuc" class="form-control" placeholder="Exemplo: 100.50" required>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="preco">Preço (€)</label>
+            <input type="number" step="0.01" id="preco" name="preco" class="form-control" placeholder="Exemplo: 12000.00" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="marca">Marca</label>
+        <select name="marca" id="marca" class="form-control" required>
+          <option value="">Escolhe uma Marca</option>
+          {% for marca in marcas %}
+            <option value="{{ marca.0 }}">{{ marca.1 }}</option>
+          {% empty %}
+            <option class="empty-message">Nenhuma marca disponível</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="modelo">Modelo</label>
+        <select name="modelo" id="modelo" class="form-control" required>
+          <option value="">Escolhe um Modelo</option>
+          {% for modelo in modelos %}
+            <option value="{{ modelo.0 }}">{{ modelo.1 }}</option>
+          {% empty %}
+            <option class="empty-message">Nenhum modelo disponível</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tipo_viatura">Tipo de Viatura</label>
+        <select name="tipo_viatura" id="tipo_viatura" class="form-control" required>
+          <option value="">Escolhe o Tipo de Viatura</option>
+          {% for tipo in tipos_viatura %}
+            <option value="{{ tipo.0 }}">{{ tipo.1 }}</option>
+          {% empty %}
+            <option class="empty-message">Nenhum tipo disponível</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="estado_viatura">Estado da Viatura</label>
+        <select name="estado_viatura" id="estado_viatura" class="form-control" required>
+          <option value="">Escolhe o Estado da Viatura</option>
+          {% for estado in estados_viatura %}
+            <option value="{{ estado.0 }}">{{ estado.1 }}</option>
+          {% empty %}
+            <option class="empty-message">Nenhum estado disponível</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="combustivel">Combustível</label>
+        <select name="combustivel" id="combustivel" class="form-control" required>
+          <option value="">Escolhe o Combustível</option>
+          {% for combustivel in combustiveis %}
+            <option value="{{ combustivel.0 }}">{{ combustivel.1 }}</option>
+          {% empty %}
+            <option class="empty-message">Nenhum combustível disponível</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="caixa">Tipo de Caixa</label>
+        <select name="caixa" id="caixa" class="form-control" required>
+          <option value="">Escolhe o Tipo de Caixa</option>
+          {% for caixa in caixas %}
+            <option value="{{ caixa.0 }}">{{ caixa.1 }}</option>
+          {% empty %}
+            <option class="empty-message">Nenhum tipo de caixa disponível</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="traccao">Tracção</label>
+        <select name="traccao" id="traccao" class="form-control" required>
+          <option value="">Escolhe a Tracção</option>
+          {% for traccao in traccoes %}
+            <option value="{{ traccao.0 }}">{{ traccao.1 }}</option>
+          {% empty %}
+            <option class="empty-message">Nenhuma tracção disponível</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="cor">Cor:</label>
+        <select name="cor" id="cor">
+            <option value="">Selecione uma cor</option>
+            {% for cor in cores %}
+                <option value="{{ cor.0 }}">{{ cor.1 }}</option>
+            {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit" class="btn-submit">Criar Viatura</button>
+    </form>
+  </div>
+
+  <style>
+    .form-container {
+      background: #ffffff; /* Fundo branco */
+      padding: 40px;
+      border-radius: 8px;
+      max-width: 900px;
+      margin: 0 auto;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 40px;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #666;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-top: 5px;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #5b9bd5;
+    }
+
+    button[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    .empty-message {
+      color: #ccc;
+    }
+  </style>
+
+{% endblock %}

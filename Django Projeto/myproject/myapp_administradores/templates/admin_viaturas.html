@@ -1,12 +1,11 @@
 {% extends 'base_admin.html' %}
 {% block content %}
 <div class="admin-container">
-  <h1>Estatísticas de Viaturas</h1>
-  <br />
+  <h1>Gestão de Viaturas</h1>
 
-  <!-- Filtros -->
-  <div class="search-filter">
-    <form method="get">
+  <!-- Filtros e botão Criar -->
+  <div class="top-bar">
+    <form method="get" class="filter-form">
       <label for="marca">Marca:</label>
       <select name="marca" id="marca">
         <option value="" {% if not filtros.marca %}selected{% endif %}>Todos</option>
@@ -39,22 +38,24 @@
 
       <button type="submit" class="btn btn-primary">Filtrar</button>
     </form>
+    <a href="{% url 'admin_viaturas_create' %}" class="btn btn-success" style="display: inline-block; text-decoration: none;">Criar Viatura</a>
   </div>
 
   <!-- Tabela de Viaturas -->
-  <table class="viaturas-table">
+  <table class="data-table">
     <thead>
       <tr>
-        <th>ID Viatura</th>
+        <th>ID</th>
         <th>Marca</th>
         <th>Modelo</th>
         <th>Tipo</th>
         <th>Matrícula</th>
-        <th>Preço</th>
-        <th>IUC</th>
+        <th>Preço (€)</th>
+        <th>IUC (€)</th>
         <th>Inspeção</th>
         <th>Kilómetros</th>
         <th>Ano</th>
+        <th>Ações</th>
       </tr>
     </thead>
     <tbody>
@@ -70,6 +71,10 @@
         <td>{{ viatura.7 }}</td>
         <td>{{ viatura.8 }}</td>
         <td>{{ viatura.9 }}</td>
+        <td>
+          <button class="btn btn-warning" disabled>Editar</button>
+          <button class="btn btn-danger" disabled>Eliminar</button>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -77,53 +82,84 @@
 </div>
 
 <style>
+  /* Estilos para o layout da página */
   .admin-container {
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
   }
 
-  .search-filter {
-    margin-bottom: 20px;
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .filter-form {
     display: flex;
     align-items: center;
     gap: 10px;
   }
 
-  .search-filter label {
+  .filter-form label {
     font-weight: bold;
   }
 
-  .search-filter select {
+  .filter-form select,
+  .filter-form input {
     padding: 5px;
     border-radius: 5px;
     border: 1px solid #ccc;
   }
 
   .btn {
-    padding: 10px 15px;
-    border-radius: 5px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-success {
+    background-color: #28a745;
     color: white;
-    text-decoration: none;
   }
 
   .btn-primary {
     background-color: #007bff;
+    color: white;
   }
 
-  .viaturas-table {
+  .btn-warning {
+    background-color: #ffc107;
+    color: black;
+    cursor: not-allowed;
+  }
+
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+    cursor: not-allowed;
+  }
+
+  .data-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 10px;
   }
 
-  .viaturas-table th,
-  .viaturas-table td {
+  .data-table th,
+  .data-table td {
     padding: 10px;
+    border: 1px solid #ddd;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+  }
+
+  .data-table th {
+    background-color: #f4f4f4;
+  }
+
+  .data-table tr:hover {
+    background-color: #f1f1f1;
   }
 </style>
+
 {% endblock %}

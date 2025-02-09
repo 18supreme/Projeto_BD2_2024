@@ -41,21 +41,16 @@ def admin_home(request):
 
         # ---| Manutenções |---
         from datetime import datetime
-        # Definir a data de hoje (sem considerar horas, minutos ou segundos)
-        hoje = datetime.now().date()
-        # Contar manutenções criadas hoje (comparamos apenas a parte da data, ignorando hora/minuto/segundo)
+        # Contar todas as manutenções criadas
         manutencoes_pendentes = logs_collection.count_documents(
-            {'mensagem': {'$regex': '.*Manutenção.*criada.*', '$options': 'i'},
-            'data_hora': {'$gte': datetime.combine(hoje, datetime.min.time()), '$lt': datetime.combine(hoje, datetime.max.time())}}
+            {'mensagem': {'$regex': '.*Manutenção.*criada.*', '$options': 'i'}}
         )
-        # Contar manutenções eliminadas hoje
+        # Contar todas as manutenções eliminadas
         manutencoes_eliminadas = logs_collection.count_documents(
-            {'mensagem': {'$regex': '.*Manutenção.*eliminada.*', '$options': 'i'},
-            'data_hora': {'$gte': datetime.combine(hoje, datetime.min.time()), '$lt': datetime.combine(hoje, datetime.max.time())}}
+            {'mensagem': {'$regex': '.*Manutenção.*eliminada.*', '$options': 'i'}}
         )
         # Subtrair manutenções eliminadas do total
         manutencoes_pendentes -= manutencoes_eliminadas
-
 
         # Contar o total de veículos com danos
         cursor.execute("SELECT COUNT(*) FROM reserva WHERE danos = true")
@@ -178,6 +173,85 @@ def admin_viaturas(request):
         }
     }
     return render(request, 'admin_viaturas.html', context)
+
+def admin_viaturas_create(request):
+    if request.method == 'POST':
+        matricula = request.POST['matricula']
+        ano = request.POST['ano']
+        km = request.POST['km']
+        cilindrada = request.POST['cilindrada']
+        potencia = request.POST['potencia']
+        portas = request.POST['portas']
+        lotacao = request.POST['lotacao']
+        numero_mudancas = request.POST['numero_mudancas']
+        inspecao = request.POST['inspecao']
+        iuc = request.POST['iuc']
+        preco = request.POST['preco']
+        marca_id = request.POST['marca']
+        modelo_id = request.POST['modelo']
+        tipo_viatura_id = request.POST['tipo_viatura']
+        estado_viatura_id = request.POST['estado_viatura']
+        combustivel_id = request.POST['combustivel']
+        caixa_id = request.POST['caixa']
+        traccao_id = request.POST['traccao']
+        cor_id = request.POST.get('cor')  # Adicionar a cor
+
+        # Chamar o procedimento armazenado com os parâmetros
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute("""
+                    CALL registar_Viatura(
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+                        %s, %s, %s, %s, %s, %s, %s, %s
+                    )""", [
+                        matricula, ano, km, cilindrada, potencia, portas, lotacao,
+                        numero_mudancas, inspecao, iuc, preco, traccao_id, caixa_id,
+                        combustivel_id, tipo_viatura_id, marca_id, modelo_id, cor_id, estado_viatura_id
+                    ])
+
+                # Se tudo correr bem, redirecionamos para a página de viaturas
+                return redirect('admin_viaturas')
+            except Exception as e:
+                # Se houver um erro, pode ser capturado aqui
+                return render(request, 'admin_viaturas_create.html', {'error': str(e)})
+
+    else:
+        # Obter dados para preencher os campos do formulário
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT ID_Marca, Nome FROM Marca WHERE IsActive = TRUE;")
+            marcas = cursor.fetchall()
+
+            cursor.execute("SELECT ID_Modelo, Nome FROM Modelo WHERE IsActive = TRUE;")
+            modelos = cursor.fetchall()
+
+            cursor.execute("SELECT ID_TipoViatura, Nome FROM TipoViatura WHERE IsActive = TRUE;")
+            tipos_viatura = cursor.fetchall()
+
+            cursor.execute("SELECT ID_EstadoViatura, Estado FROM EstadoViatura WHERE IsActive = TRUE;")
+            estados_viatura = cursor.fetchall()
+
+            cursor.execute("SELECT ID_Combustivel, Nome FROM Combustivel WHERE IsActive = TRUE;")
+            combustiveis = cursor.fetchall()
+
+            cursor.execute("SELECT ID_Caixa, Nome FROM TipoCaixa WHERE IsActive = TRUE;")
+            caixas = cursor.fetchall()
+
+            cursor.execute("SELECT ID_Traccao, Nome FROM Traccao WHERE IsActive = TRUE;")
+            traccoes = cursor.fetchall()
+
+            cursor.execute("SELECT ID_Cor, Nome FROM Cores WHERE IsActive = TRUE;")
+            cores = cursor.fetchall()  # Obter as cores
+
+        return render(request, 'admin_viaturas_create.html', {
+            'marcas': marcas,
+            'modelos': modelos,
+            'tipos_viatura': tipos_viatura,
+            'estados_viatura': estados_viatura,
+            'combustiveis': combustiveis,
+            'caixas': caixas,
+            'traccoes': traccoes,
+            'cores': cores,  # Passar as cores para o template
+        })
 
 
 # ---| Reservas |---
