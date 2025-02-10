@@ -1,141 +1,276 @@
 {% extends 'base_admin.html' %}
 
 {% block content %}
-  <h2>Editar Viatura</h2>
-  
-  <form method="POST">
-    {% csrf_token %}
+  <div class="form-container">
+    <h2>Editar Viatura</h2>
     
-    <div class="form-group">
-      <label for="matricula">Matrícula</label>
-      <input type="text" class="form-control" id="matricula" name="matricula" value="{{ viatura.1 }}" required>
-    </div>
-    
-    <div class="form-group">
-      <label for="ano">Ano</label>
-      <input type="number" class="form-control" id="ano" name="ano" value="{{ viatura.2 }}" required>
-    </div>
-    
-    <div class="form-group">
-      <label for="km">Quilómetros</label>
-      <input type="number" class="form-control" id="km" name="km" value="{{ viatura.3 }}" required>
-    </div>
+    <form method="POST" id="viatura-form">
+      {% csrf_token %}
 
-    <div class="form-group">
-      <label for="cilindrada">Cilindrada</label>
-      <input type="text" class="form-control" id="cilindrada" name="cilindrada" value="{{ viatura.4 }}" required>
-    </div>
+      <div class="tabs">
+        <button class="tab-btn" data-tab="tab1">Dados Básicos</button>
+        <button class="tab-btn" data-tab="tab2">Especificações</button>
+        <button class="tab-btn" data-tab="tab3">Detalhes</button>
+      </div>
 
-    <div class="form-group">
-      <label for="potencia">Potência</label>
-      <input type="text" class="form-control" id="potencia" name="potencia" value="{{ viatura.5 }}" required>
-    </div>
+      <!-- Aba 1: Dados Básicos -->
+      <div id="tab1" class="tab-content">
+        <div class="form-group">
+          <label for="matricula">Matrícula</label>
+          <input type="text" class="form-control" id="matricula" name="matricula" value="{{ viatura.1 }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="ano">Ano</label>
+          <input type="number" class="form-control" id="ano" name="ano" value="{{ viatura.2 }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="km">Quilómetros</label>
+          <input type="number" class="form-control" id="km" name="km" value="{{ viatura.3 }}" required>
+        </div>
 
-    <div class="form-group">
-      <label for="portas">Número de Portas</label>
-      <input type="number" class="form-control" id="portas" name="portas" value="{{ viatura.6 }}" required>
-    </div>
+        <div class="form-group">
+          <label for="cilindrada">Cilindrada</label>
+          <input type="text" class="form-control" id="cilindrada" name="cilindrada" value="{{ viatura.4 }}" required>
+        </div>
+      </div>
 
-    <div class="form-group">
-      <label for="lotacao">Lotação</label>
-      <input type="number" class="form-control" id="lotacao" name="lotacao" value="{{ viatura.7 }}" required>
-    </div>
+      <!-- Aba 2: Especificações -->
+      <div id="tab2" class="tab-content">
+        <div class="form-group">
+          <label for="potencia">Potência</label>
+          <input type="text" class="form-control" id="potencia" name="potencia" value="{{ viatura.5 }}" required>
+        </div>
 
-    <div class="form-group">
-      <label for="numero_mudancas">Número de Mudanças</label>
-      <input type="number" class="form-control" id="numero_mudancas" name="numero_mudancas" value="{{ viatura.8 }}" required>
-    </div>
+        <div class="form-group">
+          <label for="portas">Número de Portas</label>
+          <input type="number" class="form-control" id="portas" name="portas" value="{{ viatura.6 }}" required>
+        </div>
 
-    <div class="form-group">
-        <label for="inspecao">Inspeção</label>
-        <input type="date" class="form-control" id="inspecao" name="inspecao" value="{{ inspecao }}" required>
-    </div>
-      
-    <div class="form-group">
-        <label for="iuc">IUC</label>
-        <input type="number" class="form-control" id="iuc" name="iuc" value="{{ iuc }}" required>
-    </div>
-      
-    <div class="form-group">
-        <label for="preco">Preço</label>
-        <input type="number" class="form-control" id="preco" name="preco" value="{{ preco }}" required>
-    </div>
+        <div class="form-group">
+          <label for="lotacao">Lotação</label>
+          <input type="number" class="form-control" id="lotacao" name="lotacao" value="{{ viatura.7 }}" required>
+        </div>
 
-    <div class="form-group">
-      <label for="marca">Marca</label>
-      <select class="form-control" id="marca" name="marca" required>
-        {% for marca in marcas %}
-          <option value="{{ marca.0 }}" {% if marca.0 == viatura.12 %}selected{% endif %}>{{ marca.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="form-group">
+          <label for="numero_mudancas">Número de Mudanças</label>
+          <input type="number" class="form-control" id="numero_mudancas" name="numero_mudancas" value="{{ viatura.8 }}" required>
+        </div>
+      </div>
 
-    <div class="form-group">
-      <label for="modelo">Modelo</label>
-      <select class="form-control" id="modelo" name="modelo" required>
-        {% for modelo in modelos %}
-          <option value="{{ modelo.0 }}" {% if modelo.0 == viatura.13 %}selected{% endif %}>{{ modelo.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
+      <!-- Aba 3: Detalhes -->
+      <div id="tab3" class="tab-content">
+        <div class="form-group">
+            <label for="inspecao">Inspeção</label>
+            <input type="date" class="form-control" id="inspecao" name="inspecao" value="{{ inspecao }}" required>
+        </div>
 
-    <div class="form-group">
-      <label for="tipo_viatura">Tipo de Viatura</label>
-      <select class="form-control" id="tipo_viatura" name="tipo_viatura" required>
-        {% for tipo in tipos_viatura %}
-          <option value="{{ tipo.0 }}" {% if tipo.0 == viatura.14 %}selected{% endif %}>{{ tipo.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="form-group">
+            <label for="iuc">IUC</label>
+            <input type="number" class="form-control" id="iuc" name="iuc" value="{{ iuc }}" required>
+        </div>
 
-    <div class="form-group">
-      <label for="estado_viatura">Estado da Viatura</label>
-      <select class="form-control" id="estado_viatura" name="estado_viatura" required>
-        {% for estado in estados_viatura %}
-          <option value="{{ estado.0 }}" {% if estado.0 == viatura.15 %}selected{% endif %}>{{ estado.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="form-group">
+            <label for="preco">Preço</label>
+            <input type="number" class="form-control" id="preco" name="preco" value="{{ preco }}" required>
+        </div>
 
-    <div class="form-group">
-      <label for="combustivel">Combustível</label>
-      <select class="form-control" id="combustivel" name="combustivel" required>
-        {% for combustivel in combustiveis %}
-          <option value="{{ combustivel.0 }}" {% if combustivel.0 == viatura.16 %}selected{% endif %}>{{ combustivel.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="form-group">
+          <label for="marca">Marca</label>
+          <select class="form-control" id="marca" name="marca" required>
+            {% for marca in marcas %}
+              <option value="{{ marca.0 }}" {% if marca.0 == viatura.12 %}selected{% endif %}>{{ marca.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-    <div class="form-group">
-      <label for="caixa">Caixa de Câmbio</label>
-      <select class="form-control" id="caixa" name="caixa" required>
-        {% for caixa in caixas %}
-          <option value="{{ caixa.0 }}" {% if caixa.0 == viatura.17 %}selected{% endif %}>{{ caixa.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="form-group">
+          <label for="modelo">Modelo</label>
+          <select class="form-control" id="modelo" name="modelo" required>
+            {% for modelo in modelos %}
+              <option value="{{ modelo.0 }}" {% if modelo.0 == viatura.13 %}selected{% endif %}>{{ modelo.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-    <div class="form-group">
-      <label for="traccao">Tração</label>
-      <select class="form-control" id="traccao" name="traccao" required>
-        {% for traccao in traccoes %}
-          <option value="{{ traccao.0 }}" {% if traccao.0 == viatura.18 %}selected{% endif %}>{{ traccao.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="form-group">
+          <label for="tipo_viatura">Tipo de Viatura</label>
+          <select class="form-control" id="tipo_viatura" name="tipo_viatura" required>
+            {% for tipo in tipos_viatura %}
+              <option value="{{ tipo.0 }}" {% if tipo.0 == viatura.14 %}selected{% endif %}>{{ tipo.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-    <div class="form-group">
-      <label for="cor">Cor</label>
-      <select class="form-control" id="cor" name="cor" required>
-        {% for cor in cores %}
-          <option value="{{ cor.0 }}" {% if cor.0 == viatura.19 %}selected{% endif %}>{{ cor.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="form-group">
+          <label for="estado_viatura">Estado da Viatura</label>
+          <select class="form-control" id="estado_viatura" name="estado_viatura" required>
+            {% for estado in estados_viatura %}
+              <option value="{{ estado.0 }}" {% if estado.0 == viatura.15 %}selected{% endif %}>{{ estado.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Atualizar Viatura</button>
-  </form>
-  
-  <a href="{% url 'admin_viaturas' %}" class="btn btn-secondary mt-3">Voltar</a>
+        <div class="form-group">
+          <label for="combustivel">Combustível</label>
+          <select class="form-control" id="combustivel" name="combustivel" required>
+            {% for combustivel in combustiveis %}
+              <option value="{{ combustivel.0 }}" {% if combustivel.0 == viatura.16 %}selected{% endif %}>{{ combustivel.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
+        <div class="form-group">
+          <label for="caixa">Caixa de Câmbio</label>
+          <select class="form-control" id="caixa" name="caixa" required>
+            {% for caixa in caixas %}
+              <option value="{{ caixa.0 }}" {% if caixa.0 == viatura.17 %}selected{% endif %}>{{ caixa.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="traccao">Tração</label>
+          <select class="form-control" id="traccao" name="traccao" required>
+            {% for traccao in traccoes %}
+              <option value="{{ traccao.0 }}" {% if traccao.0 == viatura.18 %}selected{% endif %}>{{ traccao.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="cor">Cor</label>
+          <select class="form-control" id="cor" name="cor" required>
+            {% for cor in cores %}
+              <option value="{{ cor.0 }}" {% if cor.0 == viatura.19 %}selected{% endif %}>{{ cor.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Atualizar Viatura</button>
+    </form>
+
+    <a href="{% url 'admin_viaturas' %}" class="btn btn-secondary mt-3">Voltar</a>
+  </div>
+
+  <style>
+    .form-container {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 8px;
+      max-width: 900px;
+      margin: 0 auto;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 40px;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #666;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-top: 5px;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #5b9bd5;
+    }
+
+    button[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      background-color: #f1f1f1;
+      border: 2px solid #ddd;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 4px;
+    }
+
+    .tab-btn.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .empty-message {
+      color: #ccc;
+    }
+  </style>
+
+  <script>
+    // JavaScript para gerir as abas
+    document.querySelectorAll('.tab-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();  // Previne o comportamento padrão (como o envio de formulário)
+
+            // Remover a classe 'active' de todas as abas
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');  // Adiciona 'active' à aba clicada
+
+            const tabContent = button.getAttribute('data-tab');  // Obtém o conteúdo da aba a ser exibido
+
+            // Remover a classe 'active' de todos os conteúdos das abas
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabContent).classList.add('active');  // Exibe a aba selecionada
+        });
+    });
+
+    // Ativar a primeira aba por padrão ao carregar a página
+    document.querySelector('.tab-btn').classList.add('active');
+    document.getElementById('tab1').classList.add('active');
+  </script>
 {% endblock %}
