@@ -72,7 +72,7 @@
         <td>{{ viatura.8 }}</td>
         <td>{{ viatura.9 }}</td>
         <td>
-          <button class="btn btn-warning">Editar</button>
+          <a href="{% url 'admin_viaturas_edit' viatura_id=viatura.0 %}" class="btn btn-warning">Editar</a>
           <form method="POST" action="{% url 'admin_viaturas_delete' viatura.0 %}" style="display:inline;">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Eliminar</button>

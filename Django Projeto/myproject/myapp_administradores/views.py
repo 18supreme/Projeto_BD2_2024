@@ -253,6 +253,146 @@ def admin_viaturas_create(request):
             'cores': cores,  # Passar as cores para o template
         })
 
+def admin_viaturas_edit(request, viatura_id):
+    if not viatura_id:
+        return redirect('admin_viaturas')
+
+    with connection.cursor() as cursor:
+        try:
+            if request.method == 'GET':
+                # Recuperar dados da viatura com o ID fornecido
+                cursor.execute("""
+                    SELECT
+                        v.id_viatura, v.matricula, v.ano, v.km, v.cilindrada, v.potencia, v.portas,
+                        v.lotacao, v.numeromudancas, v.inspecao, v.iuc, v.preco, v.id_marca, 
+                        v.id_modelo, v.id_tipo_viatura, v.id_estado_viatura, v.id_combustivel, 
+                        v.id_tipocaixa, v.id_traccao, v.id_cor
+                    FROM viatura v
+                    WHERE v.id_viatura = %s
+                """, [viatura_id])
+                
+                viatura = cursor.fetchone()
+
+                if not viatura:
+                    return redirect('admin_viaturas')
+
+                # Mostrar valores para verificar se estão corretos
+                print("Valores recuperados da base de dados:")
+                print(f"iuc: {viatura[10]}, preco: {viatura[11]}")
+
+                # Recuperar a data da inspeção, se existir
+                inspecao = viatura[9].strftime('%Y-%m-%d') if viatura[9] else None
+
+                # Limpar qualquer caractere não numérico como o símbolo $
+                def limpar_valor(valor):
+                    if valor:
+                        return ''.join(c for c in str(valor) if c.isdigit() or c == '.')
+                    return '0.00'
+
+                # Limpeza dos valores de IUC e Preço
+                iuc = limpar_valor(viatura[10])
+                preco = limpar_valor(viatura[11])
+
+                # Mostrar valores após limpeza
+                print(f"Após limpeza - iuc: {iuc}, preco: {preco}")
+
+                # Garantir que IUC e Preço são números com 2 casas decimais
+                try:
+                    iuc = f"{float(iuc):.2f}"
+                except (ValueError, TypeError):
+                    iuc = "0.00"  # Valor padrão em caso de erro
+
+                try:
+                    preco = f"{float(preco):.2f}"
+                except (ValueError, TypeError):
+                    preco = "0.00"  # Valor padrão em caso de erro
+
+                # Mostrar valores após formatação
+                print(f"Após formatação - iuc: {iuc}, preco: {preco}")
+
+                # Obter dados para preencher os campos do formulário
+                cursor.execute("SELECT id_marca, nome FROM marca WHERE IsActive = TRUE;")
+                marcas = cursor.fetchall()
+
+                cursor.execute("SELECT id_modelo, nome FROM modelo WHERE IsActive = TRUE;")
+                modelos = cursor.fetchall()
+
+                cursor.execute("SELECT id_tipoviatura, nome FROM tipoviatura WHERE IsActive = TRUE;")
+                tipos_viatura = cursor.fetchall()
+
+                cursor.execute("SELECT id_estadoviatura, estado FROM estadoviatura WHERE IsActive = TRUE;")
+                estados_viatura = cursor.fetchall()
+
+                cursor.execute("SELECT id_combustivel, nome FROM combustivel WHERE IsActive = TRUE;")
+                combustiveis = cursor.fetchall()
+
+                cursor.execute("SELECT id_caixa, nome FROM tipocaixa WHERE IsActive = TRUE;")
+                caixas = cursor.fetchall()
+
+                cursor.execute("SELECT id_traccao, nome FROM traccao WHERE IsActive = TRUE;")
+                traccoes = cursor.fetchall()
+
+                cursor.execute("SELECT id_cor, nome FROM cores WHERE IsActive = TRUE;")
+                cores = cursor.fetchall()
+
+                # Passar os dados para o template
+                return render(request, 'admin_viaturas_edit.html', {
+                    'viatura': viatura,
+                    'inspecao': inspecao,
+                    'iuc': iuc,
+                    'preco': preco,
+                    'marcas': marcas,
+                    'modelos': modelos,
+                    'tipos_viatura': tipos_viatura,
+                    'estados_viatura': estados_viatura,
+                    'combustiveis': combustiveis,
+                    'caixas': caixas,
+                    'traccoes': traccoes,
+                    'cores': cores,
+                })
+
+            elif request.method == 'POST':
+                matricula = request.POST['matricula']
+                ano = request.POST['ano']
+                km = request.POST['km']
+                cilindrada = request.POST['cilindrada']
+                potencia = request.POST['potencia']
+                portas = request.POST['portas']
+                lotacao = request.POST['lotacao']
+                numero_mudancas = request.POST['numero_mudancas']
+                inspecao = request.POST['inspecao']
+                iuc = request.POST['iuc']
+                preco = request.POST['preco']
+                marca_id = request.POST['marca']
+                modelo_id = request.POST['modelo']
+                tipo_viatura_id = request.POST['tipo_viatura']
+                estado_viatura_id = request.POST['estado_viatura']
+                combustivel_id = request.POST['combustivel']
+                caixa_id = request.POST['caixa']
+                traccao_id = request.POST['traccao']
+                cor_id = request.POST.get('cor')  # A cor da viatura (opcional)
+
+                # Atualizar os dados da viatura
+                cursor.execute("""
+                    UPDATE viatura
+                    SET matricula = %s, ano = %s, km = %s, cilindrada = %s, potencia = %s,
+                        portas = %s, lotacao = %s, numeromudancas = %s, inspecao = %s, 
+                        iuc = %s, preco = %s, id_marca = %s, id_modelo = %s, 
+                        id_tipo_viatura = %s, id_estado_viatura = %s, id_combustivel = %s, 
+                        id_traccao = %s, id_tipocaixa = %s, id_cor = %s
+                    WHERE id_viatura = %s
+                """, [
+                    matricula, ano, km, cilindrada, potencia, portas, lotacao, numero_mudancas,
+                    inspecao, iuc, preco, marca_id, modelo_id, tipo_viatura_id, estado_viatura_id,
+                    combustivel_id, traccao_id, caixa_id, cor_id, viatura_id
+                ])
+
+                return redirect('admin_viaturas')
+
+        except Exception as e:
+            print(f"Erro ao editar ou atualizar viatura: {e}")
+            return redirect('admin_viaturas')
+
 def admin_viaturas_delete(request, viatura_id):
     try:
         # Verifica se o viatura_id foi passado corretamente

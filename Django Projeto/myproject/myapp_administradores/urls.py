@@ -6,6 +6,7 @@ path('', views.admin_home, name='admin_dashboard'),
     # ---| Viaturas |---
     path('viaturas', views.admin_viaturas, name='admin_viaturas'),
     path('viaturas/criar/', views.admin_viaturas_create, name='admin_viaturas_create'),
+    path('viaturas/editar/<int:viatura_id>/', views.admin_viaturas_edit, name='admin_viaturas_edit'),
     path('administracao/viaturas/delete/<int:viatura_id>/', views.admin_viaturas_delete, name='admin_viaturas_delete'),
     # ---| Reservas |---
     path('reservas', views.admin_reservas, name='admin_reservas'),
