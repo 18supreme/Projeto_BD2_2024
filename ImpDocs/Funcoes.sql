@@ -424,11 +424,10 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Retornar o total de KM percorridos por um utilizador fornecido
     RETURN QUERY
-    SELECT COALESCE(SUM(KMPercorridos), 0) AS total_km
+    SELECT COALESCE(SUM(KMPercorridos)::NUMERIC(10,2), 0.00) AS total_km
     FROM reserva 
-    WHERE reserva.id_utilizador = p_ID_user;  -- Filtro para o utilizador específico
+    WHERE reserva.id_utilizador = p_ID_user;
 
     -- Caso não encontre, exibir uma mensagem (opcional)
     IF NOT FOUND THEN
