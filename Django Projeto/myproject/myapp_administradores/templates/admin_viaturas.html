@@ -72,8 +72,11 @@
         <td>{{ viatura.8 }}</td>
         <td>{{ viatura.9 }}</td>
         <td>
-          <button class="btn btn-warning" disabled>Editar</button>
-          <button class="btn btn-danger" disabled>Eliminar</button>
+          <button class="btn btn-warning">Editar</button>
+          <form method="POST" action="{% url 'admin_viaturas_delete' viatura.0 %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+          </form>
         </td>
       </tr>
       {% endfor %}
@@ -131,13 +134,13 @@
   .btn-warning {
     background-color: #ffc107;
     color: black;
-    cursor: not-allowed;
+    cursor: pointer;
   }
 
   .btn-danger {
     background-color: #dc3545;
     color: white;
-    cursor: not-allowed;
+    cursor: pointer;
   }
 
   .data-table {

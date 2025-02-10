@@ -253,6 +253,23 @@ def admin_viaturas_create(request):
             'cores': cores,  # Passar as cores para o template
         })
 
+def admin_viaturas_delete(request, viatura_id):
+    try:
+        # Verifica se o viatura_id foi passado corretamente
+        if not viatura_id:
+            return redirect('admin_viaturas')  # Se o ID não for válido, redireciona para a página de viaturas
+        
+        # Eliminar a viatura com o id fornecido
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM viatura WHERE id_viatura = %s", [viatura_id])
+
+        # Redireciona para a lista de viaturas após a eliminação
+        return redirect('admin_viaturas')
+    except Exception as e:
+        # Em caso de erro, exibe o erro e redireciona para a página de viaturas
+        print(f"Erro ao eliminar viatura: {e}")
+        return redirect('admin_viaturas')
+
 
 # ---| Reservas |---
 def admin_reservas(request):
@@ -680,8 +697,6 @@ def admin_corcreate(request):
 
     return render(request, 'admin_cores_create.html')
 
-
-
 #Editar Cor  
 def admin_coredit(request, cor_id):
     if request.method == "POST":
@@ -703,7 +718,6 @@ def admin_coredit(request, cor_id):
         cor = cursor.fetchone()
 
     return render(request, 'admin_cores_edit.html', {"cor_id": cor_id, "cor": cor})
-
 
 #Apagar Cor 
 def admin_cordelete(request, cor_id):
