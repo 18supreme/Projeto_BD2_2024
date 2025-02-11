@@ -1,0 +1,76 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+<h1>Editar Reserva - ID: {{ reserva.id }}</h1>
+
+<!-- Exibir mensagem de erro se houver algum problema -->
+{% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+{% endif %}
+
+<!-- Exibir mensagem de sucesso após a edição -->
+{% if success %}
+    <div class="alert alert-success">
+        {{ success }}
+    </div>
+{% endif %}
+
+<form method="POST" action="{% url 'admin_reservas_edit' reserva.id %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="data_inicio">Data Início:</label>
+        <input type="date" name="data_inicio" id="data_inicio" class="form-control" value="{{ reserva.data_inicio|date:'Y-m-d' }}" required>
+    </div>
+    <div class="form-group">
+        <label for="data_fim">Data Fim:</label>
+        <input type="date" name="data_fim" id="data_fim" class="form-control" value="{{ reserva.data_fim|date:'Y-m-d' }}" required>
+    </div>
+    <div class="form-group">
+        <label for="danos">Danos:</label>
+        <select name="danos" id="danos" class="form-control" required>
+            <option value="true" {% if reserva.danos %}selected{% endif %}>Sim</option>
+            <option value="false" {% if not reserva.danos %}selected{% endif %}>Não</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="danos_texto">Descrição dos Danos:</label>
+        <textarea name="danos_texto" id="danos_texto" class="form-control">{{ reserva.danos_texto }}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="km_percorridos">Km Percorridos:</label>
+        <input type="number" name="km_percorridos" id="km_percorridos" class="form-control" value="{{ reserva.km_percorridos }}" required>
+    </div>
+    <div class="form-group">
+        <label for="viatura">Viatura:</label>
+        <select name="viatura" id="viatura" class="form-control" required>
+            {% for viatura in viaturas %}
+                <option value="{{ viatura.0 }}" {% if viatura.0 == reserva.viatura.id %}selected{% endif %}>{{ viatura.1 }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="utilizador">Utilizador:</label>
+        <select name="utilizador" id="utilizador" class="form-control" required>
+            {% for utilizador in utilizadores %}
+                <option value="{{ utilizador.0 }}" {% if utilizador.0 == reserva.utilizador.id %}selected{% endif %}>{{ utilizador.1 }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="estado_reserva">Estado da Reserva:</label>
+        <select name="estado_reserva" id="estado_reserva" class="form-control" required>
+            <option value="1" {% if reserva.estado_reserva == 1 %}selected{% endif %}>Pendente</option>
+            <option value="2" {% if reserva.estado_reserva == 2 %}selected{% endif %}>Confirmada</option>
+            <option value="3" {% if reserva.estado_reserva == 3 %}selected{% endif %}>Em Progresso</option>
+            <option value="4" {% if reserva.estado_reserva == 4 %}selected{% endif %}>Finalizada</option>
+            <option value="5" {% if reserva.estado_reserva == 5 %}selected{% endif %}>Cancelada</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+</form>
+
+<a href="{% url 'admin_reservas' %}" class="btn btn-secondary mt-3">Voltar</a>
+{% endblock %}

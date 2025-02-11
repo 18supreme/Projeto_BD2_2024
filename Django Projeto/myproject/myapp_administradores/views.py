@@ -489,6 +489,144 @@ def admin_reservas(request):
 
     return render(request, 'admin_reservas.html', context)
 
+def admin_reservas_create(request):
+    if request.method == 'POST':
+        data_inicio = request.POST['data_inicio']
+        data_fim = request.POST['data_fim']
+        danos = 'damaged' in request.POST  # Se a opção "Danos" estiver marcada
+        danos_texto = request.POST['danos_texto']
+        km_percorridos = request.POST['km_percorridos']
+        id_viatura = request.POST['viatura']
+        id_utilizador = request.POST['utilizador']
+        id_estado_reserva = request.POST['estado_reserva']
+
+        # Chamar o procedimento armazenado para registrar a reserva
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute("""
+                    CALL registar_Reserva(
+                        %s, %s, %s, %s, %s, %s, %s, %s
+                    )""", [
+                        data_inicio, data_fim, danos, danos_texto, km_percorridos,
+                        id_viatura, id_utilizador, id_estado_reserva
+                    ])
+
+                return redirect('admin_reservas')
+            except Exception as e:
+                return render(request, 'admin_reservas_create.html', {'error': str(e)})
+
+    else:
+        # Buscar as viaturas com Marca + Modelo para o dropdown
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT v.id_viatura, CONCAT(marca.nome, ' ', modelo.nome) AS nome_viatura
+                FROM viatura v
+                JOIN marca ON v.id_marca = marca.id_marca
+                JOIN modelo ON v.id_modelo = modelo.id_modelo
+            """)
+            viaturas = cursor.fetchall()
+
+            # Buscar utilizadores e estados de reserva como no exemplo da manutenção
+            cursor.execute("""
+                SELECT ID_Estado_Reserva, Estado 
+                FROM EstadoReserva 
+                WHERE IsActive = TRUE;
+            """)
+            estados_reserva = cursor.fetchall()
+
+            cursor.execute("SELECT ID_Utilizador, Nome FROM Utilizador WHERE IsActive = TRUE;")
+            utilizadores = cursor.fetchall()
+
+        return render(request, 'admin_reservas_create.html', {
+            'viaturas': viaturas,
+            'utilizadores': utilizadores,
+            'estados_reserva': estados_reserva,
+        })
+
+def admin_reservas_edit(request, reserva_id):
+    # Buscar a reserva que precisa ser editada
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT * 
+            FROM Reserva 
+            WHERE ID_Reserva = %s;
+        """, [reserva_id])
+        reserva = cursor.fetchone()
+
+        # Caso a reserva não exista
+        if not reserva:
+            return redirect('admin_reservas')
+
+        # Buscar dados necessários para os campos
+        cursor.execute("""
+            SELECT viatura.ID_Viatura, modelo.Nome 
+            FROM Viatura viatura
+            INNER JOIN Modelo modelo ON viatura.ID_Modelo = modelo.ID_Modelo
+            INNER JOIN EstadoViatura estado ON viatura.ID_Estado_Viatura = estado.ID_EstadoViatura
+            WHERE estado.Estado = 'Ativo';
+        """)
+        viaturas = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT ID_Estado_Reserva, Estado 
+            FROM EstadoReserva 
+            WHERE IsActive = TRUE;
+        """)
+        estados_reserva = cursor.fetchall()
+
+        cursor.execute("SELECT ID_Utilizador, Nome FROM Utilizador WHERE IsActive = TRUE;")
+        utilizadores = cursor.fetchall()
+
+    if request.method == 'POST':
+        # Atualizar os dados da reserva
+        data_inicio = request.POST['data_inicio']
+        data_fim = request.POST['data_fim']
+        danos = 'damaged' in request.POST
+        danos_texto = request.POST['danos_texto']
+        km_percorridos = request.POST['km_percorridos']
+        id_viatura = request.POST['viatura']
+        id_utilizador = request.POST['utilizador']
+        id_estado_reserva = request.POST['estado_reserva']
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    CALL atualizar_Reserva(
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    )""", [
+                        reserva_id, data_inicio, data_fim, danos, danos_texto,
+                        km_percorridos, id_viatura, id_utilizador, id_estado_reserva
+                    ])
+            return redirect('admin_reservas')
+        except Exception as e:
+            return render(request, 'admin_reservas_edit.html', {
+                'error': str(e),
+                'reserva': reserva,
+                'viaturas': viaturas,
+                'utilizadores': utilizadores,
+                'estados_reserva': estados_reserva,
+            })
+
+    return render(request, 'admin_reservas_edit.html', {
+        'reserva': reserva,
+        'viaturas': viaturas,
+        'utilizadores': utilizadores,
+        'estados_reserva': estados_reserva,
+    })
+
+def admin_reservas_delete(request, reserva_id):
+    if request.method == 'POST':
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    DELETE FROM Reserva 
+                    WHERE ID_Reserva = %s;
+                """, [reserva_id])
+            return redirect('admin_reservas')
+        except Exception as e:
+            return redirect('admin_reservas')
+    return redirect('admin_reservas')
+
 
 # ---| Manutenções |---
 def admin_manutencoes(request):

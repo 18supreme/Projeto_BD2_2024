@@ -1,0 +1,73 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+<h1>Criar Nova Reserva</h1>
+
+<!-- Exibir mensagem de erro se houver algum problema -->
+{% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+{% endif %}
+
+<form method="POST" action="{% url 'admin_reservas_create' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="data_inicio">Data Início:</label>
+        <input type="date" name="data_inicio" id="data_inicio" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label for="data_fim">Data Fim:</label>
+        <input type="date" name="data_fim" id="data_fim" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label for="danos">Danos:</label>
+        <select name="danos" id="danos" class="form-control" required>
+            <option value="" disabled selected>Selecione uma opção</option>
+            <option value="true">Sim</option>
+            <option value="false">Não</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="danos_texto">Descrição dos Danos:</label>
+        <textarea name="danos_texto" id="danos_texto" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="km_percorridos">Km Percorridos:</label>
+        <input type="number" name="km_percorridos" id="km_percorridos" class="form-control" required>
+    </div>
+    <div style="margin-bottom: 15px;">
+        <label for="viatura" style="display: block; margin-bottom: 5px;">Viatura</label>
+        <select name="viatura" id="viatura" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+            <option value="">Escolhe uma viatura...</option>
+            {% for viatura in viaturas %}
+            <option value="{{ viatura.0 }}">{{ viatura.1 }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="utilizador">Utilizador:</label>
+        <select name="utilizador" id="utilizador" class="form-control" required>
+            <option value="" disabled selected>Selecione uma opção</option>
+            <!-- A lista de utilizadores será preenchida pelo backend -->
+            {% for utilizador in utilizadores %}
+                <option value="{{ utilizador.0 }}">{{ utilizador.1 }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="estado_reserva">Estado da Reserva:</label>
+        <select name="estado_reserva" id="estado_reserva" class="form-control" required>
+            <option value="" disabled selected>Selecione uma opção</option>
+            <!-- A lista de estados de reserva será preenchida pelo backend -->
+            {% for estado in estados_reserva %}
+                <option value="{{ estado.0 }}">{{ estado.1 }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Criar Reserva</button>
+</form>
+
+<a href="{% url 'admin_reservas' %}" class="btn btn-secondary mt-3">Voltar</a>
+{% endblock %}

@@ -10,6 +10,9 @@ path('', views.admin_home, name='admin_dashboard'),
     path('administracao/viaturas/delete/<int:viatura_id>/', views.admin_viaturas_delete, name='admin_viaturas_delete'),
     # ---| Reservas |---
     path('reservas', views.admin_reservas, name='admin_reservas'),
+    path('reservas/create/', views.admin_reservas_create, name='admin_reservas_create'),
+    path('reservas/edit/<int:reserva_id>/', views.admin_reservas_edit, name='admin_reservas_edit'),
+    path('reservas/delete/<int:reserva_id>/', views.admin_reservas_delete, name='admin_reservas_delete'),
     # ---| Manutenções |---
     path('manutencoes/', views.listar_manutencoes, name='admin_manutencoes'),
     path('manutencoes/criar/', views.criar_manutencao, name='criar_manutencao'),
