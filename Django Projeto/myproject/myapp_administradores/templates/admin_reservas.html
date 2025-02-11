@@ -114,9 +114,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    <form action="{% url 'admin_reservas_edit' reserva_id=reserva.0 %}" method="GET" style="display: inline;">
-                        <button type="submit" class="btn btn-warning mx-2">Editar</button>
-                    </form>                    
+                    <a href="{% url 'admin_reservas_edit' reserva_id=reserva.0 %}" class="btn btn-warning" style="text-decoration: none;">Editar</a>
                     <form action="{% url 'admin_reservas_delete' reserva.0 %}" method="post" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger">Eliminar</button>
