@@ -565,23 +565,40 @@ def admin_reservas_edit(request, reserva_id):
                     return redirect('admin_reservas')
 
                 # Obter todos os dados necessários para preencher os campos do formulário
-                cursor.execute("SELECT id_viatura, matricula FROM viatura;")
+                cursor.execute("""
+                    SELECT v.id_viatura, CONCAT(m.nome, ' ', mo.nome) AS marca_modelo
+                    FROM viatura v
+                    JOIN marca m ON v.id_marca = m.id_marca
+                    JOIN modelo mo ON v.id_modelo = mo.id_modelo
+                """)
                 viaturas = cursor.fetchall()
 
-                cursor.execute("SELECT id_estado_reserva, estado FROM estadoreserva WHERE IsActive = TRUE;")
+                cursor.execute("""
+                    SELECT id_estado_reserva, estado
+                    FROM estadoreserva
+                    WHERE IsActive = TRUE
+                """)
                 estados_reserva = cursor.fetchall()
+
+                cursor.execute("""
+                    SELECT id_utilizador, nome
+                    FROM utilizador
+                """)
+                utilizadores = cursor.fetchall()
 
                 # Passar os dados para o template
                 return render(request, 'admin_reservas_edit.html', {
                     'reserva': reserva,
                     'viaturas': viaturas,
                     'estados_reserva': estados_reserva,
+                    'utilizadores': utilizadores,  # Passando a lista de utilizadores para o template
                 })
 
             elif request.method == 'POST':
+                # Obter os dados do formulário
                 data_inicio = request.POST['data_inicio']
                 data_fim = request.POST['data_fim']
-                danos = request.POST['danos']
+                danos = request.POST.get('danos', False)  # Caso o checkbox não seja marcado, vai ser False
                 danostexto = request.POST['danostexto']
                 kmpercorridos = request.POST['kmpercorridos']
                 id_viatura = request.POST['viatura']

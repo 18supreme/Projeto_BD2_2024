@@ -1,77 +1,79 @@
 {% extends 'base_admin.html' %}
 
 {% block content %}
-<h1>Editar Reserva - ID: {{ reserva.id }}</h1>
+<div style="display: flex; justify-content: center; align-items: center; height: 80vh;">
+    <div style="width: 400px; background-color: #f7f7f7; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);">
+        <h2 style="text-align: center; margin-bottom: 20px;">Editar Reserva - ID: {{ reserva.0 }}</h2>
 
-<!-- Exibir mensagem de erro se houver algum problema -->
-{% if error %}
-    <div class="alert alert-danger">
-        {{ error }}
-    </div>
-{% endif %}
+        <!-- Exibir mensagem de erro se houver algum problema -->
+        {% if error %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                {{ error }}
+            </div>
+        {% endif %}
 
-<!-- Exibir mensagem de sucesso após a edição -->
-{% if success %}
-    <div class="alert alert-success">
-        {{ success }}
-    </div>
-{% endif %}
+        <!-- Exibir mensagem de sucesso após a edição -->
+        {% if success %}
+            <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                {{ success }}
+            </div>
+        {% endif %}
 
-<form method="POST">
-    {% csrf_token %}
-    
-    <div>
-      <label for="data_inicio">Data Início</label>
-      <input type="date" id="data_inicio" name="data_inicio" value="{{ reserva.1|date:'Y-m-d' }}">
+        <form method="POST">
+            {% csrf_token %}
+            <div style="margin-bottom: 15px;">
+                <label for="data_inicio" style="display: block; margin-bottom: 5px;">Data Início</label>
+                <input type="date" id="data_inicio" name="data_inicio" value="{{ reserva.1|date:'Y-m-d' }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="data_fim" style="display: block; margin-bottom: 5px;">Data Fim</label>
+                <input type="date" id="data_fim" name="data_fim" value="{{ reserva.2|date:'Y-m-d' }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="danos" style="display: block; margin-bottom: 5px;">Danos</label>
+                <input type="checkbox" id="danos" name="danos" {% if reserva.3 %}checked{% endif %}>
+            </div>            
+            <div style="margin-bottom: 15px;">
+                <label for="danostexto" style="display: block; margin-bottom: 5px;">Descrição dos Danos</label>
+                <textarea id="danostexto" name="danostexto" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">{{ reserva.4 }}</textarea>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="kmpercorridos" style="display: block; margin-bottom: 5px;">Km Percorridos</label>
+                <input type="number" id="kmpercorridos" name="kmpercorridos" value="{{ reserva.5 }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="viatura" style="display: block; margin-bottom: 5px;">Viatura</label>
+                <select id="viatura" name="viatura" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    {% for viatura in viaturas %}
+                        <option value="{{ viatura.0 }}" {% if viatura.0 == reserva.6 %}selected{% endif %}>{{ viatura.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="utilizador" style="display: block; margin-bottom: 5px;">Utilizador</label>
+                <select id="utilizador" name="utilizador" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    {% for utilizador in utilizadores %}
+                        <option value="{{ utilizador.0 }}" {% if utilizador.0 == reserva.7 %}selected{% endif %}>
+                            {{ utilizador.1 }}  <!-- Nome do utilizador -->
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>            
+            <div style="margin-bottom: 15px;">
+                <label for="estadoreserva" style="display: block; margin-bottom: 5px;">Estado da Reserva</label>
+                <select id="estadoreserva" name="estadoreserva" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    {% for estado in estados_reserva %}
+                        <option value="{{ estado.0 }}" {% if estado.0 == reserva.8 %}selected{% endif %}>{{ estado.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="text-align: center;">
+                <a href="{% url 'admin_reservas' %}" style="text-decoration: none; margin-right: 10px; color: #555;">Voltar</a>
+                <button type="submit" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Editar Reserva
+                </button>
+            </div>
+        </form>
     </div>
-  
-    <div>
-      <label for="data_fim">Data Fim</label>
-      <input type="date" id="data_fim" name="data_fim" value="{{ reserva.2|date:'Y-m-d' }}">
-    </div>
-  
-    <div>
-      <label for="danos">Danos</label>
-      <input type="checkbox" id="danos" name="danos" {% if reserva.3 %}checked{% endif %}>
-    </div>
-  
-    <div>
-      <label for="danostexto">Descrição dos Danos</label>
-      <textarea id="danostexto" name="danostexto">{{ reserva.4 }}</textarea>
-    </div>
-  
-    <div>
-      <label for="kmpercorridos">KM Percorridos</label>
-      <input type="number" id="kmpercorridos" name="kmpercorridos" value="{{ reserva.5 }}">
-    </div>
-  
-    <div>
-      <label for="viatura">Viatura</label>
-      <select id="viatura" name="viatura">
-        {% for viatura in viaturas %}
-          <option value="{{ viatura.0 }}" {% if viatura.0 == reserva.6 %}selected{% endif %}>{{ viatura.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  
-    <div>
-      <label for="utilizador">Utilizador</label>
-      <select id="utilizador" name="utilizador">
-        <option value="{{ reserva.7 }}" selected>{{ reserva.8 }}</option>
-      </select>
-    </div>
-  
-    <div>
-      <label for="estadoreserva">Estado da Reserva</label>
-      <select id="estadoreserva" name="estadoreserva">
-        {% for estado in estados_reserva %}
-          <option value="{{ estado.0 }}" {% if estado.0 == reserva.8 %}selected{% endif %}>{{ estado.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  
-    <button type="submit">Guardar</button>
-  </form>
-
-<a href="{% url 'admin_reservas' %}" class="btn btn-secondary mt-3">Voltar</a>
+</div>
 {% endblock %}
